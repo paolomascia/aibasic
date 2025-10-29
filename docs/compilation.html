@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Compilation Rules · AIbasic (v0.9)</title>
+<title>Compilation · AIbasic (v0.9)</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,64 +21,39 @@
   </div>
   <div class="navbar">
     <div class="inner">
-      <nav><a href="history.html">History</a>
-      <a href="language.html">Language</a>
-      <a href="semantics.html">Semantics</a>
-      <a href="rpa.html">RPA</a>
-      <a href="compilation.html">Compilation</a>
-      <a href="tooling.html">Tooling</a>
-      <a href="examples.html">Examples</a>
-      <a href="ebnf.html">EBNF</a>
-      <a href="glossary.html">Glossary</a>
-      <a href="changelog.html">Changelog</a></nav>
+      <nav>
+        <a href="manifesto.html">Manifesto</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="language.html">Language</a>
+        <a href="semantics.html">Semantics</a>
+        <a href="rpa.html">RPA</a>
+        <a href="compilation.html">Compilation</a>
+        <a href="tooling.html">Tooling</a>
+        <a href="examples.html">Examples</a>
+        <a href="ebnf.html">EBNF</a>
+        <a href="glossary.html">Glossary</a>
+        <a href="changelog.html">Changelog</a>
+      </nav>
     </div>
   </div>
 </header>
 
-<div class="container grid">
-  <aside class="sidebar">
-    <strong>Sections</strong>
-    <a href="#pipeline">Pipeline</a>
-    <a href="#mapping">Mapping</a>
-    <a href="#imports">Imports & deps</a>
-    <a href="#safety">Safety & privacy</a>
-  </aside>
-  <main>
-    <h1>Compilation</h1>
-    <h2 id="pipeline">LLM → Python pipeline</h2>
-    <ol>
-      <li>Per line: text + AI Context → LLM.</li>
-      <li>LLM returns: <code>python_code</code>, <code>context_delta</code>, <code>imports</code>, <code>reads/writes</code>, <code>notes</code>.</li>
-      <li>The compiler merges imports, applies delta, concatenates code.</li>
-    </ol>
-
-    <h2 id="mapping">Mapping examples</h2>
-<pre><code>10 Load "sales.csv" as SalesTable.
-20 Filter SalesTable where Country == "Italy" into ItSales.
-30 Group ItSales by "Year" and compute sum of "Revenue" as Total into YearlyRev.
-40 Export YearlyRev to CSV at "yearly_rev.csv".
-</code></pre>
-<pre><code class="language-python">import pandas as pd
-
-sales_table = pd.read_csv("sales.csv")
-itsales = sales_table.loc[sales_table["Country"] == "Italy"].copy()
-yearlyrev = itsales.groupby("Year")["Revenue"].sum().reset_index(name="Total")
-yearlyrev.to_csv("yearly_rev.csv", index=False)
-</code></pre>
-
-    <h2 id="imports">Imports & dependencies</h2>
-    <p>Imports are deduplicated; variable names follow: <code>DisplayName</code> → <code>display_name</code>.</p>
-
-    <h2 id="safety">Safety & privacy</h2>
-    <ul>
-      <li>The context tracks <em>privacy</em> and <em>mutability</em>.</li>
-      <li>Data exfiltration operations must be flagged and logged in <code>build.log</code>.</li>
-    </ul>
-  </main>
+<div class="container">
+  <h1>Compilation — From Intent to Plan</h1>
+  <ol>
+    <li>Instruction + AI Context → LLM translation</li>
+    <li>Return: <code>python_code</code>, <code>context_delta</code>, <code>imports</code>, <code>reads/writes</code></li>
+    <li>Planner merges code and builds the intent graph</li>
+    <li>Runtime selects strategies and executes deterministically</li>
+  </ol>
+  <pre><code>10 Load "orders.csv" as Orders.
+20 Filter Orders where "status" == "paid" into Paid.
+30 Save Paid into the cloud database "Accounting".
+40 Update the dashboard "Monthly Sales".</code></pre>
 </div>
 
-<div class="footer container">
-  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+<div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
+  © 2025 AIbasic v0.9 — Documentation regenerated with the new paradigm.
 </div>
 <script src="script.js"></script>
 </body></html>

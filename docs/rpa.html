@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RPA Automation · AIbasic (v0.9)</title>
+<title>RPA · AIbasic (v0.9)</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,60 +21,36 @@
   </div>
   <div class="navbar">
     <div class="inner">
-      <nav><a href="history.html">History</a>
-      <a href="language.html">Language</a>
-      <a href="semantics.html">Semantics</a>
-      <a href="rpa.html">RPA</a>
-      <a href="compilation.html">Compilation</a>
-      <a href="tooling.html">Tooling</a>
-      <a href="examples.html">Examples</a>
-      <a href="ebnf.html">EBNF</a>
-      <a href="glossary.html">Glossary</a>
-      <a href="changelog.html">Changelog</a></nav>
+      <nav>
+        <a href="manifesto.html">Manifesto</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="language.html">Language</a>
+        <a href="semantics.html">Semantics</a>
+        <a href="rpa.html">RPA</a>
+        <a href="compilation.html">Compilation</a>
+        <a href="tooling.html">Tooling</a>
+        <a href="examples.html">Examples</a>
+        <a href="ebnf.html">EBNF</a>
+        <a href="glossary.html">Glossary</a>
+        <a href="changelog.html">Changelog</a>
+      </nav>
     </div>
   </div>
 </header>
 
-<div class="container grid">
-  <aside class="sidebar">
-    <strong>Browser</strong>
-    <a href="#browser">Playwright/Selenium</a>
-    <strong>Desktop</strong>
-    <a href="#desktop">PyAutoGUI/PyWinAuto</a>
-    <a href="#ocr">OCR</a>
-  </aside>
-  <main>
-    <h1>RPA Automation</h1>
-    <h2 id="browser">Browser</h2>
-<pre><code>Open a new browser as Browser.
-Open "https://example.com" in Browser as Page.
-Type "user@example.com" into css=#email on Page.
-Type "secret" into css=#password on Page.
-Click the "Login" button on Page.
-Wait for text "Welcome" on Page up to 10 seconds.
-Read text from css=.balance on Page into BalanceText.
+<div class="container">
+  <h1>RPA — First‑Class in AIbasic</h1>
+  <p>GUI and browser actions are peers to data operations. Use explicit waits, semantic selectors, and fallbacks.</p>
+  <pre><code>Open "https://portal.example.com" as Portal.
+Type "user@example.com" into css=#email on Portal.
+Type Secret("pass") into css=#password on Portal.
+Click the "Sign in" button on Portal.
+Wait for text "Dashboard" on Portal up to 10 seconds.
 </code></pre>
-
-    <h2 id="desktop">Desktop</h2>
-<pre><code>Launch application "Excel" as ExcelApp.
-Focus window titled "Report" as ReportWin.
-Click button "OK" in ReportWin.
-Read text at region (x,y,w,h) into OcrText.
-Copy selection.
-Paste.
-</code></pre>
-
-    <h2 id="ocr">OCR & robustness</h2>
-    <ul>
-      <li>Use explicit timeouts and label-based retries.</li>
-      <li>Prefer semantic selectors (<code>role=</code>, <code>name=</code>).</li>
-      <li>For OCR, normalize spaces/diacritics before comparisons.</li>
-    </ul>
-  </main>
 </div>
 
-<div class="footer container">
-  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+<div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
+  © 2025 AIbasic v0.9 — Documentation regenerated with the new paradigm.
 </div>
 <script src="script.js"></script>
 </body></html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture · AIbasic (v0.9)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="brandbar">
+    <div class="inner">
+      <a href="index.html" class="brand">
+        <img src="logo.png" alt="AIBASIC logo">
+        <div class="titles">
+          <div class="name">AIBASIC</div>
+          <div class="tagline">AI-assisted BASIC programming language</div>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="navbar">
+    <div class="inner">
+      <nav>
+        <a href="manifesto.html">Manifesto</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="language.html">Language</a>
+        <a href="semantics.html">Semantics</a>
+        <a href="rpa.html">RPA</a>
+        <a href="compilation.html">Compilation</a>
+        <a href="tooling.html">Tooling</a>
+        <a href="examples.html">Examples</a>
+        <a href="ebnf.html">EBNF</a>
+        <a href="glossary.html">Glossary</a>
+        <a href="changelog.html">Changelog</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<div class="container grid">
+  <aside class="sidebar">
+    <strong>Sections</strong>
+    <a href="#overview">Overview</a>
+    <a href="#ai-context">AI Context</a>
+    <a href="#data-fabric">Data Fabric</a>
+    <a href="#buses">Communication Buses</a>
+    <a href="#rpa">RPA Interfaces</a>
+    <a href="#capabilities">Capability Model</a>
+    <a href="#self-healing">Self-healing</a>
+  </aside>
+  <main>
+    <h1>Architecture — Executing Intent</h1>
+    <h2 id="overview">Overview</h2>
+    <p>The runtime is a distributed cognitive environment that executes intent graphs produced by the compiler.
+    It selects strategies (data vs RPA vs API), provisions services, and orchestrates steps deterministically.</p>
+
+    <h2 id="ai-context">AI Context</h2>
+    <ul>
+      <li><code>symbol_table</code>: variables, resources, agents</li>
+      <li><code>data_graph</code>: lineage/derivations</li>
+      <li><code>capabilities</code>: what actions are possible now</li>
+      <li><code>privacy/mutability</code>: data governance and lifetimes</li>
+    </ul>
+
+    <h2 id="data-fabric">Data Fabric</h2>
+    <p>Abstracts DB/files/streams as intelligent services. The runtime chooses engines, schemas, indices, and persistence transparently.</p>
+
+    <h2 id="buses">Communication Buses</h2>
+    <p>Connectors for HTTP/REST, message queues, email, SSH. The programmer names the intent; the runtime handles protocols.</p>
+
+    <h2 id="rpa">RPA Interfaces</h2>
+    <p>Browser/desktop automation lives alongside data tasks. Selectors use robust textual/ARIA anchors; OCR normalizes output.</p>
+
+    <h2 id="capabilities">Capability Model</h2>
+    <p>Maps an action (e.g., “make an Excel report”) to viable strategies (direct file writer vs RPA Excel) based on context, policy, and availability.</p>
+
+    <h2 id="self-healing">Self‑healing</h2>
+    <p>Retries with exponential backoff, selector fallbacks, schema inference, and intent reinterpretation when safe.</p>
+  </main>
+</div>
+
+<div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
+  © 2025 AIbasic v0.9 — Documentation regenerated with the new paradigm.
+</div>
+<script src="script.js"></script>
+</body></html>
