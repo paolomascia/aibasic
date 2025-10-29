@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>basicAI Language Specification (v0.9)</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121821; --text:#e6edf3; --muted:#9fb1c1; --accent:#7cc1ff;
+    --code:#0f1720; --border:#223041; --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  }
+  html,body{background:var(--bg);color:var(--text);margin:0;padding:0;}
+  body{font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial,"Apple Color Emoji","Segoe UI Emoji";}
+  .container{max-width:960px;margin:32px auto;padding:0 20px;}
+  h1,h2,h3{line-height:1.25}
+  h1{font-size:2.0rem;margin:0 0 0.75rem}
+  h2{font-size:1.4rem;margin:2rem 0 0.5rem;border-bottom:1px solid var(--border);padding-bottom:0.25rem}
+  h3{font-size:1.1rem;margin:1.25rem 0 0.25rem}
+  p{margin:0.5rem 0}
+  ul{margin:0.5rem 0 0.5rem 1.25rem}
+  code,kbd,pre{font-family:var(--mono);}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:12px;overflow:auto;}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin:1rem 0}
+  .muted{color:var(--muted)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .badge{display:inline-block;background:#0e2238;border:1px solid var(--border);color:var(--accent);padding:2px 8px;border-radius:999px;font-size:0.8rem;margin-left:6px}
+  .toc ol{margin-left:1.25rem}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>basicAI Language Specification <span class="badge">v0.9</span></h1>
+    <p class="muted">A high-level programming language for data manipulation and RPA, using English-numbered instructions compiled to Python.</p>
+
+    <div class="panel toc">
+      <h3>Table of Contents</h3>
+      <ol>
+        <li><a href="#purpose">Purpose</a></li>
+        <li><a href="#program-structure">Program Structure</a></li>
+        <li><a href="#lexicon">Lexicon and Instruction Style</a></li>
+        <li><a href="#types">Data Types and Structures</a></li>
+        <li><a href="#ai-context">AI Context</a></li>
+        <li><a href="#semantics">Instruction Semantics</a></li>
+        <li><a href="#rpa">RPA Automation</a></li>
+        <li><a href="#compilation">Compilation Rules</a></li>
+        <li><a href="#tooling">Tooling</a></li>
+        <li><a href="#backends">Recommended Backends</a></li>
+        <li><a href="#example">Example Program</a></li>
+        <li><a href="#ebnf">Abstract EBNF</a></li>
+      </ol>
+    </div>
+
+    <h2 id="purpose">1) Purpose</h2>
+    <p><strong>basicAI</strong> is a high‑level textual language featuring:</p>
+    <ul>
+      <li><strong>Numbered English instructions</strong> (like BASIC).</li>
+      <li>Focus on <strong>data manipulation</strong> (CSV/Parquet/DB, DataFrames, aggregations) and <strong>RPA</strong> (browser/desktop).</li>
+      <li>An <strong>incremental AI Context</strong> that tracks variables and structures after every instruction.</li>
+      <li>Compilation produces <strong>Python</strong> by concatenating the snippet generated per line.</li>
+    </ul>
+
+    <h2 id="program-structure">2) Program Structure</h2>
+    <p>A program is an ordered sequence of numbered lines:</p>
+<pre><code>&lt;line_number&gt; &lt;instruction in English&gt;
+</code></pre>
+    <ul>
+      <li><code>line_number</code> is a positive integer (typically 10, 20, 30...).</li>
+      <li>Each line can define, transform, query data or automate actions.</li>
+      <li>The compiler orders lines by number; labels or line references may control flow.</li>
+    </ul>
+    <h3>Comments</h3>
+    <ul>
+      <li>Inline: <code># ...</code></li>
+      <li>Whole line: a line starting with <code>#</code></li>
+    </ul>
+    <h3>Labels</h3>
+    <p>Form: <code>LABEL &lt;Name&gt;:</code> before the instruction text.</p>
+<pre><code>30 LABEL RetryStep: Click the "Login" button.
+</code></pre>
+
+    <h2 id="lexicon">3) Lexicon and Instruction Style</h2>
+    <ul>
+      <li>Use <strong>imperative or declarative English</strong>: “Load …”, “Filter …”, “Group … by … and compute …”, “Click …”.</li>
+      <li><strong>Variable names</strong> written in <em>TitleCase</em> are mapped to <code>snake_case</code> in Python.</li>
+      <li><strong>Fields/columns</strong> should be quoted when ambiguous: <code>"Order Date"</code>, <code>"Revenue"</code>.</li>
+      <li><strong>Literals</strong>: strings (<code>"..."</code>), numbers (<code>123</code>, <code>3.14</code>), dates (<code>YYYY-MM-DD</code>), relative times (<code>today</code>, <code>last month</code>).</li>
+      <li><strong>Paths</strong>: quoted strings.</li>
+      <li><strong>RPA selectors</strong>: visible text (<code>"Login"</code>), CSS/XPath (<code>css=#username</code>, <code>xpath=//button[@id='go']</code>), roles/ARIA (<code>role=button[name="Login"]</code>).</li>
+    </ul>
+
+    <h2 id="types">4) Data Types and Structures</h2>
+    <ul>
+      <li><strong>Scalar</strong>: <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>date</code>, <code>datetime</code></li>
+      <li><strong>Collection</strong>: <code>list[T]</code>, <code>dict[K,V]</code></li>
+      <li><strong>Table/DataFrame</strong>: row/column with schema</li>
+      <li><strong>Record/Row</strong>: typed dictionary row</li>
+      <li><strong>Selector</strong>: RPA element selector</li>
+      <li><strong>Handle</strong>: active resource reference (browser/page, window, frame)</li>
+    </ul>
+    <p>The schema and types are inferred and stored in the AI Context after each line.</p>
+
+    <h2 id="ai-context">5) AI Context</h2>
+    <p>The compiler maintains a JSON AI Context passed to the LLM for each line.</p>
+    <p>Every variable includes: <code>name</code>, <code>display_name</code>, <code>kind</code>, <code>schema</code>, <code>shape</code>, <code>description</code>, <code>created_at_line</code>, <code>last_modified_line</code>, <code>derives_from</code>, <code>constraints</code>, <code>sample_values</code>, <code>privacy</code>, <code>mutability</code>.</p>
+    <p>Global context also keeps: <code>symbol_table</code>, <code>imports</code>, <code>resources</code> (RPA handles), <code>capabilities</code>.</p>
+
+    <h2 id="semantics">6) Instruction Semantics</h2>
+    <h3>6.1 Data Loading</h3>
+<pre><code>Load "sales.csv" as SalesTable.
+Read from Postgres using connection "DSN" the query "SELECT ..." as Orders.
+Create a table named Countries with columns Name, Code and rows ["Italy","IT"], ["France","FR"].
+</code></pre>
+
+    <h3>6.2 Data Transformations</h3>
+<pre><code>Select columns "Date", "Revenue" from SalesTable into SalesLite.
+Filter SalesTable where Country == "Italy" into ItSales.
+Add column "Year" to SalesTable as year of "Date".
+Group SalesTable by "Country" and compute sum of "Revenue" as TotRev into RevByCountry.
+Join Orders with Customers on "CustomerID" into OC.
+Sort ItSales by "Revenue" descending into TopItSales.
+Get distinct rows of Customers on "Email" into UniqueCustomers.
+Pivot SalesTable index "Country" columns "Year" values "Revenue" into PivotRev.
+</code></pre>
+
+    <h3>6.3 Data Output</h3>
+<pre><code>Save ItSales to "itsales.parquet".
+Export RevByCountry to CSV at "rev_by_country.csv".
+Show the first 10 rows of SalesTable.
+Print the total revenue of ItSales.
+</code></pre>
+
+    <h3>6.4 Variables</h3>
+<pre><code>Let Threshold be 1000.
+Compute the average of "Revenue" in ItSales and store it in AvgRev.
+</code></pre>
+
+    <h3>6.5 Flow Control</h3>
+<pre><code>If AvgRev &gt; 1000 then Print "High average" else Print "Low average".
+For each row in ItSales do Print row."CustomerID".
+Repeat Click "Retry" until text "Done" appears.
+If LoginFailed then Go to RetryStep.
+</code></pre>
+
+    <h2 id="rpa">7) RPA Automation</h2>
+    <h3>7.1 Browser Automation</h3>
+<pre><code>Open a new browser as Browser.
+Open "https://example.com" in Browser as Page.
+Type "user@example.com" into css=#email on Page.
+Type "secret" into css=#password on Page.
+Click the "Login" button on Page.
+Wait for text "Welcome" on Page up to 10 seconds.
+Read text from css=.balance on Page into BalanceText.
+</code></pre>
+
+    <h3>7.2 Desktop Automation</h3>
+<pre><code>Launch application "Excel" as ExcelApp.
+Focus window titled "Report" as ReportWin.
+Click button "OK" in ReportWin.
+Read text at region (x,y,w,h) into OcrText.
+Copy selection.
+Paste.
+</code></pre>
+
+    <h2 id="compilation">8) Compilation Rules</h2>
+    <p>Each line is compiled by sending its text + current AI Context to the LLM, which returns a JSON:</p>
+    <ul>
+      <li><code>python_code</code>: code for that line</li>
+      <li><code>context_delta</code>: updates to AI Context</li>
+      <li><code>imports</code>: needed libraries</li>
+      <li><code>reads</code>/<code>writes</code>: dependencies</li>
+      <li><code>notes</code>: optional assumptions</li>
+    </ul>
+    <p>The compiler merges imports, applies context deltas, and concatenates the Python code. Naming rules: <code>DisplayName</code> → <code>display_name</code>; columns keep original names; generated names are concise.</p>
+
+    <h3>8.1 Example Mapping (Data)</h3>
+<pre><code>10 Load "sales.csv" as SalesTable.
+20 Filter SalesTable where Country == "Italy" into ItSales.
+30 Group ItSales by "Year" and compute sum of "Revenue" as Total into YearlyRev.
+40 Export YearlyRev to CSV at "yearly_rev.csv".
+</code></pre>
+<pre><code class="language-python">import pandas as pd
+
+sales_table = pd.read_csv("sales.csv")
+itsales = sales_table.loc[sales_table["Country"] == "Italy"].copy()
+yearlyrev = itsales.groupby("Year")["Revenue"].sum().reset_index(name="Total")
+yearlyrev.to_csv("yearly_rev.csv", index=False)
+</code></pre>
+
+    <h3>8.2 Example Mapping (RPA)</h3>
+<pre><code>10 Open a new browser as Browser.
+20 Open "https://example.com/login" in Browser as Page.
+30 Type "ana@example.com" into css=#email on Page.
+40 Type "secret" into css=#password on Page.
+50 Click the "Login" button on Page.
+60 Wait for text "Welcome" on Page up to 10 seconds.
+70 Read text from css=.balance on Page into BalanceText.
+</code></pre>
+<pre><code class="language-python">from playwright.sync_api import sync_playwright
+
+_pw = sync_playwright().start()
+_browser = _pw.chromium.launch(headless=True)
+page = _browser.new_page()
+page.goto("https://example.com/login")
+page.fill("css=#email", "ana@example.com")
+page.fill("css=#password", "secret")
+page.get_by_role("button", name="Login").click()
+page.wait_for_selector("text=Welcome", timeout=10000)
+balance_text = page.text_content("css=.balance")
+</code></pre>
+
+    <h2 id="tooling">9) Tooling</h2>
+    <ul>
+      <li>Compiler CLI: <code>basicai compile &lt;file.basai&gt; -o out.py</code></li>
+      <li>Outputs: <code>out.py</code> (Python), <code>context.json</code> (AI Context), <code>build.log</code> (notes)</li>
+      <li>Options: <code>--emit-context-per-line</code>, <code>--dry-run</code></li>
+    </ul>
+
+    <h2 id="backends">10) Recommended Backends</h2>
+    <ul>
+      <li><strong>Data</strong>: <code>pandas</code>, <code>pyarrow</code>, <code>sqlalchemy</code>, <code>openpyxl</code></li>
+      <li><strong>Browser RPA</strong>: <code>playwright</code>, <code>selenium</code></li>
+      <li><strong>Desktop RPA</strong>: <code>pyautogui</code>, <code>pywinauto</code>, <code>pytesseract</code>, <code>pyperclip</code></li>
+      <li><strong>Utilities</strong>: <code>re</code>, <code>datetime</code>, <code>pathlib</code>, <code>os</code>, <code>json</code>, <code>typing</code></li>
+    </ul>
+
+    <h2 id="example">11) Example Program</h2>
+<pre><code>10 Load "orders_2025.csv" as Orders.
+20 Filter Orders where "Status" == "Paid" and "Country" == "Italy" into PaidIt.
+30 Group PaidIt by "Month" and compute sum of "Amount" as Total into MonthlyRev.
+40 Export MonthlyRev to CSV at "monthly_it_revenue.csv".
+
+50 Open a new browser as Browser.
+60 Open "https://portal.example.com" in Browser as Portal.
+70 Type "ops@example.com" into css=#user on Portal.
+80 Type "pass123" into css=#pass on Portal.
+90 Click the "Login" button on Portal.
+100 Wait for text "Dashboard" on Portal up to 10 seconds.
+110 Upload file "monthly_it_revenue.csv" into css=#uploader on Portal.
+120 Click the "Submit" button on Portal.
+130 Wait for text "Upload completed" on Portal up to 20 seconds.
+140 Print "Done."
+</code></pre>
+
+    <h2 id="ebnf">12) Abstract EBNF (core)</h2>
+<pre><code>Program        := { Line }
+Line           := LineNumber WS Instruction [ "." ]
+LineNumber     := Digit { Digit }
+Instruction    := Command { WS Clause }
+Command        := VerbPhrase | "LABEL" Identifier ":"
+Clause         := Prepositional | Conditional | Targeting | IntoClause
+IntoClause     := "into" Identifier
+Identifier     := Letter { Letter | Digit | "_" }
+WS             := " " { " " }
+</code></pre>
+
+    <div class="muted" style="margin-top:2rem">© basicAI spec v0.9</div>
+  </div>
+</body>
+</html>
