@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Language · AIbasic (v0.9)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="navbar">
+  <div class="inner">
+    <a href="index.html"><strong>AIbasic</strong> <span class="badge">v0.9</span></a>
+    <nav>
+      <a href="history.html">History</a>
+      <a href="language.html">Language</a>
+      <a href="semantics.html">Semantics</a>
+      <a href="rpa.html">RPA</a>
+      <a href="compilation.html">Compilation</a>
+      <a href="tooling.html">Tooling</a>
+      <a href="examples.html">Examples</a>
+      <a href="ebnf.html">EBNF</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+  </div>
+</div>
+
+<div class="container grid">
+  <aside class="sidebar">
+    <strong>Sections</strong>
+    <a href="#purpose">Purpose</a>
+    <a href="#program-structure">Program structure</a>
+    <a href="#comments">Comments & Labels</a>
+    <a href="#lexicon">Lexicon & style</a>
+    <a href="#types">Types & data structures</a>
+    <a href="#ai-context">AI Context</a>
+  </aside>
+  <main>
+    <h1>Language</h1>
+    <h2 id="purpose">Purpose</h2>
+    <p><strong>AIbasic</strong> is a text-first language with <em>English, numbered instructions</em>, focused on
+    data manipulation (CSV/Parquet/DB) and RPA (browser/desktop). The compiler concatenates Python code
+    generated for each line.</p>
+
+    <h2 id="program-structure">Program structure</h2>
+    <pre><code>&lt;line_number&gt; &lt;instruction in English&gt;</code></pre>
+    <ul>
+      <li><code>line_number</code>: positive integer (commonly 10, 20, 30…).</li>
+      <li>Each line defines/transforms data or automates actions.</li>
+      <li>The compiler sorts by line number; labels and line refs drive control flow.</li>
+    </ul>
+
+    <h2 id="comments">Comments & Labels</h2>
+    <ul>
+      <li>Inline comment: <code># ...</code></li>
+      <li>Line comment: a line starting with <code>#</code></li>
+      <li>Label: <code>LABEL Name:</code> before the instruction text.</li>
+    </ul>
+    <pre><code>30 LABEL RetryStep: Click the "Login" button.</code></pre>
+
+    <h2 id="lexicon">Lexicon & style</h2>
+    <ul>
+      <li><strong>Imperative/declarative</strong> style: “Load…”, “Filter…”, “Group… by… and compute…”, “Click…”.</li>
+      <li><strong>Variables</strong> in <em>TitleCase</em> → <code>snake_case</code> in Python.</li>
+      <li><strong>Ambiguous fields</strong> quoted: <code>"Order Date"</code>, <code>"Revenue"</code>.</li>
+      <li><strong>Literals</strong>: strings, numbers, dates (<code>YYYY-MM-DD</code>), relative time (<code>today</code>, <code>last month</code>).</li>
+      <li><strong>Paths</strong>: quoted strings.</li>
+      <li><strong>RPA selectors</strong>: visible text, CSS/XPath, roles/ARIA.</li>
+    </ul>
+
+    <h2 id="types">Types & data structures</h2>
+    <ul>
+      <li>Scalars: <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>date</code>, <code>datetime</code></li>
+      <li>Collections: <code>list[T]</code>, <code>dict[K,V]</code></li>
+      <li>Table/DataFrame, Record/Row, Selector, Handle</li>
+    </ul>
+
+    <h2 id="ai-context">AI Context</h2>
+    <p>The AI Context is an incremental JSON describing metadata for each variable
+    (<code>schema</code>, <code>shape</code>, <code>derives_from</code>, <code>privacy</code>, <code>mutability</code>, …) and global state
+    (<code>symbol_table</code>, <code>imports</code>, <code>resources</code>, <code>capabilities</code>).</p>
+  </main>
+</div>
+
+<div class="footer container">
+  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+</div>
+<script src="script.js"></script>
+</body></html>

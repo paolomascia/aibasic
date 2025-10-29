@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instruction Semantics · AIbasic (v0.9)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="navbar">
+  <div class="inner">
+    <a href="index.html"><strong>AIbasic</strong> <span class="badge">v0.9</span></a>
+    <nav>
+      <a href="history.html">History</a>
+      <a href="language.html">Language</a>
+      <a href="semantics.html">Semantics</a>
+      <a href="rpa.html">RPA</a>
+      <a href="compilation.html">Compilation</a>
+      <a href="tooling.html">Tooling</a>
+      <a href="examples.html">Examples</a>
+      <a href="ebnf.html">EBNF</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+  </div>
+</div>
+
+<div class="container grid">
+  <aside class="sidebar">
+    <strong>Sections</strong>
+    <a href="#load">Loading</a>
+    <a href="#transform">Transformations</a>
+    <a href="#output">Output</a>
+    <a href="#vars">Variables</a>
+    <a href="#flow">Control flow</a>
+    <a href="#errors">Errors & ambiguity</a>
+  </aside>
+  <main>
+    <h1>Instruction Semantics</h1>
+    <h2 id="load">Loading</h2>
+    <pre><code>Load "sales.csv" as SalesTable.
+Read from Postgres using connection "DSN" the query "SELECT ..." as Orders.
+Create a table named Countries with columns Name, Code and rows ["Italy","IT"], ["France","FR"].
+</code></pre>
+
+    <h2 id="transform">Transformations</h2>
+    <pre><code>Select columns "Date", "Revenue" from SalesTable into SalesLite.
+Filter SalesTable where Country == "Italy" into ItSales.
+Add column "Year" to SalesTable as year of "Date".
+Group SalesTable by "Country" and compute sum of "Revenue" as TotRev into RevByCountry.
+Join Orders with Customers on "CustomerID" into OC.
+Sort ItSales by "Revenue" descending into TopItSales.
+Get distinct rows of Customers on "Email" into UniqueCustomers.
+Pivot SalesTable index "Country" columns "Year" values "Revenue" into PivotRev.
+</code></pre>
+
+    <h2 id="output">Output</h2>
+    <pre><code>Save ItSales to "itsales.parquet".
+Export RevByCountry to CSV at "rev_by_country.csv".
+Show the first 10 rows of SalesTable.
+Print the total revenue of ItSales.
+</code></pre>
+
+    <h2 id="vars">Variables</h2>
+    <pre><code>Let Threshold be 1000.
+Compute the average of "Revenue" in ItSales and store it in AvgRev.
+</code></pre>
+
+    <h2 id="flow">Control flow</h2>
+    <pre><code>If AvgRev > 1000 then Print "High average" else Print "Low average".
+For each row in ItSales do Print row."CustomerID".
+Repeat Click "Retry" until text "Done" appears.
+If LoginFailed then Go to RetryStep.
+</code></pre>
+
+    <h2 id="errors">Errors & ambiguity</h2>
+    <ul>
+      <li>Column ambiguity → quote field names.</li>
+      <li>Implicit types → AI Context hints; compiler adds casts if needed.</li>
+      <li>Fragile RPA selectors → prefer roles/ARIA or robust textual anchors.</li>
+    </ul>
+  </main>
+</div>
+
+<div class="footer container">
+  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+</div>
+<script src="script.js"></script>
+</body></html>

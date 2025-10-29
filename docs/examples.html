@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>End-to-end Examples (Expanded) · AIbasic (v0.9)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="navbar">
+  <div class="inner">
+    <a href="index.html"><strong>AIbasic</strong> <span class="badge">v0.9</span></a>
+    <nav>
+      <a href="history.html">History</a>
+      <a href="language.html">Language</a>
+      <a href="semantics.html">Semantics</a>
+      <a href="rpa.html">RPA</a>
+      <a href="compilation.html">Compilation</a>
+      <a href="tooling.html">Tooling</a>
+      <a href="examples.html">Examples</a>
+      <a href="ebnf.html">EBNF</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+  </div>
+</div>
+
+<div class="container">
+  <h1>Examples — Expanded Cookbook</h1>
+  <p class="muted">Copy-paste friendly programs demonstrating common patterns. Each block is valid AIbasic (English, numbered instructions).</p>
+
+  <h2 id="data-pipeline">A. Data Processing Pipeline (ETL/ELT)</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Ingest multiple CSV/Parquet sources, clean & enrich, compute KPIs, pivot, and export artifacts for BI and for an upload step.</p>
+  </div>
+<pre><code>10 Load "data/customers.csv" as Customers.
+20 Load "data/orders_2025.parquet" as Orders.
+30 Create a table named CountryISO with columns Country, ISO and rows ["Italy","IT"], ["France","FR"], ["Germany","DE"].
+
+40 Filter Orders where "Status" in ["Paid","Shipped"] into ValidOrders.
+50 Add column "OrderDate" to ValidOrders as date of "Date".
+60 Add column "Month" to ValidOrders as month("OrderDate").
+70 Add column "Revenue" to ValidOrders as to_float("Amount").
+80 Join ValidOrders with Customers on "CustomerID" into OrdersCustomers.
+90 Join OrdersCustomers with CountryISO on left."Country" == right."Country" into Enriched.
+
+100 Filter Enriched where "OrderDate" between "2025-01-01" and "2025-12-31" into ThisYear.
+110 Group ThisYear by "ISO","Month" and compute sum of "Revenue" as TotalRev, count() as NumOrders into RevByIsoMonth.
+120 Pivot RevByIsoMonth index "ISO" columns "Month" values "TotalRev" into RevPivot.
+130 Sort RevByIsoMonth by "TotalRev" descending into TopMonthly.
+
+140 Export RevByIsoMonth to CSV at "out/revenue_by_iso_month.csv".
+150 Save RevPivot to "out/revenue_pivot.parquet".
+160 Show the first 15 rows of TopMonthly.
+170 Print "Grand total: " + sum of ThisYear."Revenue" + " EUR".
+</code></pre>
+
+  <h3>Window functions & rolling metrics</h3>
+<pre><code>180 Group ThisYear by "ISO","Month" and compute sum of "Revenue" as MonthlyRev into MonthlyByIso.
+190 Add column "Rolling3" to MonthlyByIso as rolling_sum("MonthlyRev", window=3, by="ISO", order_by="Month").
+200 Add column "MoM" to MonthlyByIso as pct_change("MonthlyRev", by="ISO", order_by="Month").
+210 Export MonthlyByIso to CSV at "out/monthly_rolling.csv".
+</code></pre>
+
+  <h2 id="ssh">B. SSH Command Series (Multi-host orchestration)</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Connect to a fleet of hosts, run commands, parse outputs, collect artifacts, and handle retries.</p>
+  </div>
+<pre><code>10 Create a list Hosts = ["10.0.0.11","10.0.0.12","10.0.0.13"].
+20 Let User be "admin".
+30 Let KeyPath be "~/.ssh/id_rsa".
+
+40 For each Host in Hosts do
+50   Open SSH to Host with user User and key KeyPath as Session.
+60   Send "hostname" on Session and expect "\n" into HostnameOut.
+70   Send "uptime" on Session and expect "\n" into UptimeOut.
+80   Send "df -h /" on Session and expect "\n" into DiskOut.
+90   Parse DiskOut with regex "(\d+)%\s+/" into RootUsage.
+100  If to_int(RootUsage[0]) > 85 then Print Host + " WARNING: root usage " + RootUsage[0] + "%".
+110  SFTP download "/var/log/app.log" to "logs/" + Host + "_app.log" from Session.
+120  Close Session.
+130 End for.
+
+140 Create a table named Summary with columns Host, Uptime, RootUsage and rows [].
+150 For each Host in Hosts do
+160   Append row [Host, UptimeOut for Host, RootUsage for Host] to Summary.
+170 End for.
+180 Export Summary to CSV at "out/ssh_summary.csv".
+</code></pre>
+
+  <h3>Resilient SSH with retries & timeouts</h3>
+<pre><code>190 LABEL RetrySSH:
+200 Try Open SSH to "10.0.0.42" with user "ops" and password "secret" timeout 10s as S.
+210 If Error then Wait 2 seconds and Go to RetrySSH.
+220 Send "systemctl status service-x --no-pager" on S and expect "Active:" up to 8 seconds into StatusOut.
+230 If not Found("Active: active", in=StatusOut) then Print "Service-X is not active" else Print "Service-X OK".
+240 Close S.
+</code></pre>
+
+  <h2 id="browser">C. Browser Automation (Login → scrape → upload)</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Log in, navigate to a paginated table, scrape rows, export a CSV, then upload a generated report.</p>
+  </div>
+<pre><code>10 Open a new browser as Browser.
+20 Open "https://portal.example.com/login" in Browser as LoginPage.
+30 Type "ops@example.com" into css=#user on LoginPage.
+40 Type "pass123" into css=#pass on LoginPage.
+50 Click the "Sign in" button on LoginPage.
+60 Wait for text "Dashboard" on LoginPage up to 12 seconds.
+
+70 Open "https://portal.example.com/orders" in Browser as OrdersPage.
+80 Let AllRows be empty list.
+90 LABEL ReadPage:
+100  Read table css=table.orders into PageRows on OrdersPage.
+110  Extend AllRows with PageRows.
+120  If Exists(css=a.next:not(.disabled) on OrdersPage) then
+130     Click css=a.next on OrdersPage
+140     Wait for network idle on OrdersPage up to 6 seconds
+150     Go to ReadPage.
+160  End if.
+
+170 Create a table named OrdersTable with columns OrderID, Customer, Date, Amount and rows from AllRows.
+180 Filter OrdersTable where "Date" >= "2025-01-01" into Orders2025.
+190 Export Orders2025 to CSV at "out/orders_2025.csv".
+
+200 Open "https://portal.example.com/reports/upload" in Browser as UploadPage.
+210 Upload file "out/orders_2025.csv" into css=#uploader on UploadPage.
+220 Click the "Submit" button on UploadPage.
+230 Wait for text "Upload completed" on UploadPage up to 20 seconds.
+240 Print "Browser flow: Done".
+</code></pre>
+
+  <h3>Assertions & screenshots on failure</h3>
+<pre><code>250 If not Exists(text="Upload completed" on UploadPage) then
+260   Take screenshot on UploadPage into "out/upload_error.png".
+270   Print "Upload failed, screenshot saved".
+280 End if.
+</code></pre>
+
+  <h2 id="api">D. REST API + Data join (bonus)</h2>
+<pre><code>10 Call GET "https://api.example.com/v1/products" headers {"Authorization":"Bearer ABC"} into ApiProducts.
+20 Create a table named ProductsApi from json ApiProducts["items"].
+30 Join ProductsApi with Orders2025 on left."ProductID" == right."ProductID" into OrdersWithCatalog.
+40 Group OrdersWithCatalog by "Category" and compute sum of "Amount" as Total into ByCategory.
+50 Export ByCategory to CSV at "out/revenue_by_category.csv".
+</code></pre>
+
+  <h2 id="errors">E. Error handling patterns (bonus)</h2>
+<pre><code>10 Try Load "missing.csv" as Missing.
+20 If Error then Print "File missing.csv not found" and Continue.
+30 Try Open "https://unstable.example.com" in Browser timeout 5s as MaybePage.
+40 If Error then Wait 3 seconds and Retry up to 3 times else Print "Opened OK".
+</code></pre>
+
+  <h2 id="scheduling">F. Scheduling & batches (bonus)</h2>
+<pre><code>10 For each Day in daterange("2025-09-01","2025-09-30") do
+20   Load "logs/" + format(Day,"YYYYMMDD") + ".csv" as Daily.
+30   Append Daily to AllLogs.
+40 End for.
+50 Group AllLogs by "Level" and compute count() as N into LogCounts.
+60 Export LogCounts to CSV at "out/log_counts_sep2025.csv".
+</code></pre>
+
+  <hr/>
+  <p>Tip: mix and match sections A–C to build a fully automated nightly pipeline (ETL → SSH deploy → Browser upload).</p>
+</div>
+
+<div class="footer container">
+  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+</div>
+<script src="script.js"></script>
+</body></html>

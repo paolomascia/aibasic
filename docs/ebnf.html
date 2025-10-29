@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extended EBNF · AIbasic (v0.9)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="navbar">
+  <div class="inner">
+    <a href="index.html"><strong>AIbasic</strong> <span class="badge">v0.9</span></a>
+    <nav>
+      <a href="history.html">History</a>
+      <a href="language.html">Language</a>
+      <a href="semantics.html">Semantics</a>
+      <a href="rpa.html">RPA</a>
+      <a href="compilation.html">Compilation</a>
+      <a href="tooling.html">Tooling</a>
+      <a href="examples.html">Examples</a>
+      <a href="ebnf.html">EBNF</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+  </div>
+</div>
+
+<div class="container">
+  <h1>EBNF (extended core)</h1>
+<pre><code>Program        := { Line }
+Line           := LineNumber WS Instruction [ "." ]
+LineNumber     := Digit { Digit }
+Instruction    := Command { WS Clause }
+Command        := VerbPhrase | "LABEL" Identifier ":"
+Clause         := Prepositional | Conditional | Targeting | IntoClause
+IntoClause     := "into" Identifier
+Identifier     := Letter { Letter | Digit | "_" }
+WS             := " " { " " }
+</code></pre>
+</div>
+
+<div class="footer container">
+  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+</div>
+<script src="script.js"></script>
+</body></html>
