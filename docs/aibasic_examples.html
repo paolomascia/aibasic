@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>basicAI Code Examples</title>
+<title>AIbasic Code Examples</title>
 <style>
   body{background:#0b0f14;color:#e6edf3;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;margin:0;padding:2rem;}
   h1,h2{color:#7cc1ff}
@@ -14,12 +14,12 @@
 </style>
 </head>
 <body>
-<h1>basicAI Code Examples</h1>
-<p class="note">Below are several examples of <strong>basicAI</strong> code (English-numbered instructions) and the corresponding compiled <strong>Python</strong> code.</p>
+<h1>AIbasic Code Examples</h1>
+<p class="note">Below are several examples of <strong>AIbasic</strong> code (English-numbered instructions) and the corresponding compiled <strong>Python</strong> code.</p>
 
 <div class="example">
 <h2>Example 1 — Data Filtering and Aggregation</h2>
-<h3>basicAI Code</h3>
+<h3>AIbasic Code</h3>
 <pre><code>10 Load "sales.csv" as Sales.
 20 Filter Sales where "Country" == "Italy" into ItSales.
 30 Group ItSales by "Year" and compute sum of "Revenue" as Total into YearlyRev.
@@ -48,7 +48,7 @@ print("Done.")
 
 <div class="example">
 <h2>Example 2 — Browser Automation</h2>
-<h3>basicAI Code</h3>
+<h3>AIbasic Code</h3>
 <pre><code>10 Open a new browser as Browser.
 20 Open "https://example.com/login" in Browser as Page.
 30 Type "user@example.com" into css=#email on Page.
@@ -85,7 +85,7 @@ print(balance_text)
 
 <div class="example">
 <h2>Example 3 — Combined Data + RPA Workflow</h2>
-<h3>basicAI Code</h3>
+<h3>AIbasic Code</h3>
 <pre><code>10 Load "orders.csv" as Orders.
 20 Filter Orders where "Status" == "Paid" and "Country" == "Italy" into PaidIt.
 30 Group PaidIt by "Month" and compute sum of "Amount" as Total into MonthlyRev.
@@ -140,7 +140,7 @@ print("Automation complete.")
 
 <div class="example">
 <h2>Example 4 — Loop and Condition</h2>
-<h3>basicAI Code</h3>
+<h3>AIbasic Code</h3>
 <pre><code>10 Let Threshold be 1000.
 20 For each row in Sales do
 30     If row."Revenue" > Threshold then Print row."CustomerID".
@@ -155,6 +155,6 @@ for _, row in sales.iterrows():
 </code></pre>
 </div>
 
-<div class="note">© basicAI examples collection</div>
+<div class="note">© AIbasic examples collection</div>
 </body>
 </html>
