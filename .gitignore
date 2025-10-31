@@ -1,0 +1,130 @@
+# ===========================
+# Python general
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Compiled extensions
+*.so
+*.pyd
+*.dll
+
+# Bytecode cache
+*.pyc
+*.pyo
+__pycache__/
+
+# ===========================
+# Virtual environments
+# ===========================
+.venv/
+venv/
+env/
+ENV/
+.env/
+.envrc
+.venv.bak/
+
+# ===========================
+# Build & packaging
+# ===========================
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+MANIFEST
+wheels/
+*.whl
+*.tar.gz
+
+# ===========================
+# Logs & temporary files
+# ===========================
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+*.rej
+*.lock
+~$*
+*.cache
+.cache/
+__pypackages__/
+
+# ===========================
+# Test & coverage
+# ===========================
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+pytest_cache/
+.tox/
+.mypy_cache/
+.dmypy.json
+.pytest_cache/
+.pyre/
+.hypothesis/
+.prof
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ===========================
+# Editors & IDEs
+# ===========================
+.vscode/
+.idea/
+*.code-workspace
+
+# ===========================
+# OS-specific junk
+# ===========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+Icon?
+._*
+
+# ===========================
+# Project-specific
+# ===========================
+# Generated output files
+output.py
+out/
+outputs/
+generated/
+*.out
+
+# Example data or scratch files
+data/
+tmp/
+temp/
+results/
+
+# ===========================
+# Environment & secrets
+# ===========================
+# never commit API tokens or configs with secrets
+aibasic.conf
+*.env
+*.key
+*.pem
+*.secret
+secrets.json
+
+# ===========================
+# Jupyter notebooks (optional)
+# ===========================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ===========================
+# VSCode project data (optional keep if needed)
+# ===========================
+# .vscode/

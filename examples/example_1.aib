@@ -1,0 +1,3 @@
+10 read the file customers.csv into a dataframe  
+20 remove the column email  
+30 save the dataframe to customers_clean.csv  

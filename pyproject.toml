@@ -1,0 +1,13 @@
+[project]
+name = "aibasic"
+version = "0.1.0"
+description = "A natural-language to Python compiler for AIBasic"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "requests",
+  "pandas",
+]
+
+[project.scripts]
+aibasic = "aibasic.cli:main"
