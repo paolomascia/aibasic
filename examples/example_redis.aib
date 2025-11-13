@@ -1,0 +1,50 @@
+# AIBasic Example - Redis Cache Operations
+# Requirements: pip install redis
+
+# String operations
+10 (redis) set redis key user:name to value "Alice" with expiration 3600 seconds
+20 (redis) get value from redis key user:name
+
+# Hash operations (like a dictionary)
+30 (redis) set redis hash user:123 with data {"name": "Bob", "age": 30, "city": "NYC"}
+40 (redis) get all fields from redis hash user:123
+
+# List operations (queue/stack)
+50 (redis) push tasks to redis list job_queue
+60 (redis) pop task from redis list job_queue
+
+# Set operations (unique values)
+70 (redis) add members to redis set active_users
+80 (redis) get all members from redis set active_users
+
+# Sorted set (leaderboard)
+90 (redis) add scores to redis sorted set leaderboard
+100 (redis) get top 10 from redis sorted set leaderboard
+
+# Caching database queries
+110 (postgres) query expensive data from postgres
+120 (redis) cache query result in redis with key query:result:123 for 1 hour
+
+# Counter operations
+130 (redis) increment redis counter page_views
+140 (redis) get redis counter page_views
+
+# Pub/Sub messaging
+150 (redis) publish message to redis channel notifications
+160 (redis) subscribe to redis channels events, alerts
+
+# Pipeline (batch operations)
+170 (redis) use redis pipeline to execute batch of 1000 operations
+
+# Check cache before database
+180 (redis) check if redis key data:user:456 exists
+190 (postgres) if not cached, query from postgres
+200 (redis) store result in redis
+
+# Session management
+210 (redis) store session data in redis hash session:xyz123
+220 (redis) set expiration on redis key session:xyz123 to 1800 seconds
+
+# Real-time analytics
+230 (redis) increment redis counter api_calls per_endpoint
+240 (redis) get redis statistics for monitoring dashboard

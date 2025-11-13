@@ -1,0 +1,237 @@
+# AIBasic Example - HashiCorp Vault Secrets Management
+# Requirements: pip install hvac
+# Configure vault connection in aibasic.conf
+
+# ==================== Basic Secret Operations (KV v2) ====================
+
+# Write secrets
+10 (vault) write secret to vault path myapp/database with username "dbuser" and password "secret123"
+20 (vault) store api credentials in vault at myapp/api with api_key "abc123" and api_secret "xyz789"
+30 (vault) save encryption key to vault path myapp/encryption_key with value "super-secret-key-2024"
+
+# Read secrets
+40 (vault) read secret from vault path myapp/database
+50 (vault) get api credentials from vault myapp/api
+60 (vault) retrieve encryption key from vault myapp/encryption_key
+
+# List secrets
+70 (vault) list all secrets in vault under path myapp/
+80 (vault) list secrets in vault root directory
+
+# Delete secrets
+90 (vault) delete secret from vault path myapp/old-api-key
+100 (vault) remove credentials from vault at myapp/temp-creds
+
+# ==================== Secret Versioning (KV v2) ====================
+
+# Write with versioning
+110 (vault) write secret to vault myapp/config with version 1 data
+120 (vault) update secret in vault myapp/config with new version
+
+# Read specific version
+130 (vault) read version 1 of secret from vault myapp/config
+140 (vault) read version 2 of secret from vault myapp/config
+150 (vault) read latest version of secret from vault myapp/config
+
+# Get secret metadata and history
+160 (vault) get metadata for vault secret myapp/config
+170 (vault) show all versions of secret myapp/config
+
+# Undelete secrets (restore deleted versions)
+180 (vault) delete secret myapp/config version 2
+190 (vault) undelete vault secret myapp/config version 2
+
+# Permanently destroy secrets
+200 (vault) permanently destroy vault secret myapp/sensitive version 1
+
+# ==================== Database Integration ====================
+
+# Store database credentials in Vault
+210 (vault) write postgres credentials to vault myapp/postgres with host "localhost" user "admin" password "pass123"
+220 (vault) write mysql credentials to vault myapp/mysql with connection string
+
+# Read and use database credentials
+230 (vault) read database credentials from vault myapp/postgres
+240 (postgres) connect to postgres using credentials from vault
+250 (postgres) query users table from database
+
+# Rotate database passwords
+260 (vault) update vault secret myapp/postgres password to new value
+270 (postgres) reconnect with new credentials from vault
+
+# ==================== Dynamic Database Credentials ====================
+
+# Generate temporary database credentials
+280 (vault) generate dynamic postgres credentials for role readonly
+290 (vault) generate dynamic mysql credentials for role readwrite
+300 (vault) get database credentials from vault for role admin
+
+# Use dynamic credentials
+310 (vault) read database role readonly credentials
+320 (postgres) connect with dynamic credentials
+330 (postgres) perform readonly operations
+340 (vault) revoke database credentials lease
+
+# Renew credentials lease
+350 (vault) generate dynamic credentials with 1 hour TTL
+360 (vault) renew credentials lease for 30 more minutes
+370 (vault) check remaining lease time
+
+# ==================== Transit Encryption Engine ====================
+
+# Create encryption keys
+380 (vault) create transit encryption key named app-encryption-key
+390 (vault) create transit key customer-data with aes256-gcm96 algorithm
+
+# Encrypt data
+400 (vault) encrypt string "sensitive customer data" with transit key app-encryption-key
+410 (vault) encrypt credit card number "4111-1111-1111-1111" using vault transit key payment-key
+420 (vault) encrypt json data with vault transit key data-key
+
+# Decrypt data
+430 (vault) decrypt ciphertext from vault transit key app-encryption-key
+440 (vault) decrypt payment data using vault key payment-key
+
+# Rotate encryption keys
+450 (vault) rotate vault transit key app-encryption-key
+460 (vault) re-encrypt all data with new key version
+
+# Batch encryption for performance
+470 (vault) batch encrypt 1000 records using vault transit key
+480 (vault) batch decrypt results from vault
+
+# ==================== Dynamic AWS Credentials ====================
+
+# Generate temporary AWS credentials
+490 (vault) generate dynamic aws credentials for role s3-readonly
+500 (vault) get aws access keys from vault role ec2-admin
+510 (vault) generate aws credentials with 15 minute TTL
+
+# Use AWS credentials
+520 (vault) read aws credentials for role s3-access
+530 (api) use aws credentials to list s3 buckets
+540 (vault) revoke aws credentials after use
+
+# ==================== Multi-Environment Secrets ====================
+
+# Development environment
+550 (vault) write dev database credentials to vault environments/dev/database
+560 (vault) write dev api keys to vault environments/dev/api
+
+# Staging environment
+570 (vault) write staging credentials to vault environments/staging/database
+580 (vault) write staging api keys to vault environments/staging/api
+
+# Production environment
+590 (vault) write production credentials to vault environments/prod/database
+600 (vault) write production api keys to vault environments/prod/api
+
+# Read environment-specific secrets
+610 (vault) read secrets from vault based on current environment variable
+620 (vault) get database config for current deployment environment
+
+# ==================== Authentication Methods ====================
+
+# Token authentication (already configured)
+630 (vault) verify vault token is valid
+640 (vault) renew vault token for 24 hours
+650 (vault) lookup current vault token info
+
+# AppRole authentication
+660 (vault) login to vault with approle role_id and secret_id
+670 (vault) get new vault token using approle credentials
+
+# LDAP authentication
+680 (vault) login to vault with ldap username and password
+690 (vault) authenticate via ldap for user john.doe
+
+# Username/Password authentication
+700 (vault) login to vault with username "admin" password "secret"
+
+# GitHub authentication
+710 (vault) authenticate to vault using github token
+
+# ==================== Secret Policies and Access Control ====================
+
+# Check token capabilities
+720 (vault) check vault token permissions for path myapp/database
+730 (vault) verify access to vault secrets in myapp/ directory
+740 (vault) list vault token capabilities
+
+# ==================== Vault Health and Status ====================
+
+# Check Vault status
+750 (vault) check if vault is sealed
+760 (vault) get vault health status
+770 (vault) verify vault authentication is valid
+
+# ==================== Integration Examples ====================
+
+# Application startup: Load configuration from Vault
+780 (vault) read all application config from vault myapp/config
+790 (df) parse json configuration from vault secret
+800 (log) log successful configuration load from vault
+
+# API Key Rotation workflow
+810 (vault) read current api key from vault myapp/external-api
+820 (api) test current api key is still valid
+830 (vault) generate new api key and write to vault
+840 (api) update external service with new key
+850 (vault) verify new key works
+860 (vault) delete old api key from vault
+
+# Database Connection Pool with Vault
+870 (vault) read database credentials from vault myapp/db
+880 (postgres) initialize connection pool with vault credentials
+890 (postgres) perform database operations
+900 (vault) renew database credentials lease every hour
+
+# Secrets Backup and Migration
+910 (vault) list all secrets in vault path myapp/
+920 (vault) read each secret and export to encrypted backup
+930 (compress) compress backup file with password protection
+940 (vault) restore secrets from backup to new vault path
+
+# CI/CD Pipeline Secrets
+950 (vault) read docker registry credentials from vault ci/docker
+960 (vault) get aws deployment credentials from vault ci/aws
+970 (vault) retrieve ssh keys from vault ci/deploy-keys
+980 (shell) run deployment script with vault credentials
+
+# Microservices Secrets Sharing
+990 (vault) write shared database config to vault shared/database
+1000 (vault) each service reads shared config from vault
+1010 (vault) update shared config without service restart
+1020 (vault) services detect config change and reload
+
+# Encryption at Rest Example
+1030 (vault) create transit key for encrypting files
+1040 (fs) read sensitive file content
+1050 (vault) encrypt file content with vault transit key
+1060 (fs) write encrypted content to disk
+1070 (vault) decrypt when needed for processing
+
+# Credential Vending Machine Pattern
+1080 (vault) generate temporary credentials for user request
+1090 (vault) set credentials TTL to 1 hour
+1100 (vault) return credentials to user
+1110 (vault) automatically revoke after TTL expires
+
+# Zero-Trust Security Model
+1120 (vault) authenticate service with kubernetes service account
+1130 (vault) get short-lived credentials from vault
+1140 (vault) perform operations with temporary credentials
+1150 (vault) credentials automatically expire after 15 minutes
+1160 (vault) re-authenticate for next operation
+
+# Secret Rotation Automation
+1170 (vault) read all secrets that expire in 7 days
+1180 (vault) generate new versions of expiring secrets
+1190 (vault) update applications with new secret versions
+1200 (vault) delete old secret versions after grace period
+
+# Audit and Compliance
+1210 (vault) read secret access metadata from vault
+1220 (vault) check who accessed secret myapp/database
+1230 (vault) get secret version history for audit
+1240 (df) generate compliance report from vault audit data

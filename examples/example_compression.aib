@@ -1,0 +1,177 @@
+# AIBasic Example - Multi-Format Compression and Archive Operations
+# No configuration required - module works standalone
+# Optional: pip install py7zr (for 7Z support)
+
+# ==================== ZIP Operations ====================
+
+# Create ZIP archive from directory
+10 (compress) compress folder data/ into zip archive data.zip with compression level 9
+
+# Create ZIP with password protection
+20 (compress) create password-protected zip archive sensitive.zip from files/ with password "secret123"
+
+# Extract ZIP archive
+30 (compress) extract zip archive data.zip to output/
+
+# Extract ZIP with password
+40 (compress) extract password-protected zip sensitive.zip to output/ with password "secret123"
+
+# Extract specific files from ZIP
+50 (compress) extract only *.txt files from archive data.zip to output/
+
+# List ZIP contents
+60 (compress) list all files in zip archive data.zip
+
+# Get ZIP archive information
+70 (compress) show statistics for zip archive data.zip
+
+# ==================== TAR Operations ====================
+
+# Create TAR archive (no compression)
+80 (compress) create tar archive from folder logs/ save as logs.tar
+
+# Create TAR.GZ (gzipped tar)
+90 (compress) compress folder logs/ into tar.gz archive logs.tar.gz
+
+# Create TAR.BZ2 (bzip2 compressed tar)
+100 (compress) compress folder backups/ into tar.bz2 archive backups.tar.bz2
+
+# Create TAR.XZ (xz compressed tar)
+110 (compress) compress folder database/ into tar.xz archive database.tar.xz with maximum compression
+
+# Extract TAR archive (auto-detects compression)
+120 (compress) extract tar archive logs.tar.gz to restore/
+
+# Extract specific files from TAR
+130 (compress) extract only error*.log files from tar archive logs.tar.gz
+
+# ==================== Single File Compression ====================
+
+# GZIP compress single file
+140 (compress) compress file large_log.txt with gzip
+
+# GZIP decompress
+150 (compress) decompress gzip file large_log.txt.gz
+
+# BZIP2 compress (better compression than gzip)
+160 (compress) compress file database_dump.sql with bzip2 maximum compression
+
+# BZIP2 decompress
+170 (compress) decompress bzip2 file database_dump.sql.bz2
+
+# XZ compress (best compression)
+180 (compress) compress file huge_file.dat with xz compression level 9
+
+# XZ decompress
+190 (compress) decompress xz file huge_file.dat.xz
+
+# ==================== 7Z Operations ====================
+
+# Create 7Z archive (requires py7zr)
+200 (compress) compress folder documents/ into 7z archive documents.7z
+
+# Create 7Z with password
+210 (compress) create password-protected 7z archive important.7z from sensitive_data/ with password "ultra_secret"
+
+# Create 7Z with maximum compression
+220 (compress) compress folder media/ into 7z archive media.7z with compression level 9
+
+# Extract 7Z archive
+230 (compress) extract 7z archive documents.7z to output/
+
+# Extract 7Z with password
+240 (compress) extract password-protected 7z important.7z to secure_output/ with password "ultra_secret"
+
+# ==================== Auto-Detection Operations ====================
+
+# Auto-detect and compress (based on output file extension)
+250 (compress) compress folder project/ to archive project.zip automatically
+260 (compress) compress folder logs/ to archive logs.tar.gz automatically
+270 (compress) compress folder data/ to archive data.7z automatically
+
+# Auto-detect and extract (based on input file extension)
+280 (compress) extract archive project.zip automatically
+290 (compress) extract archive logs.tar.gz automatically
+300 (compress) extract archive data.7z automatically
+
+# ==================== Advanced Operations ====================
+
+# Compress with file filtering (include pattern)
+310 (compress) compress only *.log files from folder logs/ into logs_only.zip
+
+# Compress with exclusion pattern
+320 (compress) compress folder project/ to project.zip excluding *.tmp files
+
+# Compress multiple sources
+330 (compress) compress files config.ini and database.db and folder src/ into backup.zip
+
+# Selective extraction by pattern
+340 (compress) extract only *.py files from archive project.zip to code/
+
+# Compress with different levels
+350 (compress) compress folder test_data/ to fast.zip with compression level 1
+360 (compress) compress folder test_data/ to best.zip with compression level 9
+
+# ==================== Integration with Other Operations ====================
+
+# Database backup and compression
+370 (postgres) export postgres database to dump.sql
+380 (compress) compress file dump.sql with gzip
+390 (fs) delete file dump.sql
+
+# Download and extract
+400 (api) download file from https://example.com/data.zip save as data.zip
+410 (compress) extract zip archive data.zip to data/
+420 (df) read CSV files from data/ folder
+
+# Bulk file compression
+430 (fs) list all *.log files in folder /var/logs save list to log_files.txt
+440 (compress) compress each log file with gzip compression
+
+# Archive rotation
+450 (compress) compress folder /app/logs to backup_2024_01_15.tar.gz
+460 (compress) get archive info for backup_2024_01_15.tar.gz
+470 (fs) if archive size greater than 1GB then delete old archives
+
+# Multi-format backup strategy
+480 (compress) create zip archive for daily_backup.zip from current_data/
+490 (compress) create tar.gz archive for weekly_backup.tar.gz from full_data/
+500 (compress) create 7z archive with password for monthly_encrypted.7z from sensitive_data/
+
+# Extract and process
+510 (compress) extract archive logs.tar.gz to temp_logs/
+520 (df) read all CSV files from temp_logs/ folder
+530 (df) filter dataframe for errors only
+540 (compress) compress filtered results to errors_only.zip
+550 (fs) cleanup temp_logs/ folder
+
+# Archive comparison
+560 (compress) get info for archive version1.zip
+570 (compress) get info for archive version2.zip
+580 (df) compare file lists and sizes between archives
+
+# Incremental backup
+590 (fs) get list of files modified in last 24 hours
+600 (compress) compress only modified files into incremental_backup.tar.gz
+610 (compress) list contents of incremental_backup.tar.gz
+
+# Email attachment preparation
+620 (compress) compress folder reports/ into reports.zip with compression level 6
+630 (compress) verify reports.zip size is less than 10MB
+640 (email) send email with attachment reports.zip
+
+# ==================== Performance Comparison ====================
+
+# Compare compression ratios
+650 (compress) compress folder test_data/ to test_zip.zip
+660 (compress) compress folder test_data/ to test_tar_gz.tar.gz
+670 (compress) compress folder test_data/ to test_tar_bz2.tar.bz2
+680 (compress) compress folder test_data/ to test_tar_xz.tar.xz
+690 (compress) compress folder test_data/ to test_7z.7z
+700 (df) create comparison dataframe of file sizes and compression ratios
+
+# Speed vs Compression testing
+710 (compress) compress with level 1 (fastest) to fast.zip
+720 (compress) compress with level 5 (balanced) to medium.zip
+730 (compress) compress with level 9 (best) to best.zip
+740 (df) compare compression time and ratio for each level

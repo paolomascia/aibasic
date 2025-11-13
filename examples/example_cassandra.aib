@@ -1,0 +1,239 @@
+# AIBasic Example - Apache Cassandra NoSQL Database Operations
+# Requirements: pip install cassandra-driver
+# Configure cassandra connection in aibasic.conf
+
+# ==================== Keyspace Management ====================
+
+# Create keyspace with replication
+10 (cassandra) create cassandra keyspace my_app with replication factor 3
+20 (cassandra) create keyspace users_keyspace with SimpleStrategy replication 1
+
+# Switch to keyspace
+30 (cassandra) use cassandra keyspace my_app
+
+# List all keyspaces
+40 (cassandra) list all cassandra keyspaces
+
+# Drop keyspace
+50 (cassandra) drop cassandra keyspace old_keyspace
+
+# ==================== Table Management ====================
+
+# Create table with simple primary key
+60 (cassandra) create cassandra table users with columns id uuid name text email text PRIMARY KEY id
+
+# Create table with composite primary key
+70 (cassandra) create cassandra table user_activities with columns user_id uuid timestamp timestamp activity text PRIMARY KEY user_id timestamp
+
+# Create table with clustering order
+80 (cassandra) create cassandra table time_series with columns device_id text timestamp timestamp value double PRIMARY KEY device_id timestamp CLUSTERING ORDER BY timestamp DESC
+
+# List tables
+90 (cassandra) list all tables in cassandra keyspace my_app
+
+# Drop table
+100 (cassandra) drop cassandra table old_table
+
+# Truncate table
+110 (cassandra) truncate cassandra table test_data
+
+# ==================== Basic CRUD Operations ====================
+
+# Insert data
+120 (cassandra) insert into cassandra table users values id uuid name Alice email alice@example.com
+130 (cassandra) insert row into cassandra users with data {"id": "uuid()", "name": "Bob", "email": "bob@example.com"}
+
+# Insert with TTL (time to live - auto expiration)
+140 (cassandra) insert into cassandra table sessions with TTL 3600 seconds
+
+# Insert IF NOT EXISTS (lightweight transaction)
+150 (cassandra) insert into cassandra users if not exists with id name email
+
+# Select data
+160 (cassandra) select all from cassandra table users
+170 (cassandra) select name email from cassandra users where id equals specific_uuid
+180 (cassandra) select from cassandra users limit 100
+
+# Update data
+190 (cassandra) update cassandra table users set name to "Alice Smith" where id equals user_id
+200 (cassandra) update cassandra users with TTL 7200 set email where id equals user_id
+
+# Update IF EXISTS
+210 (cassandra) update cassandra users set email if exists where id equals user_id
+
+# Delete data
+220 (cassandra) delete from cassandra table users where id equals user_id
+230 (cassandra) delete email column from cassandra users where id equals user_id
+
+# Delete IF EXISTS
+240 (cassandra) delete from cassandra users if exists where id equals user_id
+
+# ==================== CQL Queries ====================
+
+# Execute raw CQL query
+250 (cassandra) execute cql query "CREATE TABLE products (id uuid PRIMARY KEY, name text, price decimal)"
+260 (cassandra) execute cql "INSERT INTO products (id, name, price) VALUES (uuid(), 'Laptop', 999.99)"
+270 (cassandra) execute cql "SELECT * FROM products WHERE id = ?"
+
+# Prepared statements (better performance)
+280 (cassandra) execute prepared cql statement "SELECT * FROM users WHERE email = ?" with parameters
+290 (cassandra) prepare and execute cql query with parameter binding
+
+# ==================== Batch Operations ====================
+
+# Batch insert (atomic)
+300 (cassandra) execute cassandra batch insert 100 rows into users table
+310 (cassandra) batch insert multiple records to cassandra atomically
+
+# Logged batch (default - ensures atomicity)
+320 (cassandra) execute logged batch in cassandra with INSERT statements
+
+# Unlogged batch (faster, no atomicity guarantee)
+330 (cassandra) execute unlogged batch in cassandra for performance
+
+# Counter batch
+340 (cassandra) execute counter batch in cassandra to update counters
+
+# ==================== Counter Columns ====================
+
+# Create counter table
+350 (cassandra) create cassandra counter table page_views with page_id text views counter PRIMARY KEY page_id
+
+# Increment counter
+360 (cassandra) increment cassandra counter views in table page_views where page_id equals home by 1
+370 (cassandra) increment page_views counter by 5 for specific page
+
+# Decrement counter
+380 (cassandra) decrement cassandra counter views in page_views where page_id equals about by 1
+
+# Read counter value
+390 (cassandra) select counter value from cassandra page_views where page_id equals home
+
+# ==================== Time Series Data ====================
+
+# Create time-series table
+400 (cassandra) create cassandra time series table sensor_data with device_id timestamp value
+
+# Insert time-series data
+410 (cassandra) insert sensor reading into cassandra with timestamp now
+420 (cassandra) insert multiple sensor readings with timestamps
+
+# Query recent data
+430 (cassandra) select from cassandra sensor_data where device_id equals sensor1 and timestamp greater than yesterday
+440 (cassandra) select last 24 hours of data from cassandra sensor_data
+
+# Query with time range
+450 (cassandra) select from cassandra sensor_data where timestamp between start_time and end_time
+
+# ==================== Collections ====================
+
+# List column operations
+460 (cassandra) create table with list column for tags
+470 (cassandra) append item to list column in cassandra table
+480 (cassandra) prepend item to list column
+490 (cassandra) remove item from list column
+
+# Set column operations
+500 (cassandra) create table with set column for unique values
+510 (cassandra) add item to set column in cassandra
+520 (cassandra) remove item from set column
+
+# Map column operations
+530 (cassandra) create table with map column for key-value data
+540 (cassandra) add entry to map column in cassandra
+550 (cassandra) update map entry value
+560 (cassandra) remove entry from map column
+
+# ==================== Secondary Indexes ====================
+
+# Create secondary index
+570 (cassandra) create secondary index on cassandra table users column email
+580 (cassandra) create index idx_email on users email column
+
+# Query using secondary index
+590 (cassandra) select from cassandra users where email equals "alice@example.com" allow filtering
+600 (cassandra) find users by email using cassandra secondary index
+
+# Drop index
+610 (cassandra) drop secondary index idx_email from cassandra
+
+# ==================== Consistency Levels ====================
+
+# Query with specific consistency level
+620 (cassandra) select from users with consistency level QUORUM
+630 (cassandra) insert into cassandra with consistency ONE for fast write
+640 (cassandra) select from cassandra with consistency ALL for strong read
+
+# Query with LOCAL_QUORUM (multi-datacenter)
+650 (cassandra) query cassandra with LOCAL_QUORUM consistency
+660 (cassandra) write to cassandra with LOCAL_QUORUM for datacenter-local consistency
+
+# ==================== Integration with Other Services ====================
+
+# Load data from CSV into Cassandra
+670 (csv) read data from file users.csv
+680 (df) process dataframe
+690 (cassandra) bulk insert dataframe rows into cassandra users table
+
+# Export Cassandra data to CSV
+700 (cassandra) select all users from cassandra
+710 (df) convert cassandra results to dataframe
+720 (csv) export dataframe to cassandra_export.csv
+
+# PostgreSQL to Cassandra migration
+730 (postgres) query all records from postgres table
+740 (cassandra) batch insert postgres records into cassandra for migration
+
+# Redis cache with Cassandra persistence
+750 (redis) check if data exists in redis cache
+760 (cassandra) if cache miss query from cassandra
+770 (redis) store cassandra result in redis with TTL
+
+# OpenSearch integration for full-text search
+780 (cassandra) select products from cassandra
+790 (opensearch) index cassandra products in opensearch for search
+800 (opensearch) search products with full-text
+810 (cassandra) retrieve full product details from cassandra by id
+
+# ==================== Time-Series Use Case ====================
+
+# IoT sensor data pipeline
+820 (cassandra) create sensor_readings table with device timestamp value clustering
+830 (kafka) consume sensor messages from kafka topic
+840 (cassandra) batch insert sensor readings into cassandra
+850 (cassandra) query recent readings for device from cassandra
+
+# Analytics aggregation
+860 (cassandra) select hourly sensor data from cassandra
+870 (df) aggregate sensor data by device and calculate statistics
+880 (cassandra) store aggregated metrics in cassandra summary table
+
+# ==================== User Activity Tracking ====================
+
+# Track user sessions
+890 (cassandra) create user_sessions table with user_id session_id timestamp
+900 (cassandra) insert user login event into cassandra with timestamp
+910 (cassandra) update last_activity timestamp in cassandra session
+
+# Query user activity
+920 (cassandra) select all sessions for user from cassandra
+930 (cassandra) find active sessions in last hour from cassandra
+940 (cassandra) count total sessions per user from cassandra
+
+# ==================== Advanced Features ====================
+
+# Lightweight transactions (Compare-And-Set)
+950 (cassandra) update cassandra users set email if current_email equals old_value
+960 (cassandra) insert into cassandra if not exists for unique constraint
+
+# Paging large result sets
+970 (cassandra) select from large_table with paging size 1000
+980 (cassandra) fetch next page of cassandra results
+
+# Asynchronous queries
+990 (cassandra) execute async query on cassandra for non-blocking operation
+1000 (cassandra) wait for async cassandra query results
+
+# Get cluster information
+1010 (cassandra) show cassandra cluster info and available nodes
+1020 (cassandra) check cassandra cluster health status

@@ -1,0 +1,727 @@
+"""
+HashiCorp Vault Module for Secrets Management
+
+This module provides secure secrets management through HashiCorp Vault.
+Configuration is loaded from aibasic.conf under the [vault] section.
+
+Supports:
+- Multiple authentication methods: Token, AppRole, Kubernetes, AWS IAM, LDAP, GitHub, TLS Certificate
+- KV Secrets Engine v1 and v2
+- Dynamic secrets (databases, AWS, etc.)
+- Transit encryption engine (encryption as a service)
+- Secret leasing and renewal
+- SSL/TLS with optional certificate verification
+- Multiple namespaces (Vault Enterprise)
+- Batch operations for performance
+
+Features:
+- Read/write secrets securely
+- Secret versioning (KV v2)
+- Dynamic credentials generation
+- Encryption/decryption operations
+- Secret metadata management
+- Automatic token renewal
+- Lease management
+- Secret rotation
+
+Example configuration in aibasic.conf:
+    [vault]
+    URL=https://vault.example.com:8200
+    VERIFY_SSL=true
+
+    # Token Authentication (simplest)
+    AUTH_METHOD=token
+    TOKEN=s.xxxxxxxxxxxxxxxxxxxxxxxx
+
+    # AppRole Authentication (recommended for apps)
+    # AUTH_METHOD=approle
+    # ROLE_ID=xxxxx-xxxx-xxxx-xxxx-xxxxx
+    # SECRET_ID=xxxxx-xxxx-xxxx-xxxx-xxxxx
+
+    # Kubernetes Authentication
+    # AUTH_METHOD=kubernetes
+    # K8S_ROLE=my-role
+    # K8S_JWT_PATH=/var/run/secrets/kubernetes.io/serviceaccount/token
+
+    # AWS IAM Authentication
+    # AUTH_METHOD=aws
+    # AWS_ROLE=my-role
+
+    # Settings
+    NAMESPACE=admin  # For Vault Enterprise
+    MOUNT_POINT=secret  # KV mount point
+    KV_VERSION=2  # KV engine version (1 or 2)
+
+Usage in generated code:
+    from aibasic.modules import VaultModule
+
+    # Initialize module
+    vault = VaultModule.from_config('aibasic.conf')
+
+    # Read/Write secrets
+    vault.write_secret('myapp/database', {'username': 'admin', 'password': 'secret'})
+    secret = vault.read_secret('myapp/database')
+
+    # List secrets
+    secrets = vault.list_secrets('myapp/')
+
+    # Delete secrets
+    vault.delete_secret('myapp/old-creds')
+
+    # Encryption (Transit engine)
+    ciphertext = vault.encrypt('my-key', 'sensitive data')
+    plaintext = vault.decrypt('my-key', ciphertext)
+"""
+
+import configparser
+import json
+import os
+import threading
+from pathlib import Path
+from typing import Optional, Dict, Any, List, Union
+
+try:
+    import hvac
+    from hvac.exceptions import InvalidPath, Forbidden, VaultError
+except ImportError:
+    hvac = None
+    InvalidPath = Exception
+    Forbidden = Exception
+    VaultError = Exception
+
+
+class VaultModule:
+    """
+    HashiCorp Vault secrets management module.
+
+    Supports multiple authentication methods and secret engines.
+    """
+
+    _instance = None
+    _lock = threading.Lock()
+
+    # Supported authentication methods
+    AUTH_METHODS = [
+        'token', 'approle', 'kubernetes', 'aws', 'ldap',
+        'github', 'userpass', 'cert'
+    ]
+
+    def __init__(
+        self,
+        url: str,
+        auth_method: str = 'token',
+        token: Optional[str] = None,
+        role_id: Optional[str] = None,
+        secret_id: Optional[str] = None,
+        k8s_role: Optional[str] = None,
+        k8s_jwt_path: Optional[str] = None,
+        aws_role: Optional[str] = None,
+        verify_ssl: bool = True,
+        ca_cert: Optional[str] = None,
+        client_cert: Optional[str] = None,
+        client_key: Optional[str] = None,
+        namespace: Optional[str] = None,
+        mount_point: str = 'secret',
+        kv_version: int = 2
+    ):
+        """
+        Initialize the VaultModule.
+
+        Args:
+            url: Vault server URL (e.g., https://vault.example.com:8200)
+            auth_method: Authentication method (token, approle, kubernetes, aws, etc.)
+            token: Vault token (for token auth)
+            role_id: AppRole role ID
+            secret_id: AppRole secret ID
+            k8s_role: Kubernetes role name
+            k8s_jwt_path: Path to Kubernetes JWT token
+            aws_role: AWS IAM role name
+            verify_ssl: Verify SSL certificates
+            ca_cert: Path to CA certificate
+            client_cert: Path to client certificate (for cert auth)
+            client_key: Path to client key (for cert auth)
+            namespace: Vault namespace (Enterprise feature)
+            mount_point: KV secrets engine mount point
+            kv_version: KV engine version (1 or 2)
+        """
+        if hvac is None:
+            raise ImportError(
+                "hvac (HashiCorp Vault client) is required. Install with: pip install hvac"
+            )
+
+        self.url = url
+        self.auth_method = auth_method
+        self.mount_point = mount_point
+        self.kv_version = kv_version
+        self.namespace = namespace
+
+        # SSL/TLS configuration
+        if not verify_ssl:
+            print("[VaultModule] ⚠️  SSL certificate verification DISABLED")
+            verify = False
+        elif ca_cert:
+            verify = ca_cert
+        else:
+            verify = True
+
+        # Client certificate for TLS auth
+        cert = None
+        if client_cert and client_key:
+            cert = (client_cert, client_key)
+
+        # Initialize hvac client
+        self.client = hvac.Client(
+            url=url,
+            verify=verify,
+            cert=cert,
+            namespace=namespace
+        )
+
+        # Authenticate based on method
+        self._authenticate(
+            auth_method=auth_method,
+            token=token,
+            role_id=role_id,
+            secret_id=secret_id,
+            k8s_role=k8s_role,
+            k8s_jwt_path=k8s_jwt_path,
+            aws_role=aws_role
+        )
+
+        # Verify authentication
+        if not self.client.is_authenticated():
+            raise RuntimeError("Failed to authenticate with Vault")
+
+        print(f"[VaultModule] Connected to Vault at {url} using {auth_method} auth")
+        print(f"[VaultModule] Using KV v{kv_version} engine at mount point '{mount_point}'")
+
+    def _authenticate(
+        self,
+        auth_method: str,
+        token: Optional[str] = None,
+        role_id: Optional[str] = None,
+        secret_id: Optional[str] = None,
+        k8s_role: Optional[str] = None,
+        k8s_jwt_path: Optional[str] = None,
+        aws_role: Optional[str] = None
+    ):
+        """Authenticate with Vault using specified method."""
+
+        if auth_method == 'token':
+            if not token:
+                raise ValueError("Token is required for token authentication")
+            self.client.token = token
+
+        elif auth_method == 'approle':
+            if not role_id or not secret_id:
+                raise ValueError("role_id and secret_id are required for AppRole auth")
+            response = self.client.auth.approle.login(
+                role_id=role_id,
+                secret_id=secret_id
+            )
+            self.client.token = response['auth']['client_token']
+
+        elif auth_method == 'kubernetes':
+            if not k8s_role:
+                raise ValueError("k8s_role is required for Kubernetes auth")
+
+            # Read JWT token
+            jwt_path = k8s_jwt_path or '/var/run/secrets/kubernetes.io/serviceaccount/token'
+            with open(jwt_path, 'r') as f:
+                jwt = f.read().strip()
+
+            response = self.client.auth.kubernetes.login(
+                role=k8s_role,
+                jwt=jwt
+            )
+            self.client.token = response['auth']['client_token']
+
+        elif auth_method == 'aws':
+            if not aws_role:
+                raise ValueError("aws_role is required for AWS auth")
+
+            response = self.client.auth.aws.iam_login(
+                role=aws_role
+            )
+            self.client.token = response['auth']['client_token']
+
+        elif auth_method == 'ldap':
+            # LDAP auth requires username/password at runtime
+            print("[VaultModule] LDAP auth requires username/password - use login_ldap() method")
+
+        elif auth_method == 'github':
+            # GitHub auth requires token at runtime
+            print("[VaultModule] GitHub auth requires token - use login_github() method")
+
+        elif auth_method == 'userpass':
+            # UserPass auth requires username/password at runtime
+            print("[VaultModule] UserPass auth requires username/password - use login_userpass() method")
+
+        elif auth_method == 'cert':
+            # Certificate auth uses client certificate provided in __init__
+            response = self.client.auth.cert.login()
+            self.client.token = response['auth']['client_token']
+
+        else:
+            raise ValueError(f"Unsupported auth method: {auth_method}")
+
+    @classmethod
+    def from_config(cls, config_path: str = "aibasic.conf") -> 'VaultModule':
+        """
+        Create a VaultModule from configuration file.
+        Uses singleton pattern to ensure only one instance exists.
+
+        Args:
+            config_path: Path to aibasic.conf file
+
+        Returns:
+            VaultModule instance
+        """
+        with cls._lock:
+            if cls._instance is None:
+                config = configparser.ConfigParser()
+                path = Path(config_path)
+
+                if not path.exists():
+                    raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+                config.read(path)
+
+                if 'vault' not in config:
+                    raise KeyError("Missing [vault] section in aibasic.conf")
+
+                vault_config = config['vault']
+
+                # Required
+                url = vault_config.get('URL')
+                if not url:
+                    raise ValueError("URL is required in [vault] section")
+
+                # Authentication
+                auth_method = vault_config.get('AUTH_METHOD', 'token').lower()
+                token = vault_config.get('TOKEN', None)
+                role_id = vault_config.get('ROLE_ID', None)
+                secret_id = vault_config.get('SECRET_ID', None)
+                k8s_role = vault_config.get('K8S_ROLE', None)
+                k8s_jwt_path = vault_config.get('K8S_JWT_PATH', None)
+                aws_role = vault_config.get('AWS_ROLE', None)
+
+                # SSL/TLS
+                verify_ssl = vault_config.getboolean('VERIFY_SSL', True)
+                ca_cert = vault_config.get('CA_CERT', None)
+                client_cert = vault_config.get('CLIENT_CERT', None)
+                client_key = vault_config.get('CLIENT_KEY', None)
+
+                # Settings
+                namespace = vault_config.get('NAMESPACE', None)
+                mount_point = vault_config.get('MOUNT_POINT', 'secret')
+                kv_version = vault_config.getint('KV_VERSION', 2)
+
+                cls._instance = cls(
+                    url=url,
+                    auth_method=auth_method,
+                    token=token,
+                    role_id=role_id,
+                    secret_id=secret_id,
+                    k8s_role=k8s_role,
+                    k8s_jwt_path=k8s_jwt_path,
+                    aws_role=aws_role,
+                    verify_ssl=verify_ssl,
+                    ca_cert=ca_cert,
+                    client_cert=client_cert,
+                    client_key=client_key,
+                    namespace=namespace,
+                    mount_point=mount_point,
+                    kv_version=kv_version
+                )
+
+            return cls._instance
+
+    # ==================== KV Secrets Operations ====================
+
+    def read_secret(self, path: str, version: Optional[int] = None) -> Optional[Dict[str, Any]]:
+        """
+        Read a secret from Vault.
+
+        Args:
+            path: Secret path (e.g., 'myapp/database')
+            version: Secret version (KV v2 only, None = latest)
+
+        Returns:
+            Secret data dict or None if not found
+        """
+        try:
+            if self.kv_version == 2:
+                response = self.client.secrets.kv.v2.read_secret_version(
+                    path=path,
+                    mount_point=self.mount_point,
+                    version=version
+                )
+                return response['data']['data']
+            else:
+                response = self.client.secrets.kv.v1.read_secret(
+                    path=path,
+                    mount_point=self.mount_point
+                )
+                return response['data']
+        except InvalidPath:
+            return None
+
+    def write_secret(self, path: str, secret: Dict[str, Any], cas: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Write a secret to Vault.
+
+        Args:
+            path: Secret path
+            secret: Secret data (key-value pairs)
+            cas: Check-and-Set version (KV v2 only, for optimistic locking)
+
+        Returns:
+            Response metadata
+        """
+        if self.kv_version == 2:
+            response = self.client.secrets.kv.v2.create_or_update_secret(
+                path=path,
+                secret=secret,
+                mount_point=self.mount_point,
+                cas=cas
+            )
+        else:
+            response = self.client.secrets.kv.v1.create_or_update_secret(
+                path=path,
+                secret=secret,
+                mount_point=self.mount_point
+            )
+
+        print(f"[VaultModule] Secret written to {path}")
+        return response
+
+    def delete_secret(self, path: str, versions: Optional[List[int]] = None) -> Dict[str, Any]:
+        """
+        Delete a secret (or specific versions).
+
+        Args:
+            path: Secret path
+            versions: Version numbers to delete (KV v2 only, None = delete latest)
+
+        Returns:
+            Response dict
+        """
+        if self.kv_version == 2:
+            if versions:
+                response = self.client.secrets.kv.v2.delete_secret_versions(
+                    path=path,
+                    versions=versions,
+                    mount_point=self.mount_point
+                )
+            else:
+                response = self.client.secrets.kv.v2.delete_latest_version_of_secret(
+                    path=path,
+                    mount_point=self.mount_point
+                )
+        else:
+            response = self.client.secrets.kv.v1.delete_secret(
+                path=path,
+                mount_point=self.mount_point
+            )
+
+        print(f"[VaultModule] Secret deleted at {path}")
+        return response
+
+    def list_secrets(self, path: str = '') -> List[str]:
+        """
+        List secrets at a path.
+
+        Args:
+            path: Directory path (e.g., 'myapp/')
+
+        Returns:
+            List of secret names/subdirectories
+        """
+        try:
+            if self.kv_version == 2:
+                response = self.client.secrets.kv.v2.list_secrets(
+                    path=path,
+                    mount_point=self.mount_point
+                )
+            else:
+                response = self.client.secrets.kv.v1.list_secrets(
+                    path=path,
+                    mount_point=self.mount_point
+                )
+            return response['data']['keys']
+        except InvalidPath:
+            return []
+
+    def get_secret_metadata(self, path: str) -> Optional[Dict[str, Any]]:
+        """Get secret metadata (KV v2 only)."""
+        if self.kv_version != 2:
+            raise NotImplementedError("Metadata is only available in KV v2")
+
+        try:
+            response = self.client.secrets.kv.v2.read_secret_metadata(
+                path=path,
+                mount_point=self.mount_point
+            )
+            return response['data']
+        except InvalidPath:
+            return None
+
+    def undelete_secret(self, path: str, versions: List[int]) -> Dict[str, Any]:
+        """Undelete secret versions (KV v2 only)."""
+        if self.kv_version != 2:
+            raise NotImplementedError("Undelete is only available in KV v2")
+
+        response = self.client.secrets.kv.v2.undelete_secret_versions(
+            path=path,
+            versions=versions,
+            mount_point=self.mount_point
+        )
+        print(f"[VaultModule] Secret undeleted at {path}")
+        return response
+
+    def destroy_secret(self, path: str, versions: List[int]) -> Dict[str, Any]:
+        """Permanently destroy secret versions (KV v2 only)."""
+        if self.kv_version != 2:
+            raise NotImplementedError("Destroy is only available in KV v2")
+
+        response = self.client.secrets.kv.v2.destroy_secret_versions(
+            path=path,
+            versions=versions,
+            mount_point=self.mount_point
+        )
+        print(f"[VaultModule] Secret permanently destroyed at {path}")
+        return response
+
+    # ==================== Transit Encryption ====================
+
+    def encrypt(
+        self,
+        key_name: str,
+        plaintext: Union[str, bytes],
+        context: Optional[str] = None,
+        mount_point: str = 'transit'
+    ) -> str:
+        """
+        Encrypt data using Transit engine.
+
+        Args:
+            key_name: Encryption key name
+            plaintext: Data to encrypt
+            context: Base64-encoded context (for key derivation)
+            mount_point: Transit engine mount point
+
+        Returns:
+            Ciphertext (vault:v1:...)
+        """
+        import base64
+
+        if isinstance(plaintext, str):
+            plaintext = plaintext.encode('utf-8')
+
+        plaintext_b64 = base64.b64encode(plaintext).decode('utf-8')
+
+        response = self.client.secrets.transit.encrypt_data(
+            name=key_name,
+            plaintext=plaintext_b64,
+            context=context,
+            mount_point=mount_point
+        )
+
+        return response['data']['ciphertext']
+
+    def decrypt(
+        self,
+        key_name: str,
+        ciphertext: str,
+        context: Optional[str] = None,
+        mount_point: str = 'transit'
+    ) -> str:
+        """
+        Decrypt data using Transit engine.
+
+        Args:
+            key_name: Encryption key name
+            ciphertext: Encrypted data (vault:v1:...)
+            context: Base64-encoded context (must match encryption)
+            mount_point: Transit engine mount point
+
+        Returns:
+            Decrypted plaintext
+        """
+        import base64
+
+        response = self.client.secrets.transit.decrypt_data(
+            name=key_name,
+            ciphertext=ciphertext,
+            context=context,
+            mount_point=mount_point
+        )
+
+        plaintext_b64 = response['data']['plaintext']
+        plaintext = base64.b64decode(plaintext_b64).decode('utf-8')
+
+        return plaintext
+
+    def create_transit_key(
+        self,
+        key_name: str,
+        key_type: str = 'aes256-gcm96',
+        mount_point: str = 'transit'
+    ) -> Dict[str, Any]:
+        """Create a new encryption key in Transit engine."""
+        response = self.client.secrets.transit.create_key(
+            name=key_name,
+            key_type=key_type,
+            mount_point=mount_point
+        )
+        print(f"[VaultModule] Transit key created: {key_name}")
+        return response
+
+    def rotate_transit_key(self, key_name: str, mount_point: str = 'transit') -> Dict[str, Any]:
+        """Rotate a Transit encryption key."""
+        response = self.client.secrets.transit.rotate_key(
+            name=key_name,
+            mount_point=mount_point
+        )
+        print(f"[VaultModule] Transit key rotated: {key_name}")
+        return response
+
+    # ==================== Dynamic Secrets ====================
+
+    def read_database_creds(
+        self,
+        role_name: str,
+        mount_point: str = 'database'
+    ) -> Dict[str, Any]:
+        """
+        Generate dynamic database credentials.
+
+        Args:
+            role_name: Database role name
+            mount_point: Database secrets engine mount point
+
+        Returns:
+            Dict with username, password, and lease info
+        """
+        response = self.client.secrets.database.generate_credentials(
+            name=role_name,
+            mount_point=mount_point
+        )
+
+        creds = {
+            'username': response['data']['username'],
+            'password': response['data']['password'],
+            'lease_id': response['lease_id'],
+            'lease_duration': response['lease_duration']
+        }
+
+        print(f"[VaultModule] Generated database credentials for role {role_name}")
+        return creds
+
+    def read_aws_creds(
+        self,
+        role_name: str,
+        mount_point: str = 'aws'
+    ) -> Dict[str, Any]:
+        """Generate dynamic AWS credentials."""
+        response = self.client.secrets.aws.generate_credentials(
+            name=role_name,
+            mount_point=mount_point
+        )
+
+        creds = {
+            'access_key': response['data']['access_key'],
+            'secret_key': response['data']['secret_key'],
+            'security_token': response['data'].get('security_token'),
+            'lease_id': response['lease_id'],
+            'lease_duration': response['lease_duration']
+        }
+
+        print(f"[VaultModule] Generated AWS credentials for role {role_name}")
+        return creds
+
+    # ==================== Lease Management ====================
+
+    def renew_lease(self, lease_id: str, increment: Optional[int] = None) -> Dict[str, Any]:
+        """Renew a lease."""
+        response = self.client.sys.renew_lease(
+            lease_id=lease_id,
+            increment=increment
+        )
+        print(f"[VaultModule] Lease renewed: {lease_id}")
+        return response
+
+    def revoke_lease(self, lease_id: str) -> Dict[str, Any]:
+        """Revoke a lease."""
+        response = self.client.sys.revoke_lease(lease_id=lease_id)
+        print(f"[VaultModule] Lease revoked: {lease_id}")
+        return response
+
+    # ==================== Authentication Helpers ====================
+
+    def login_userpass(self, username: str, password: str) -> str:
+        """Login using username/password authentication."""
+        response = self.client.auth.userpass.login(
+            username=username,
+            password=password
+        )
+        self.client.token = response['auth']['client_token']
+        print(f"[VaultModule] Logged in as {username}")
+        return self.client.token
+
+    def login_ldap(self, username: str, password: str) -> str:
+        """Login using LDAP authentication."""
+        response = self.client.auth.ldap.login(
+            username=username,
+            password=password
+        )
+        self.client.token = response['auth']['client_token']
+        print(f"[VaultModule] Logged in via LDAP as {username}")
+        return self.client.token
+
+    def login_github(self, token: str) -> str:
+        """Login using GitHub authentication."""
+        response = self.client.auth.github.login(token=token)
+        self.client.token = response['auth']['client_token']
+        print("[VaultModule] Logged in via GitHub")
+        return self.client.token
+
+    # ==================== Token Management ====================
+
+    def renew_token(self, increment: Optional[int] = None) -> Dict[str, Any]:
+        """Renew the current token."""
+        response = self.client.auth.token.renew_self(increment=increment)
+        print("[VaultModule] Token renewed")
+        return response
+
+    def lookup_token(self) -> Dict[str, Any]:
+        """Get information about the current token."""
+        return self.client.auth.token.lookup_self()
+
+    # ==================== Health & Status ====================
+
+    def is_authenticated(self) -> bool:
+        """Check if client is authenticated."""
+        return self.client.is_authenticated()
+
+    def is_sealed(self) -> bool:
+        """Check if Vault is sealed."""
+        return self.client.sys.is_sealed()
+
+    def get_health(self) -> Dict[str, Any]:
+        """Get Vault health status."""
+        return self.client.sys.read_health_status()
+
+    def close(self):
+        """Close connection."""
+        if self.client:
+            self.client = None
+            print("[VaultModule] Connection closed")
+
+    def __del__(self):
+        """Destructor to ensure connection is closed."""
+        try:
+            self.close()
+        except:
+            pass

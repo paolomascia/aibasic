@@ -1,0 +1,33 @@
+# AIBasic Example - PostgreSQL Operations
+# This example demonstrates how to use the postgres task type
+#
+# Requirements:
+# 1. Configure [postgres] section in aibasic.conf
+# 2. Have PostgreSQL installed and running
+# 3. Install psycopg2: pip install psycopg2-binary
+
+# Query data from PostgreSQL
+10 (postgres) query all customers from postgres where age > 25
+
+# Insert a single record
+20 (postgres) insert into postgres table customers values ('John Doe', 30, 'john@example.com')
+
+# Execute a custom query
+30 (postgres) execute postgres query SELECT name, email FROM customers WHERE country = 'USA'
+
+# Save results to CSV (switching task types)
+40 (csv) save the query results to customers_usa.csv
+
+# Update records
+50 (postgres) execute postgres query UPDATE customers SET status = 'active' WHERE last_login > '2024-01-01'
+
+# Count records
+60 (postgres) execute postgres query SELECT COUNT(*) FROM customers
+
+# Complex query with joins
+70 (postgres) query from postgres: SELECT c.name, o.total FROM customers c JOIN orders o ON c.id = o.customer_id WHERE o.status = 'completed'
+
+# Store results in a variable for later use
+80 (df) convert the query results into a pandas dataframe
+90 (math) calculate the average order total
+100 (plot) create a bar chart of top 10 customers by order total

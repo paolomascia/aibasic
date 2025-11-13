@@ -1,0 +1,60 @@
+# AIBasic Example - Apache Kafka Operations
+# Demonstrates Kafka producer and consumer with all authentication methods
+#
+# Requirements:
+# 1. Configure [kafka] section in aibasic.conf
+# 2. Have Kafka broker running
+# 3. Install kafka-python: pip install kafka-python
+
+# Simple publish to topic
+10 (kafka) publish message "Hello Kafka" to kafka topic test-topic
+
+# Publish JSON message
+20 (kafka) publish JSON {"user_id": 123, "event": "login", "timestamp": "2025-01-13"} to kafka topic events
+
+# Publish with key (for partitioning)
+30 (kafka) publish message with key user_123 to kafka topic user-events
+
+# Batch publishing
+40 (kafka) publish batch of 100 messages to kafka topic high-volume
+
+# Example: Database to Kafka pipeline
+50 (postgres) query active users from postgres
+60 (df) convert to dataframe
+70 (kafka) publish dataframe as JSON messages to kafka topic user-sync
+
+# Consume messages (blocking - processes continuously)
+# 80 (kafka) consume 10 messages from kafka topic events
+
+# Get topic metadata
+90 (kafka) get kafka topic metadata for events
+
+# Example with different security protocols
+
+# PLAINTEXT (default - no auth)
+100 (kafka) publish to kafka topic test with PLAINTEXT
+
+# SASL_PLAINTEXT (username/password, no encryption)
+# Requires: SECURITY_PROTOCOL=SASL_PLAINTEXT, SASL_MECHANISM=PLAIN
+110 (kafka) publish secure message to kafka topic secure-events
+
+# SASL_SSL (username/password + SSL/TLS encryption)
+# Requires: SECURITY_PROTOCOL=SASL_SSL, SASL_MECHANISM=SCRAM-SHA-256
+120 (kafka) publish encrypted message to kafka topic encrypted-events
+
+# SSL (certificate-based auth with encryption)
+# Requires: SECURITY_PROTOCOL=SSL, SSL_CLIENT_CERT, SSL_CLIENT_KEY
+130 (kafka) publish to kafka topic cert-auth-events with SSL certificates
+
+# Example: Multi-topic publishing
+140 (kafka) publish order data to kafka topics orders, analytics, backup
+
+# Example: Consume with processing
+150 (kafka) consume from kafka topic orders and process each message
+160 (mysql) insert processed data into mysql table order_history
+
+# Example: Real-time streaming pipeline
+170 (kafka) consume from kafka topic sensor-data
+180 (df) aggregate sensor data by device_id
+190 (kafka) publish aggregated data to kafka topic sensor-analytics
+200 (rabbitmq) publish alert to rabbitmq if threshold exceeded

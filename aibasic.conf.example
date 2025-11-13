@@ -3,3 +3,199 @@ API_URL = https://api.openai.com/v1/chat/completions
 API_TOKEN = <<YOUR TOKEN HERE>>
 API_VERSION = 1
 MODEL = gpt-4o-mini
+
+[postgres]
+# PostgreSQL connection settings
+# Uncomment and configure these settings to use the postgres module
+# HOST = localhost
+# PORT = 5432
+# DATABASE = mydb
+# USER = postgres
+# PASSWORD = secret
+# MIN_CONNECTIONS = 1
+# MAX_CONNECTIONS = 10
+
+[mysql]
+# MySQL/MariaDB connection settings
+# Uncomment and configure these settings to use the mysql module
+# HOST = localhost
+# PORT = 3306
+# DATABASE = mydb
+# USER = root
+# PASSWORD = secret
+# MIN_CONNECTIONS = 1
+# MAX_CONNECTIONS = 10
+# CHARSET = utf8mb4
+
+[rabbitmq]
+# RabbitMQ message broker settings
+# Uncomment and configure these settings to use the rabbitmq module
+# HOST = localhost
+# PORT = 5672
+# VHOST = /
+# USERNAME = guest
+# PASSWORD = guest
+
+# SSL/TLS settings (optional)
+# USE_SSL = false
+# SSL_VERIFY = true
+# SSL_CA_CERT = /path/to/ca_cert.pem
+# SSL_CLIENT_CERT = /path/to/client_cert.pem
+# SSL_CLIENT_KEY = /path/to/client_key.pem
+
+# Connection settings
+# HEARTBEAT = 60
+# BLOCKED_CONNECTION_TIMEOUT = 300
+# CONNECTION_ATTEMPTS = 3
+# RETRY_DELAY = 2
+
+[kafka]
+# Apache Kafka streaming platform settings
+# Uncomment and configure these settings to use the kafka module
+# BOOTSTRAP_SERVERS = localhost:9092
+
+# Security Protocol: PLAINTEXT, SASL_PLAINTEXT, SASL_SSL, SSL
+# SECURITY_PROTOCOL = PLAINTEXT
+
+# SASL Settings (if using SASL_PLAINTEXT or SASL_SSL)
+# SASL_MECHANISM = PLAIN
+# SASL_USERNAME = user
+# SASL_PASSWORD = password
+
+# SSL/TLS Settings (if using SASL_SSL or SSL)
+# SSL_CHECK_HOSTNAME = true
+# SSL_VERIFY = true
+# SSL_CA_CERT = /path/to/ca-cert.pem
+# SSL_CLIENT_CERT = /path/to/client-cert.pem
+# SSL_CLIENT_KEY = /path/to/client-key.pem
+
+# Producer Settings
+# PRODUCER_ACKS = all
+# PRODUCER_COMPRESSION = gzip
+# PRODUCER_MAX_REQUEST_SIZE = 1048576
+
+# Consumer Settings
+# CONSUMER_GROUP_ID = aibasic-consumer-group
+# CONSUMER_AUTO_OFFSET_RESET = earliest
+# CONSUMER_ENABLE_AUTO_COMMIT = true
+
+[redis]
+# Redis in-memory data store settings
+# Uncomment and configure these settings to use the redis module
+# HOST = localhost
+# PORT = 6379
+# DB = 0
+# PASSWORD = secret
+
+# SSL/TLS Settings (optional)
+# USE_SSL = false
+# SSL_VERIFY = true
+# SSL_CA_CERT = /path/to/ca.pem
+# SSL_CLIENT_CERT = /path/to/client-cert.pem
+# SSL_CLIENT_KEY = /path/to/client-key.pem
+
+# ACL Authentication (Redis 6+)
+# USERNAME = default
+
+# Connection Pool Settings
+# MAX_CONNECTIONS = 50
+# SOCKET_TIMEOUT = 5
+# SOCKET_CONNECT_TIMEOUT = 5
+# DECODE_RESPONSES = true
+
+[opensearch]
+# OpenSearch distributed search and analytics engine settings
+# Uncomment and configure these settings to use the opensearch module
+# HOST = localhost
+# PORT = 9200
+# USE_SSL = false
+# VERIFY_CERTS = true
+
+# Basic Authentication
+# USERNAME = admin
+# PASSWORD = admin
+
+# AWS IAM Authentication (for AWS OpenSearch Service)
+# USE_AWS_AUTH = false
+# AWS_REGION = us-east-1
+
+# SSL/TLS Settings (optional)
+# CA_CERTS = /path/to/ca.pem
+# CLIENT_CERT = /path/to/client-cert.pem
+# CLIENT_KEY = /path/to/client-key.pem
+
+# Connection Settings
+# TIMEOUT = 30
+# MAX_RETRIES = 3
+# POOL_MAXSIZE = 10
+
+[vault]
+# HashiCorp Vault secrets management settings
+# Uncomment and configure these settings to use the vault module
+# URL = https://vault.example.com:8200
+# VERIFY_SSL = true
+
+# Token Authentication (simplest, recommended for dev)
+# AUTH_METHOD = token
+# TOKEN = s.xxxxxxxxxxxxxxxxxxxxxxxx
+
+# AppRole Authentication (recommended for production apps)
+# AUTH_METHOD = approle
+# ROLE_ID = xxxxx-xxxx-xxxx-xxxx-xxxxx
+# SECRET_ID = xxxxx-xxxx-xxxx-xxxx-xxxxx
+
+# Kubernetes Authentication (for K8s deployments)
+# AUTH_METHOD = kubernetes
+# K8S_ROLE = my-role
+# K8S_JWT_PATH = /var/run/secrets/kubernetes.io/serviceaccount/token
+
+# AWS IAM Authentication
+# AUTH_METHOD = aws
+# AWS_ROLE = my-role
+
+# LDAP Authentication (use login_ldap() method)
+# AUTH_METHOD = ldap
+
+# GitHub Authentication (use login_github() method)
+# AUTH_METHOD = github
+
+# Username/Password Authentication (use login_userpass() method)
+# AUTH_METHOD = userpass
+
+# TLS Certificate Authentication
+# AUTH_METHOD = cert
+# CLIENT_CERT = /path/to/client-cert.pem
+# CLIENT_KEY = /path/to/client-key.pem
+
+# SSL/TLS Settings (optional)
+# CA_CERT = /path/to/ca.pem
+
+# Vault Settings
+# NAMESPACE = admin  # For Vault Enterprise
+# MOUNT_POINT = secret  # KV secrets engine mount point
+# KV_VERSION = 2  # KV engine version (1 or 2)
+
+[cassandra]
+# Apache Cassandra distributed NoSQL database settings
+# Uncomment and configure these settings to use the cassandra module
+# CONTACT_POINTS = localhost,node2.example.com,node3.example.com
+# PORT = 9042
+# KEYSPACE = my_keyspace
+
+# Authentication
+# USERNAME = cassandra
+# PASSWORD = cassandra
+
+# SSL/TLS Settings (optional)
+# USE_SSL = false
+# SSL_VERIFY = true
+# SSL_CA_CERT = /path/to/ca.pem
+# SSL_CLIENT_CERT = /path/to/client-cert.pem
+# SSL_CLIENT_KEY = /path/to/client-key.pem
+
+# Connection Settings
+# CONSISTENCY_LEVEL = LOCAL_QUORUM  # ONE, QUORUM, ALL, LOCAL_QUORUM, etc.
+# LOAD_BALANCING_POLICY = RoundRobinPolicy  # RoundRobinPolicy, DCAwareRoundRobinPolicy, TokenAwarePolicy
+# PROTOCOL_VERSION = 4
+# CONNECT_TIMEOUT = 10
+# REQUEST_TIMEOUT = 30

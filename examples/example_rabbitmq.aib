@@ -1,0 +1,57 @@
+# AIBasic Example - RabbitMQ Operations
+# This example demonstrates how to use the rabbitmq task type
+#
+# Requirements:
+# 1. Configure [rabbitmq] section in aibasic.conf
+# 2. Have RabbitMQ server installed and running
+# 3. Install pika: pip install pika
+
+# Declare an exchange
+10 (rabbitmq) declare rabbitmq exchange my_exchange type topic
+
+# Declare a queue
+20 (rabbitmq) declare rabbitmq queue my_queue durable
+
+# Bind queue to exchange
+30 (rabbitmq) bind rabbitmq queue my_queue to exchange my_exchange with routing key events.*
+
+# Publish a simple text message
+40 (rabbitmq) publish message "Hello RabbitMQ" to exchange my_exchange with routing key events.test
+
+# Publish a JSON message
+50 (rabbitmq) publish JSON message with data {"event": "user_login", "user_id": 123, "timestamp": "2025-01-13"} to exchange my_exchange with routing key events.login
+
+# Publish with properties (persistent message)
+60 (rabbitmq) publish message "Important data" to exchange my_exchange with routing key events.critical and delivery_mode 2
+
+# Get a single message from queue (non-blocking)
+70 (rabbitmq) get one message from rabbitmq queue my_queue
+
+# Consume messages continuously (blocking - will run until stopped)
+# 80 (rabbitmq) consume messages from rabbitmq queue my_queue
+
+# Purge all messages from queue
+90 (rabbitmq) purge rabbitmq queue my_queue
+
+# Example with SSL/TLS (requires configuration)
+# 100 (rabbitmq) publish secure message to exchange secure_exchange via SSL
+
+# Example: Publishing results from database query
+110 (postgres) query customers where status = 'active' from postgres
+120 (df) convert postgres results to dataframe
+130 (rabbitmq) publish dataframe as JSON to rabbitmq exchange customer_events with routing key customers.active
+
+# Example: Multi-exchange publishing
+140 (rabbitmq) declare exchange notifications type fanout
+150 (rabbitmq) publish notification "System maintenance scheduled" to exchange notifications
+
+# Example: Direct exchange (default)
+160 (rabbitmq) publish message "Direct message" to queue my_queue using default exchange
+
+# Example: Headers exchange
+170 (rabbitmq) declare exchange logs type headers
+180 (rabbitmq) bind queue error_logs to exchange logs with headers {"level": "error"}
+190 (rabbitmq) publish error log to exchange logs with headers
+
+# Delete queue when done
+200 (rabbitmq) delete rabbitmq queue my_queue

@@ -1,0 +1,19 @@
+"""
+AIBasic Modules
+
+This package contains reusable modules that can be used by AIBasic programs.
+Each module provides specific functionality (database connections, APIs, etc.)
+and can be initialized from aibasic.conf configuration.
+"""
+
+from .postgres_module import PostgresModule
+from .mysql_module import MySQLModule
+from .rabbitmq_module import RabbitMQModule
+from .kafka_module import KafkaModule
+from .redis_module import RedisModule
+from .opensearch_module import OpenSearchModule
+from .compression_module import CompressionModule
+from .vault_module import VaultModule
+from .cassandra_module import CassandraModule
+
+__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule']

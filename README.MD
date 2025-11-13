@@ -1,181 +1,353 @@
+# 🧠 AIBasic Compiler
 
-# 🧠 AIbasic: Natural-Language Programming as an Executable Architecture
+AIBasic is a natural-language-based scripting language designed to let you write numbered instructions like:
 
-## 1. Introduction — Beyond Traditional Programming
-AIbasic is **not a new programming language** in the conventional sense.  
-It is a **new way to program** — using natural language as the *source code*, and an AI-powered compiler as the *translator* into executable logic.
-
-Whereas traditional languages (Python, Java, C++) require programmers to express logic through rigid syntax, AIbasic allows developers — or even non-programmers — to describe *what they want done* in plain English.  
-An LLM-powered compiler then transforms that natural-language description into deterministic, auditable, lower-level code (for example, Python), ready for execution.
-
-## 2. From Language to Architecture
-In AIbasic, **the compiler and virtual machine** are reimagined as **a complete computational ecosystem**, not just translation or runtime layers.
-
-Traditional flow:
-```
-source code → compiler → binary → VM/runtime → system I/O
+```text
+10 read the file customers.csv
+20 remove the column email
+30 save the dataframe to customers_clean.csv
 ```
 
-AIbasic flow:
+The **AIBasic Compiler** converts these natural instructions into executable **Python code** using:
+- a plugin system (for common operations like CSV, DataFrame, REST API)
+- and an LLM backend (for more complex or unknown operations)
+
+---
+
+## 🚀 Project Structure
+
+```text
+aibasic-compiler/
+├── src/
+│   └── aibasic/
+│       ├── __init__.py
+│       ├── compiler.py         ← main compiler engine
+│       ├── intent.py           ← intent detection / NLP preprocessor
+│       └── plugins/
+│           ├── csv_plugin.py
+│           ├── df_plugin.py
+│           ├── rest_plugin.py
+│           └── ...
+├── examples/
+│   ├── 01_csv_basic.aib
+│   ├── 02_df_cleaning.aib
+│   └── ...
+├── aibasic.conf
+├── tests/
+│   ├── __init__.py
+│   └── test_intent.py
+└── README.md
 ```
-intent (natural language) → LLM compiler → executable plan → distributed runtime
-→ data fabric + RPA interfaces + communication buses
-```
 
-Here, the **execution environment** is an **architecture**, not a single process.  
-It includes:
-- **Data services** — an abstraction layer that treats storage, databases, and streams as intelligent data entities.
-- **Communication buses** — channels for external APIs, message brokers, or real-world signals.
-- **RPA interfaces** — bridges to human-like actions (keyboard, browser, application GUI).
-- **Reasoning core** — the AI Context, which continuously maps the evolving program state.
+---
 
-AIbasic doesn’t “run code” — it **executes intent** within a self-aware computational space.
+## ⚙️ 1. Configuration
 
-## 3. Reversing the Programming Paradigm
-
-### 3.1 Traditional Paradigm
-In modern programming, to perform even simple tasks like saving data or creating files, the developer must:
-- connect to a database using credentials and drivers,
-- define schemas and tables,
-- write SQL commands,
-- handle exceptions, transactions, etc.
-
-Or to create an Excel file:
-- import libraries (e.g. `openpyxl`, `xlsxwriter`),
-- open or create a workbook,
-- add worksheets, write cells, format them,
-- save and close the file.
-
-This model forces the **human** to adapt to the **machine’s syntax**.
-
-### 3.2 AIbasic Paradigm
-In AIbasic, this relationship is inverted.  
-The **human** describes *intent*, and the **machine** builds the procedural scaffolding.
+Before running the compiler, configure the LLM connection inside `aibasic.conf`.
 
 Example:
-```
-10 Save the list of paid invoices into a database named "Accounting".
-20 Create a report in Excel with the total revenue per month.
-30 Send the report by email to "finance@example.com".
-```
 
-The compiler, using the AI Context, resolves:
-- what the “database” means in context (structured storage service, not a literal SQL instance),
-- how to create an Excel file (through the system’s RPA or via an API),
-- how to send the email (reusing an authenticated SMTP or Graph API connector).
-
-The environment provides **services, not APIs**.  
-The programmer no longer deals with low-level protocols; AIbasic dynamically creates, configures, and executes these actions.
-
-## 4. Data as a Service, Not as a Store
-In AIbasic, **data is not stored** — it is **hosted**.
-
-A “database” is no longer a static schema bound to an engine like PostgreSQL or SQLite.  
-Instead, it is a **data service** that adapts to the needs of the code.
-
-Example:
-```
-10 Create a data space named "Customers".
-20 Add fields Name, Country, and LastPurchase.
-30 Store all customers whose total purchases exceed 1000 USD.
-40 Summarize the results by Country.
+```ini
+API_URL=https://api.openai.com/v1/chat/completions
+API_TOKEN=sk-your-token-here
+API_VERSION=2025-03-01
+MODEL=gpt-5
 ```
 
-The execution environment automatically decides:
-- whether to store this as a local in-memory table, a persistent database, or a distributed data stream,
-- how to index or cache the data for subsequent queries.
+> 💡 Never commit this file to Git — it’s ignored via `.gitignore`.  
+> For public repos, create a `aibasic.conf.example` with fake credentials.
 
-This transforms the **data layer** from a passive resource into an **active participant** in the runtime — an intelligent storage fabric.
+---
 
-## 5. RPA and Physical-World Interaction
-AIbasic’s architecture integrates **RPA natively**.  
-This means that automation of real-world interfaces — GUI, browsers, desktop applications — is part of the same continuum as data operations.
+## 📦 2. Install & Setup
 
-Example:
-```
-10 Open Excel.
-20 Create a new worksheet called "MonthlySales".
-30 Fill cells A1:D1 with ["Month", "Country", "Sales", "Profit"].
-40 Paste data from table SalesSummary.
-50 Save the file as "monthly_sales.xlsx".
-60 Send the file via Outlook to "sales-team@example.com".
+### Option A — Quick local use
+
+```bash
+pip install -r requirements.txt
 ```
 
-This reads as English but compiles into a pipeline combining:
-- RPA instructions (launching and controlling Excel),
-- Data bindings (using SalesSummary from context),
-- OS-level commands (saving and sending files).
+### Option B — Developer mode (recommended)
 
-There’s no API call, no low-level function — only **intent** and **context**.
+From the project root:
 
-## 6. Extended Compiler and Virtual Machine Concepts
+```bash
+pip install -e .
+```
 
-| Concept | Traditional Definition | AIbasic Definition |
-|----------|------------------------|--------------------|
-| **Compiler** | Translates source code to executable code | Translates *natural language intent* to *low-level procedural plans* (e.g. Python, Bash, RPA) |
-| **Virtual Machine** | Executes binary code in isolation | Executes *intent graphs* across distributed subsystems (data, RPA, network, APIs) |
-| **Runtime** | Memory + CPU abstraction | Complete computational ecosystem including I/O, AI Context, and world interfaces |
-| **Variable** | Memory reference to a value | Semantic entity with schema, origin, and mutability metadata |
-| **Program** | Sequence of instructions | Conversational, stateful intent evolution over time |
+This lets you run the compiler anywhere using the `aibasic` command.
 
-## 7. Execution Environment as a Cognitive Architecture
-The AIbasic execution environment is a **cognitive computing layer**.  
-It knows what the code is *trying to do*, not just what it says.
+---
 
-It maintains:
-- a **symbol table** of known entities (variables, services, agents),
-- a **data graph** describing relationships and derivations,
-- a **capability model** that decides *how* to fulfill an action (e.g., use Excel automation vs. direct file generation),
-- a **self-healing loop** that retries or reinterprets instructions if failures occur.
+## 🧠 3. Run the Compiler
 
-This makes AIbasic **contextually adaptive** — each execution builds knowledge that improves future runs.
+You can run the compiler in two ways:
 
-## 8. Example: Describing, Not Coding
-**Task:** Upload this month’s paid orders to a cloud database and generate an analytics dashboard.
+### ▶️ A. Using the CLI module directly
 
-In Python:
+```bash
+python -m aibasic.cli -c aibasic.conf -i examples/01_csv_basic.aib -o output.py
+```
+
+### ▶️ B. Using the Python file directly (if no CLI installed)
+
+```bash
+python src/aibasic/compiler.py -c aibasic.conf -i examples/01_csv_basic.aib -o output.py
+```
+
+### ▶️ C. Using the installed command (after `pip install -e .`)
+
+```bash
+aibasic -c aibasic.conf -i examples/01_csv_basic.aib -o output.py
+```
+
+---
+
+## 🧩 4. Mock Mode (No API Calls)
+
+If you want to test the compiler without using the LLM API (faster, offline):
+
+```bash
+aibasic -c aibasic.conf -i examples/01_csv_basic.aib -o output.py --mock
+```
+
+The compiler will only use the built-in **plugins** (CSV, DataFrame, REST, etc.).
+
+---
+
+## 🏷️ 5. Task Types (New Feature!)
+
+AIBasic now supports **explicit task types** to help the compiler generate more accurate code. Task types are **optional** and can be specified using the format `(task_type)`.
+
+**Example with task types:**
+
+```text
+10 (csv) read the file customers.csv
+20 (df) filter rows where age > 30
+30 (api) call the weather API for New York
+40 (excel) create Excel report with results
+```
+
+**Without task types** (auto-detection):
+
+```text
+10 read the file customers.csv
+20 filter rows where age > 30
+30 call the weather API for New York
+40 create Excel report with results
+```
+
+📖 **See [TASK_TYPES.md](TASK_TYPES.md) for the complete list of 31 available task types** including:
+- Data: `csv`, `excel`, `json`, `xml`, `db`, **`postgres`**, **`mysql`** (with modules)
+- Messaging: **`rabbitmq`**, **`kafka`** (with modules), `stream`
+- Cache: **`redis`** (with module)
+- Search: **`opensearch`** (with module)
+- Network: `api`, `web`
+- Processing: `df`, `math`, `plot`
+- Files: `fs`, `text`, `compress`, `pdf`
+- And many more!
+
+### 🔌 New: Modules System
+
+Some task types use **AIBasic modules** - reusable components that provide persistent functionality:
+
+**PostgreSQL Module** (`postgres` task type):
+```ini
+# Configure in aibasic.conf
+[postgres]
+HOST = localhost
+PORT = 5432
+DATABASE = mydb
+USER = postgres
+PASSWORD = secret
+```
+
+**MySQL/MariaDB Module** (`mysql` task type):
+```ini
+# Configure in aibasic.conf
+[mysql]
+HOST = localhost
+PORT = 3306
+DATABASE = mydb
+USER = root
+PASSWORD = secret
+```
+
+**RabbitMQ Module** (`rabbitmq` task type):
+```ini
+# Configure in aibasic.conf
+[rabbitmq]
+HOST = localhost
+PORT = 5672
+VHOST = /
+USERNAME = guest
+PASSWORD = guest
+USE_SSL = false
+SSL_VERIFY = true  # Set to false for self-signed certs (dev only)
+```
+
+**Kafka Module** (`kafka` task type):
+```ini
+# Configure in aibasic.conf
+[kafka]
+BOOTSTRAP_SERVERS = localhost:9092
+SECURITY_PROTOCOL = PLAINTEXT
+SSL_VERIFY = true  # Set to false for self-signed certs (dev only)
+```
+
+**Redis Module** (`redis` task type):
+```ini
+# Configure in aibasic.conf
+[redis]
+HOST = localhost
+PORT = 6379
+DB = 0
+PASSWORD = secret
+USE_SSL = false
+SSL_VERIFY = true  # Set to false for self-signed certs (dev only)
+```
+
+**OpenSearch Module** (`opensearch` task type):
+```ini
+# Configure in aibasic.conf
+[opensearch]
+HOST = localhost
+PORT = 9200
+USERNAME = admin
+PASSWORD = admin
+USE_SSL = false
+VERIFY_CERTS = true  # Set to false for self-signed certs (dev only)
+# For AWS OpenSearch Service:
+# USE_AWS_AUTH = true
+# AWS_REGION = us-east-1
+```
+
+**Example Usage:**
+```aibasic
+10 (postgres) query all customers from postgres
+20 (mysql) insert into mysql table users values ('Alice', 30)
+30 (rabbitmq) publish message to rabbitmq exchange events
+40 (kafka) publish event to kafka topic user_events
+50 (redis) cache result in redis with key customers:all for 3600 seconds
+60 (opensearch) index document in opensearch index products
+70 (opensearch) search opensearch for products matching "laptop"
+80 (mysql) call mysql stored procedure get_monthly_report
+```
+
+Modules provide:
+- Connection pooling and resource management
+- Persistent state across instructions
+- Configuration-driven behavior
+- Thread-safe operations
+
+📖 See [modules/README.md](src/aibasic/modules/README.md) for details on creating custom modules.
+
+---
+
+## 🧱 6. Example
+
+**Input file** (`examples/01_csv_basic.aib`):
+
+```text
+10 read the file customers.csv into a dataframe
+20 remove the column email
+30 save the dataframe to customers_clean.csv
+```
+
+**Command:**
+```bash
+python -m aibasic.cli -c aibasic.conf -i examples/01_csv_basic.aib -o output.py
+```
+
+**Output file** (`output.py`):
+
 ```python
 import pandas as pd
-import sqlalchemy
-from tableau_api import Client
-df = pd.read_csv("orders.csv")
-df = df[df["status"] == "paid"]
-engine = sqlalchemy.create_engine("postgresql://...")
-df.to_sql("paid_orders", engine)
-client = Client("token")
-client.upload("paid_orders")
-client.refresh_dashboard("monthly_sales")
+
+# 10 read the file customers.csv into a dataframe
+df = pd.read_csv("customers.csv")
+
+# 20 remove the column email
+df = df.drop(columns=["email"])
+
+# 30 save the dataframe to customers_clean.csv
+df.to_csv("customers_clean.csv", index=False)
 ```
 
-In AIbasic:
+---
+
+## 🔍 7. Testing
+
+Run unit tests using **pytest**:
+
+```bash
+pytest -v
 ```
-10 Load "orders.csv" as Orders.
-20 Filter Orders where "status" == "paid" into PaidOrders.
-30 Save PaidOrders into the cloud database "Accounting".
-40 Update the dashboard "Monthly Sales".
+
+Example test file: `tests/test_intent.py`
+
+```python
+from aibasic.intent import determine_intent
+
+def test_load_csv_intent():
+    hint = determine_intent("read the file customers.csv into a dataframe")
+    assert hint.intent == "load_csv"
+    assert hint.filename == "customers.csv"
 ```
 
-No libraries, no boilerplate, no configuration.  
-The compiler deduces the operations, resolves available connectors, and executes through the environment’s services.
+---
 
-## 9. The Philosophy
-AIbasic inverts 70 years of programming evolution:
-- from **syntax** to **semantics**,  
-- from **implementation** to **intention**,  
-- from **code** to **conversation**.
+## 🧠 8. Project Philosophy
 
-The programmer no longer writes algorithms; they describe **outcomes**.  
-The compiler and runtime are no longer mechanical — they are **interpreters of meaning** within a dynamic, intelligent infrastructure.
+AIBasic aims to make programming as close to human reasoning as possible:
 
-## 10. Summary
+> “Write what you mean — let the compiler figure out the code.”
 
-| Feature | Traditional Languages | AIbasic |
-|----------|----------------------|----------|
-| Programming Medium | Formal syntax | Natural language |
-| Compiler | Code translator | Intent interpreter |
-| Runtime | Process-level VM | Distributed cognitive environment |
-| Data Model | Tables, files, APIs | Intelligent data services |
-| Automation | Libraries & APIs | Native RPA integration |
-| Goal | Execute code | Execute intent |
+Each line is:
+1. An **instruction** in plain English (or your language)
+2. Translated by **plugins or an LLM**
+3. Stored with a **context** that grows across steps
 
-AIbasic is the bridge between **language**, **thought**, and **action** — a system where describing a task is the same as programming it.
+This allows incremental compilation where every instruction knows the previous state of your data.
+
+---
+
+## 🧰 9. Useful Commands Summary
+
+| Action | Command |
+|--------|----------|
+| Compile a `.aib` program | `aibasic -c aibasic.conf -i examples/01_csv_basic.aib -o output.py` |
+| Run without LLM (mock) | `aibasic --mock -c aibasic.conf -i examples/... -o output.py` |
+| Run via module | `python -m aibasic.cli -c aibasic.conf -i ... -o ...` |
+| Install locally | `pip install -e .` |
+| Run tests | `pytest` |
+
+---
+
+## 🧩 10. Example Plugins
+
+Plugins are located under `src/aibasic/plugins/`.  
+Each plugin can intercept a certain type of instruction and directly produce code without calling the LLM.
+
+Examples:
+- `csv_plugin.py` → handles CSV read/write
+- `df_plugin.py` → handles DataFrame transformations
+- `rest_plugin.py` → handles REST API calls
+
+You can easily add your own by creating a new file and registering it in the plugin registry.
+
+---
+
+## 🧠 11. Future Plans
+
+- Add multilingual support for instructions (Italian, Spanish, etc.)
+- Add local embedding model for smarter intent detection
+- Integrate with Jupyter for interactive code generation
+- Add dependency graph and flow visualization
+
+---
+
+## 📄 12. License
+
+MIT License © 2025  
+Developed by **[Your Name / Team]**

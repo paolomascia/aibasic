@@ -1,0 +1,22 @@
+# AIBasic Example with Explicit Task Types
+# Task types are optional - specified using (task_type) format
+
+# CSV operations
+10 (csv) read the file customers.csv into a dataframe
+20 (df) filter rows where age > 30
+30 (df) group by country and calculate average revenue
+
+# API call
+40 (api) call the weather API for New York
+
+# Save results
+50 (csv) save the dataframe to output.csv
+60 (excel) create an Excel file with the results
+
+# Math operations
+70 (math) calculate the total revenue
+80 (math) compute the average and standard deviation
+
+# Without explicit task type - will be auto-detected
+90 send email to manager@example.com with the report
+100 create a bar chart of revenue by country

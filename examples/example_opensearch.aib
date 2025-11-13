@@ -1,0 +1,93 @@
+# AIBasic Example - OpenSearch Search and Analytics Operations
+# Requirements: pip install opensearch-py
+# For AWS OpenSearch: pip install boto3 requests-aws4auth
+
+# Index Management
+10 (opensearch) create opensearch index products with mappings
+20 (opensearch) check if opensearch index products exists
+
+# Single Document Operations
+30 (opensearch) index document {"name": "Laptop", "price": 999, "category": "Electronics"} in opensearch index products with id prod-001
+40 (opensearch) get document from opensearch index products with id prod-001
+50 (opensearch) update document in opensearch index products with id prod-001 set price to 899
+
+# Bulk Operations
+60 (opensearch) bulk index 1000 documents to opensearch index products
+70 (opensearch) bulk update documents in opensearch index products
+
+# Search Operations - Simple
+80 (opensearch) search opensearch index products for name matching "laptop"
+90 (opensearch) search all documents in opensearch index products
+
+# Search Operations - Advanced Query DSL
+100 (opensearch) search opensearch with query {"match": {"category": "Electronics"}} in index products
+110 (opensearch) search opensearch with query {"bool": {"must": [{"range": {"price": {"gte": 100, "lte": 1000}}}]}} in index products
+120 (opensearch) search opensearch with query {"multi_match": {"query": "laptop computer", "fields": ["name", "description"]}} in index products
+
+# Exact Match Search
+130 (opensearch) search opensearch with term query for category "Electronics" in index products
+
+# Range Search
+140 (opensearch) search opensearch for products where price between 500 and 1500
+
+# Full-Text Search with Filters
+150 (opensearch) search opensearch for text "gaming" in products where category is "Electronics" and price less than 2000
+
+# Count Documents
+160 (opensearch) count documents in opensearch index products
+170 (opensearch) count documents in opensearch index products matching category "Electronics"
+
+# Aggregations - Statistics
+180 (opensearch) aggregate opensearch index products to get average price by category
+190 (opensearch) aggregate opensearch index products to get price statistics (min, max, avg, sum)
+200 (opensearch) aggregate opensearch index products to get count by category
+
+# Aggregations - Buckets
+210 (opensearch) create opensearch histogram aggregation on price with interval 100 for index products
+220 (opensearch) create opensearch date histogram on created_date by day for index logs
+
+# Aggregations - Terms
+230 (opensearch) get opensearch top 10 categories by document count in index products
+240 (opensearch) get opensearch top sellers with sales aggregation in index orders
+
+# Combined Search and Aggregation
+250 (opensearch) search opensearch products in category "Electronics" and aggregate by brand
+
+# Integration with Database
+260 (postgres) query all products from postgres database
+270 (opensearch) bulk index postgres results into opensearch index products
+
+# Integration with CSV
+280 (csv) read products from CSV file products.csv
+290 (df) convert products to list of dictionaries
+300 (opensearch) bulk index dataframe into opensearch index products
+
+# Delete Operations
+310 (opensearch) delete document from opensearch index products with id prod-001
+320 (opensearch) bulk delete documents from opensearch index products by ids
+
+# Index Operations
+330 (opensearch) refresh opensearch index products
+340 (opensearch) get opensearch index stats for products
+350 (opensearch) delete opensearch index products
+
+# Real-time Log Analysis
+360 (opensearch) create opensearch index logs with time-series mappings
+370 (opensearch) index log entry with timestamp, level, and message to opensearch
+380 (opensearch) search opensearch logs for level "ERROR" in last 24 hours
+390 (opensearch) aggregate opensearch logs by level and count per hour
+
+# E-commerce Search Example
+400 (opensearch) search opensearch products with filters for category, price range, and rating
+410 (opensearch) get opensearch product suggestions based on partial name match
+420 (opensearch) search opensearch with facets for category, brand, and price ranges
+
+# Analytics Dashboard
+430 (opensearch) aggregate opensearch sales data by date, category, and region
+440 (opensearch) calculate opensearch revenue metrics with sum and average aggregations
+450 (opensearch) get opensearch top products by sales volume
+
+# Health and Monitoring
+460 (opensearch) check opensearch cluster health
+470 (opensearch) get opensearch cluster statistics
+480 (opensearch) get opensearch indices statistics
