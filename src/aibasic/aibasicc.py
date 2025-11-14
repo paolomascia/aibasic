@@ -123,12 +123,135 @@ TASK_TYPES = {
             "The module is initialized once and reused"
         ]
     },
+    "mongodb": {
+        "name": "MongoDB NoSQL Operations",
+        "description": "Document-oriented NoSQL database with flexible schema and powerful query capabilities",
+        "keywords": ["mongodb", "nosql", "document database", "mongo", "collection", "bson"],
+        "common_libraries": ["pymongo"],
+        "module": "mongodb_module.MongoDBModule",
+        "examples": [
+            "insert document into mongodb collection",
+            "find documents in mongodb where field equals value",
+            "update mongodb documents",
+            "aggregate data from mongodb collection",
+            "create index on mongodb field"
+        ],
+        "setup_code": "from aibasic.modules import MongoDBModule\nmongo = MongoDBModule.from_config('aibasic.conf')",
+        "usage_notes": [
+            "Use mongo.insert_one() / insert_many() to insert documents",
+            "Use mongo.find() / find_one() to query documents",
+            "Use mongo.update_one() / update_many() to update documents",
+            "Use mongo.delete_one() / delete_many() to delete documents",
+            "Use mongo.aggregate() for aggregation pipelines with $match, $group, $sort, etc.",
+            "Use mongo.create_index() / drop_index() for index management",
+            "Use mongo.create_text_index() / text_search() for full-text search",
+            "Use mongo.bulk_write() for batch operations",
+            "Use mongo.count_documents() to count matching documents",
+            "Supports SSL/TLS with TLS_ALLOW_INVALID_CERTIFICATES=true for self-signed certs",
+            "Connection string format: mongodb://user:pass@host:port/database",
+            "Or use individual parameters: HOST, PORT, USERNAME, PASSWORD, DATABASE",
+            "ObjectId fields automatically converted to strings in results",
+            "Connection pooling configured via MAX_POOL_SIZE and MIN_POOL_SIZE",
+            "The module is initialized once and reused"
+        ]
+    },
+    "s3": {
+        "name": "S3/MinIO Object Storage Operations",
+        "description": "AWS S3 and S3-compatible object storage (MinIO, DigitalOcean Spaces, Wasabi)",
+        "keywords": ["s3", "minio", "object storage", "bucket", "upload", "download", "cloud storage"],
+        "common_libraries": ["boto3"],
+        "module": "s3_module.S3Module",
+        "examples": [
+            "upload file to s3 bucket",
+            "download file from s3",
+            "list objects in s3 bucket",
+            "create s3 bucket",
+            "generate presigned url for s3 object"
+        ],
+        "setup_code": "from aibasic.modules import S3Module\ns3 = S3Module.from_config('aibasic.conf')",
+        "usage_notes": [
+            "Use s3.create_bucket() to create buckets",
+            "Use s3.upload_file() to upload files with automatic multipart for large files",
+            "Use s3.download_file() to download files",
+            "Use s3.delete_object() to delete objects",
+            "Use s3.copy_object() to copy objects within S3",
+            "Use s3.list_objects() to list objects with filtering by prefix",
+            "Use s3.generate_presigned_url() for temporary public access URLs",
+            "Use s3.upload_directory() to upload entire folders",
+            "Use s3.download_directory() to download folders",
+            "Use s3.delete_objects() for batch deletions",
+            "Supports AWS S3, MinIO, DigitalOcean Spaces, Wasabi, and any S3-compatible storage",
+            "Configure ENDPOINT_URL for MinIO or other providers (omit for AWS S3)",
+            "Supports server-side encryption (SSE-S3, SSE-KMS, SSE-C)",
+            "Multipart uploads automatic for files larger than threshold",
+            "Set VERIFY_SSL=false for self-signed certificates (MinIO dev)",
+            "The module is initialized once and reused"
+        ]
+    },
     "api": {
         "name": "API/REST Operations",
-        "description": "HTTP requests, REST API calls, web services",
-        "keywords": ["api", "rest", "http", "get", "post", "request", "endpoint"],
-        "common_libraries": ["requests", "urllib", "httpx"],
-        "examples": ["call the weather API", "POST data to endpoint"]
+        "description": "HTTP/HTTPS REST API calls with multiple authentication methods",
+        "keywords": ["api", "rest", "http", "get", "post", "put", "patch", "delete", "request", "endpoint", "json"],
+        "common_libraries": ["requests"],
+        "module": "restapi_module.RestAPIModule",
+        "examples": [
+            "call the weather API",
+            "POST data to endpoint",
+            "make GET request to api endpoint",
+            "upload file to api",
+            "authenticate with bearer token"
+        ],
+        "setup_code": "from aibasic.modules import RestAPIModule\napi = RestAPIModule.from_config('aibasic.conf')",
+        "usage_notes": [
+            "Use api.get() for GET requests",
+            "Use api.post() for POST requests with JSON or form data",
+            "Use api.put() / patch() / delete() for other HTTP methods",
+            "Use api.get_json() / post_json() for automatic JSON response parsing",
+            "Use api.upload_file() to upload files",
+            "Use api.download_file() to download files",
+            "Use api.paginate() to automatically fetch paginated results",
+            "Supports authentication: none, basic, bearer, apikey, oauth2",
+            "Bearer token: set BEARER_TOKEN in config",
+            "Basic auth: set USERNAME and PASSWORD in config",
+            "API Key: set API_KEY and API_KEY_HEADER or API_KEY_PARAM in config",
+            "OAuth2: set OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, OAUTH2_TOKEN_URL",
+            "Automatic retry logic with exponential backoff",
+            "SSL/TLS with VERIFY_SSL=false for self-signed certs",
+            "Session management for connection pooling and cookies",
+            "The module is initialized once and reused"
+        ]
+    },
+    "ssh": {
+        "name": "SSH Remote Server Operations",
+        "description": "Secure Shell for remote server management, command execution, and file transfer",
+        "keywords": ["ssh", "remote", "server", "sftp", "command", "execute", "transfer", "tunnel", "shell"],
+        "common_libraries": ["paramiko"],
+        "module": "ssh_module.SSHModule",
+        "examples": [
+            "execute command on remote server via ssh",
+            "transfer file to remote server via sftp",
+            "download file from remote server",
+            "run shell script on remote host",
+            "create ssh tunnel to server"
+        ],
+        "setup_code": "from aibasic.modules import SSHModule\nssh = SSHModule.from_config('aibasic.conf')",
+        "usage_notes": [
+            "Use ssh.execute_command() to run commands on remote server",
+            "Use ssh.sftp_upload() / sftp_download() for file transfer",
+            "Use ssh.start_interactive_shell() for interactive sessions",
+            "Use ssh.execute_batch_commands() for multiple commands",
+            "Use ssh.local_forward() / remote_forward() for port forwarding",
+            "Use ssh.send_signal() to send signals to remote processes",
+            "Supports password authentication: set PASSWORD in config",
+            "Supports key-based authentication: set KEY_FILE in config",
+            "For encrypted keys, set KEY_PASSWORD in config",
+            "Host key verification: VERIFY_HOST_KEY=true/false/auto-add",
+            "Connection timeouts: TIMEOUT, BANNER_TIMEOUT, AUTH_TIMEOUT",
+            "Use KEEPALIVE_INTERVAL for long-running connections",
+            "Supports jump hosts/bastion via PROXY_HOST settings",
+            "Command output available via stdout and stderr",
+            "The module is initialized once and reused"
+        ]
     },
     "web": {
         "name": "Web Scraping",
@@ -174,10 +297,34 @@ TASK_TYPES = {
     },
     "email": {
         "name": "Email Operations",
-        "description": "Sending emails, reading mailboxes, email processing",
-        "keywords": ["email", "send email", "smtp", "mailbox", "imap"],
-        "common_libraries": ["smtplib", "email", "imaplib"],
-        "examples": ["send email to customer", "read unread messages"]
+        "description": "SMTP email sending with attachments, HTML, templates, and batch processing",
+        "keywords": ["email", "send email", "smtp", "attachment", "mail", "newsletter"],
+        "common_libraries": ["smtplib", "email"],
+        "module": "email_module.EmailModule",
+        "examples": [
+            "send email to customer",
+            "send email with attachment",
+            "send HTML email with images",
+            "send email to multiple recipients",
+            "send email using template"
+        ],
+        "setup_code": "from aibasic.modules import EmailModule\nemail_sender = EmailModule.from_config('aibasic.conf')",
+        "usage_notes": [
+            "Use email_sender.send_email() for plain text emails",
+            "Use email_sender.send_html_email() for HTML emails with styling",
+            "Use email_sender.send_template_email() for template-based emails",
+            "Attachments: pass list of file paths to attachments parameter",
+            "Multiple recipients: use lists for to, cc, bcc parameters",
+            "Inline images: use inline_images dict with {cid: filepath}",
+            "Email validation: use email_sender.validate_email()",
+            "Test connection: use email_sender.test_connection()",
+            "Batch sending: use email_sender.send_batch_emails() with delay",
+            "Priority levels: 'low', 'normal', 'high'",
+            "Supports TLS (port 587) and SSL (port 465) encryption",
+            "Common providers: Gmail (smtp.gmail.com:587), Outlook (smtp.office365.com:587)",
+            "Gmail requires app passwords (not regular password)",
+            "The module is initialized once and reused"
+        ]
     },
     "image": {
         "name": "Image Processing",
@@ -434,7 +581,7 @@ SYSTEM_PROMPT = (
     1. Read the current context (a JSON-like description of known variables, last outputs, and their meanings).
     2. Read the current AIBasic instruction (in English, e.g. "read the file customers.csv into a dataframe").
     3. Produce Python code that performs that instruction, using Pandas or standard Python whenever appropriate.
-    4. Update the context to tell the compiler what variables now exist, or which variable is the “last output” of this step.
+    4. Update the context to tell the compiler what variables now exist, or which variable is the "last output" of this step.
     5. Declare which Python imports are required.
 
     You MUST respond with a **single valid JSON object** with EXACTLY these keys:
@@ -447,8 +594,21 @@ SYSTEM_PROMPT = (
     - If the instruction is ambiguous, make a reasonable assumption and state it in the "context_updates".
     - If you cannot do the instruction, return code that raises a clear Exception and explain the reason in "context_updates".
     - Prefer Pandas for CSV/Excel/table-like operations.
-    - If the instruction refers to “the dataframe”, assume it refers to the most recent dataframe in context (often stored under "df" or under "last_output").
+    - If the instruction refers to "the dataframe", assume it refers to the most recent dataframe in context (often stored under "df" or under "last_output").
     - Always set "last_output" in "context_updates" to the most relevant variable produced by this step (e.g. "df").
+
+    **JUMP/GOTO Instructions:**
+    - AIBasic supports conditional jumps like "if <condition> jump to line <number>"
+    - When you see a jump instruction with an IF condition, generate code that:
+      1. Evaluates the condition
+      2. Sets a special variable `_aibasic_jump_condition = True` if the condition is met, `False` otherwise
+    - Example: "if x > 10 jump to line 50" should generate:
+      {
+        "code": "_aibasic_jump_condition = (x > 10)",
+        "context_updates": {"_aibasic_jump_condition": "True if x > 10, controls jump to line 50"},
+        "needs_imports": []
+      }
+    - The compiler will automatically handle the actual jump based on `_aibasic_jump_condition`
 
     Output format example (MUST follow this structure):
     {
@@ -487,26 +647,31 @@ def read_aibasic_file(path: Path):
 
 def parse_instruction(line: str):
     """
-    Parse an instruction line with optional task type.
+    Parse an instruction line with optional task type and jump detection.
 
     Examples:
-        '10 read the file customers.csv' → (10, 'read the file customers.csv', None)
-        '10 (csv) read the file customers.csv' → (10, 'read the file customers.csv', 'csv')
-        '20 (api) call the weather endpoint' → (20, 'call the weather endpoint', 'api')
+        '10 read the file customers.csv' → (10, 'read the file customers.csv', None, None, False, None, None, False)
+        '10 (csv) read the file customers.csv' → (10, 'read the file customers.csv', 'csv', None, False, None, None, False)
+        '20 goto 50' → (20, 'goto 50', None, 50, True, None, None, False)
+        '30 if x > 10 jump to line 100' → (30, 'if x > 10 jump to line 100', None, 100, False, None, None, False)
+        '40 on error goto 200' → (40, 'on error goto 200', None, None, False, 200, None, False)
+        '50 call 1000' → (50, 'call 1000', None, None, False, None, 1000, False)
+        '60 return' → (60, 'return', None, None, False, None, None, True)
 
     Returns:
-        tuple: (line_number, instruction_text, task_type)
+        tuple: (line_number, instruction_text, task_type, jump_target, is_unconditional_jump, error_handler, call_target, is_return)
     """
+    import re
+
     parts = line.split(maxsplit=1)
     if len(parts) == 1:
-        return int(parts[0]), "", None
+        return int(parts[0]), "", None, None, False, None, None, False
 
     num_str, text = parts
     text = text.strip()
 
     # Check for task type in format (task_type)
     task_type = None
-    import re
     match = re.match(r'\(([a-z_]+)\)\s*(.*)', text, re.IGNORECASE)
     if match:
         task_type = match.group(1).lower()
@@ -517,7 +682,47 @@ def parse_instruction(line: str):
             print(f"[WARNING] Unknown task type '({task_type})' - will be ignored. Valid types: {', '.join(TASK_TYPES.keys())}")
             task_type = None
 
-    return int(num_str), text, task_type
+    # Check for RETURN statement
+    is_return = False
+    return_match = re.match(r'^return$', text, re.IGNORECASE)
+    if return_match:
+        is_return = True
+        print(f"[RETURN] Detected return statement")
+        return int(num_str), text, task_type, None, False, None, None, is_return
+
+    # Check for CALL statement: "call <line>"
+    call_target = None
+    call_match = re.match(r'^call\s+(?:line\s+)?(\d+)$', text, re.IGNORECASE)
+    if call_match:
+        call_target = int(call_match.group(1))
+        print(f"[CALL] Detected subroutine call to line {call_target}")
+        return int(num_str), text, task_type, None, False, None, call_target, False
+
+    # Check for error handler: "on error goto <line>"
+    error_handler = None
+    error_handler_match = re.match(r'^on\s+error\s+(?:goto|jump\s+to)\s+(?:line\s+)?(\d+)$', text, re.IGNORECASE)
+    if error_handler_match:
+        error_handler = int(error_handler_match.group(1))
+        print(f"[ERROR HANDLER] Detected error handler: on error goto {error_handler}")
+        return int(num_str), text, task_type, None, False, error_handler, None, False
+
+    # Check for unconditional jump: "goto <line>" or "jump to <line>"
+    jump_target = None
+    is_unconditional = False
+
+    unconditional_match = re.match(r'^(?:goto|jump\s+to)\s+(?:line\s+)?(\d+)$', text, re.IGNORECASE)
+    if unconditional_match:
+        jump_target = int(unconditional_match.group(1))
+        is_unconditional = True
+        print(f"[JUMP] Detected unconditional jump to line {jump_target}")
+    else:
+        # Check for conditional jump: "if ... jump to line <line>"
+        conditional_match = re.search(r'(?:jump\s+to|goto)\s+(?:line\s+)?(\d+)', text, re.IGNORECASE)
+        if conditional_match:
+            jump_target = int(conditional_match.group(1))
+            print(f"[JUMP] Detected conditional jump to line {jump_target}")
+
+    return int(num_str), text, task_type, jump_target, is_unconditional, error_handler, call_target, is_return
 
 def call_llm(conf: dict, context: dict, instruction_text: str, task_type: str = None, mock: bool = False):
     """
@@ -784,11 +989,64 @@ def main():
     parsed_instructions = [parse_instruction(line) for line in instructions]
     parsed_instructions.sort(key=lambda t: t[0])
 
-    for line_num, instr_text, explicit_task_type in parsed_instructions:
+    # Check if any jumps, error handlers, or subroutines exist in the program
+    has_jumps = any(jump_target is not None for _, _, _, jump_target, _, _, _, _ in parsed_instructions)
+    has_error_handlers = any(error_handler is not None for _, _, _, _, _, error_handler, _, _ in parsed_instructions)
+    has_subroutines = any(call_target is not None or is_return for _, _, _, _, _, _, call_target, is_return in parsed_instructions)
+
+    # Track current error handler (can be updated by "on error goto" instructions)
+    current_error_handler = None
+
+    for line_num, instr_text, explicit_task_type, jump_target, is_unconditional, error_handler, call_target, is_return in parsed_instructions:
         print(f"\n--- Compiling instruction {line_num} ---")
         print(f"Text: {instr_text}")
         if explicit_task_type:
             print(f"Explicit Task Type: {explicit_task_type}")
+        if jump_target:
+            print(f"Jump target: {jump_target} ({'unconditional' if is_unconditional else 'conditional'})")
+        if error_handler:
+            print(f"Error handler: on error goto {error_handler}")
+        if call_target:
+            print(f"Subroutine call to line {call_target}")
+        if is_return:
+            print(f"Return from subroutine")
+
+        # Handle RETURN statement
+        if is_return:
+            code = "if _call_stack:\n"
+            code += "    _next_line = _call_stack.pop()\n"
+            code += "else:\n"
+            code += "    _next_line = None  # End program if no return address\n"
+            generated_codes.append(f"# {line_num} {instr_text}\n{code}")
+            continue
+
+        # Handle CALL statement
+        if call_target is not None:
+            # Find next line number for return address
+            current_idx = next(i for i, (ln, _, _, _, _, _, _, _) in enumerate(parsed_instructions) if ln == line_num)
+            if current_idx < len(parsed_instructions) - 1:
+                return_line = parsed_instructions[current_idx + 1][0]
+                code = f"_call_stack.append({return_line})\n"
+                code += f"_next_line = {call_target}\n"
+            else:
+                # Last line - no return address
+                code = f"_next_line = {call_target}\n"
+            generated_codes.append(f"# {line_num} {instr_text}\n{code}")
+            continue
+
+        # Handle error handler directive
+        if error_handler is not None:
+            current_error_handler = error_handler
+            code = f"_error_handler = {error_handler}"
+            generated_codes.append(f"# {line_num} {instr_text}\n{code}\n")
+            continue
+
+        # Handle unconditional jumps
+        if is_unconditional:
+            # Generate jump using program counter
+            code = f"_next_line = {jump_target}"
+            generated_codes.append(f"# {line_num} {instr_text}\n{code}\n")
+            continue
 
         hint = determine_intent(instr_text)
         print("[INTENT]", hint.to_dict())
@@ -819,6 +1077,12 @@ def main():
 
         code = result.get("code", "")
         if code:
+            # If this is a conditional jump, add the jump after condition
+            if jump_target and not is_unconditional:
+                # Add conditional jump using program counter
+                code += f"\nif _aibasic_jump_condition:\n"
+                code += f"    _next_line = {jump_target}\n"
+
             generated_codes.append(f"# {line_num} {instr_text}\n{code}\n")
 
         for imp in result.get("needs_imports", []):
@@ -828,13 +1092,107 @@ def main():
     with out_path.open("w", encoding="utf-8") as f:
         if collected_imports:
             for imp in sorted(collected_imports):
-                f.write(f"{imp}\n")
+                f.write(f"import {imp}\n")
             f.write("\n")
+
         f.write("# === Generated by AIBasic Compiler ===\n\n")
-        for code in generated_codes:
-            f.write(code)
-            if not code.endswith("\n"):
+
+        if has_jumps or has_error_handlers or has_subroutines:
+            # Collect all variables from context
+            all_variables = set()
+            if "variables" in context and isinstance(context["variables"], dict):
+                all_variables.update(context["variables"].keys())
+            # Remove internal/meta variables
+            all_variables.discard("last_output")
+            all_variables.discard("description")
+
+            # Generate a function for each line
+            for idx, (line_num, _, _, _, _, _, _, _) in enumerate(parsed_instructions):
+                f.write(f"def _line_{line_num}():\n")
+
+                # Declare global variables (include _error_handler and _call_stack if needed)
+                globals_list = ["_next_line"]
+                if has_error_handlers:
+                    globals_list.append("_error_handler")
+                if has_subroutines:
+                    globals_list.append("_call_stack")
+                globals_list.extend(sorted(all_variables))
+                f.write(f"    global {', '.join(globals_list)}\n")
+
+                # Write the code for this line
+                code = generated_codes[idx]
+                for code_line in code.split('\n'):
+                    if code_line.strip() and not code_line.strip().startswith('#'):
+                        f.write(f"    {code_line}\n")
+                    elif code_line.strip().startswith('#'):
+                        f.write(f"    {code_line}\n")
+
+                # Set next line if no jump occurred
+                if idx < len(parsed_instructions) - 1:
+                    next_line_num = parsed_instructions[idx + 1][0]
+                    f.write(f"    if _next_line is None:\n")
+                    f.write(f"        _next_line = {next_line_num}\n")
+
                 f.write("\n")
+
+            # Generate main function with dispatch loop
+            f.write("def main():\n")
+
+            # Declare global variables in main
+            globals_list = ["_next_line"]
+            if has_error_handlers:
+                globals_list.append("_error_handler")
+            if has_subroutines:
+                globals_list.append("_call_stack")
+            globals_list.extend(sorted(all_variables))
+            f.write(f"    global {', '.join(globals_list)}\n")
+
+            f.write("    _current_line = " + str(parsed_instructions[0][0]) + "\n")
+            f.write("    _next_line = None\n")
+            if has_error_handlers:
+                f.write("    _error_handler = None  # Error handler line number\n")
+            if has_subroutines:
+                f.write("    _call_stack = []  # Stack for subroutine return addresses\n")
+            f.write("\n")
+
+            f.write("    # Line dispatch table\n")
+            f.write("    _line_functions = {\n")
+            for line_num, _, _, _, _, _, _, _ in parsed_instructions:
+                f.write(f"        {line_num}: _line_{line_num},\n")
+            f.write("    }\n\n")
+
+            f.write("    while _current_line is not None:\n")
+            f.write("        _next_line = None\n")
+            f.write("        line_func = _line_functions.get(_current_line)\n")
+            f.write("        if line_func:\n")
+
+            if has_error_handlers:
+                # Wrap function call in try-except when error handlers are present
+                f.write("            try:\n")
+                f.write("                line_func()\n")
+                f.write("            except Exception as e:\n")
+                f.write("                if _error_handler is not None:\n")
+                f.write("                    # Store error information in globals\n")
+                f.write("                    globals()['_last_error'] = e\n")
+                f.write("                    globals()['_last_error_line'] = _current_line\n")
+                f.write("                    _next_line = _error_handler\n")
+                f.write("                else:\n")
+                f.write("                    raise  # Re-raise if no error handler is set\n")
+            else:
+                f.write("            line_func()\n")
+
+            f.write("        else:\n")
+            f.write("            break\n")
+            f.write("        _current_line = _next_line\n\n")
+
+            f.write("if __name__ == '__main__':\n")
+            f.write("    main()\n")
+        else:
+            # Simple linear code
+            for code in generated_codes:
+                f.write(code)
+                if not code.endswith("\n"):
+                    f.write("\n")
 
     print("\n=== COMPILATION COMPLETE ===")
     print(f"Generated file: {out_path}")

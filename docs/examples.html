@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>End-to-end Examples (Expanded) · AIbasic (v0.9)</title>
+<title>Examples · AIbasic (v1.0)</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,172 +11,356 @@
   <div class="brandbar">
     <div class="inner">
       <a href="index.html" class="brand">
-        <img src="logo.png" alt="AIBASIC logo">
+        <img src="logo_dark.png" alt="AIBASIC logo">
         <div class="titles">
           <div class="name">AIBASIC</div>
-          <div class="tagline">AI-assisted BASIC programming language</div>
+          <div class="tagline">Natural Language Programming</div>
         </div>
       </a>
     </div>
   </div>
   <div class="navbar">
     <div class="inner">
-      <nav><a href="history.html">History</a>
-      <a href="language.html">Language</a>
-      <a href="semantics.html">Semantics</a>
-      <a href="rpa.html">RPA</a>
-      <a href="compilation.html">Compilation</a>
-      <a href="tooling.html">Tooling</a>
-      <a href="examples.html">Examples</a>
-      <a href="ebnf.html">EBNF</a>
-      <a href="glossary.html">Glossary</a>
-      <a href="changelog.html">Changelog</a></nav>
+      <nav>
+        <a href="manifesto.html">Manifesto</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="language.html">Language</a>
+        <a href="modules.html">Modules</a>
+        <a href="control-flow.html">Control Flow</a>
+        <a href="examples.html">Examples</a>
+        <a href="changelog.html">Changelog</a>
+      </nav>
     </div>
   </div>
 </header>
 
 <div class="container">
-  <h1>Examples — Expanded Cookbook</h1>
-  <p class="muted">Copy-paste friendly programs demonstrating common patterns. Each block is valid AIbasic (English, numbered instructions).</p>
+  <h1>AIbasic Examples <span class="badge">v1.0</span></h1>
+  <p class="muted">Real-world examples demonstrating AIbasic features including modules, control flow, error handling, and subroutines.</p>
 
-  <h2 id="data-pipeline">A. Data Processing Pipeline (ETL/ELT)</h2>
+  <h2 id="basic">1. Basic Data Processing</h2>
   <div class="panel">
-    <p><strong>Goal:</strong> Ingest multiple CSV/Parquet sources, clean & enrich, compute KPIs, pivot, and export artifacts for BI and for an upload step.</p>
+    <p><strong>Goal:</strong> Read CSV, filter, transform, and export to Excel</p>
   </div>
-<pre><code>10 Load "data/customers.csv" as Customers.
-20 Load "data/orders_2025.parquet" as Orders.
-30 Create a table named CountryISO with columns Country, ISO and rows ["Italy","IT"], ["France","FR"], ["Germany","DE"].
+<pre><code>10 (csv) read file "sales.csv" into data
+20 (df) filter data where revenue is greater than 1000
+30 (df) group data by region and calculate sum of revenue
+40 (df) sort by revenue descending
+50 (excel) save result to "sales_report.xlsx"
+60 print "Report generated successfully!"</code></pre>
 
-40 Filter Orders where "Status" in ["Paid","Shipped"] into ValidOrders.
-50 Add column "OrderDate" to ValidOrders as date of "Date".
-60 Add column "Month" to ValidOrders as month("OrderDate").
-70 Add column "Revenue" to ValidOrders as to_float("Amount").
-80 Join ValidOrders with Customers on "CustomerID" into OrdersCustomers.
-90 Join OrdersCustomers with CountryISO on left."Country" == right."Country" into Enriched.
-
-100 Filter Enriched where "OrderDate" between "2025-01-01" and "2025-12-31" into ThisYear.
-110 Group ThisYear by "ISO","Month" and compute sum of "Revenue" as TotalRev, count() as NumOrders into RevByIsoMonth.
-120 Pivot RevByIsoMonth index "ISO" columns "Month" values "TotalRev" into RevPivot.
-130 Sort RevByIsoMonth by "TotalRev" descending into TopMonthly.
-
-140 Export RevByIsoMonth to CSV at "out/revenue_by_iso_month.csv".
-150 Save RevPivot to "out/revenue_pivot.parquet".
-160 Show the first 15 rows of TopMonthly.
-170 Print "Grand total: " + sum of ThisYear."Revenue" + " EUR".
-</code></pre>
-
-  <h3>Window functions & rolling metrics</h3>
-<pre><code>180 Group ThisYear by "ISO","Month" and compute sum of "Revenue" as MonthlyRev into MonthlyByIso.
-190 Add column "Rolling3" to MonthlyByIso as rolling_sum("MonthlyRev", window=3, by="ISO", order_by="Month").
-200 Add column "MoM" to MonthlyByIso as pct_change("MonthlyRev", by="ISO", order_by="Month").
-210 Export MonthlyByIso to CSV at "out/monthly_rolling.csv".
-</code></pre>
-
-  <h2 id="ssh">B. SSH Command Series (Multi-host orchestration)</h2>
+  <h2 id="database-etl">2. Database ETL Pipeline</h2>
   <div class="panel">
-    <p><strong>Goal:</strong> Connect to a fleet of hosts, run commands, parse outputs, collect artifacts, and handle retries.</p>
+    <p><strong>Goal:</strong> Extract from PostgreSQL, transform data, load to MongoDB</p>
   </div>
-<pre><code>10 Create a list Hosts = ["10.0.0.11","10.0.0.12","10.0.0.13"].
-20 Let User be "admin".
-30 Let KeyPath be "~/.ssh/id_rsa".
+<pre><code>10 (postgres) connect to database "source_db"
+20 (postgres) query "SELECT * FROM orders WHERE date > '2025-01-01'"
+30 (df) add calculated column total_price from quantity times price
+40 (df) filter where total_price is greater than 100
+50 (mongodb) connect to collection "processed_orders"
+60 (mongodb) insert documents from transformed data
+70 print "ETL pipeline completed"</code></pre>
 
-40 For each Host in Hosts do
-50   Open SSH to Host with user User and key KeyPath as Session.
-60   Send "hostname" on Session and expect "\n" into HostnameOut.
-70   Send "uptime" on Session and expect "\n" into UptimeOut.
-80   Send "df -h /" on Session and expect "\n" into DiskOut.
-90   Parse DiskOut with regex "(\d+)%\s+/" into RootUsage.
-100  If to_int(RootUsage[0]) > 85 then Print Host + " WARNING: root usage " + RootUsage[0] + "%".
-110  SFTP download "/var/log/app.log" to "logs/" + Host + "_app.log" from Session.
-120  Close Session.
-130 End for.
-
-140 Create a table named Summary with columns Host, Uptime, RootUsage and rows [].
-150 For each Host in Hosts do
-160   Append row [Host, UptimeOut for Host, RootUsage for Host] to Summary.
-170 End for.
-180 Export Summary to CSV at "out/ssh_summary.csv".
-</code></pre>
-
-  <h3>Resilient SSH with retries & timeouts</h3>
-<pre><code>190 LABEL RetrySSH:
-200 Try Open SSH to "10.0.0.42" with user "ops" and password "secret" timeout 10s as S.
-210 If Error then Wait 2 seconds and Go to RetrySSH.
-220 Send "systemctl status service-x --no-pager" on S and expect "Active:" up to 8 seconds into StatusOut.
-230 If not Found("Active: active", in=StatusOut) then Print "Service-X is not active" else Print "Service-X OK".
-240 Close S.
-</code></pre>
-
-  <h2 id="browser">C. Browser Automation (Login → scrape → upload)</h2>
+  <h2 id="loops">3. Loops with Conditional Jumps</h2>
   <div class="panel">
-    <p><strong>Goal:</strong> Log in, navigate to a paginated table, scrape rows, export a CSV, then upload a generated report.</p>
+    <p><strong>Goal:</strong> Process items with a counter loop</p>
   </div>
-<pre><code>10 Open a new browser as Browser.
-20 Open "https://portal.example.com/login" in Browser as LoginPage.
-30 Type "ops@example.com" into css=#user on LoginPage.
-40 Type "pass123" into css=#pass on LoginPage.
-50 Click the "Sign in" button on LoginPage.
-60 Wait for text "Dashboard" on LoginPage up to 12 seconds.
+<pre><code>10 set counter to 0
+20 set total to 0
+30 print "Processing item" and counter
+40 add 10 to total
+50 increment counter by 1
+60 if counter is less than 5 jump to line 30
+70 print "Total:" and total
+80 print "Processing complete"</code></pre>
 
-70 Open "https://portal.example.com/orders" in Browser as OrdersPage.
-80 Let AllRows be empty list.
-90 LABEL ReadPage:
-100  Read table css=table.orders into PageRows on OrdersPage.
-110  Extend AllRows with PageRows.
-120  If Exists(css=a.next:not(.disabled) on OrdersPage) then
-130     Click css=a.next on OrdersPage
-140     Wait for network idle on OrdersPage up to 6 seconds
-150     Go to ReadPage.
-160  End if.
+  <h2 id="error-handling">4. Error Handling</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Handle division by zero with error recovery</p>
+  </div>
+<pre><code>10 print "Starting calculation..."
+20 set x to 10
+30 set y to 0
+40 on error goto 100
+50 divide x by y and store in result
+60 print "Result:" and result
+70 goto 200
 
-170 Create a table named OrdersTable with columns OrderID, Customer, Date, Amount and rows from AllRows.
-180 Filter OrdersTable where "Date" >= "2025-01-01" into Orders2025.
-190 Export Orders2025 to CSV at "out/orders_2025.csv".
+100 print "ERROR CAUGHT!"
+110 print "Error occurred at line" and _last_error_line
+120 print "Error message:" and _last_error
+130 print "Using default value instead"
+140 set result to 0
 
-200 Open "https://portal.example.com/reports/upload" in Browser as UploadPage.
-210 Upload file "out/orders_2025.csv" into css=#uploader on UploadPage.
-220 Click the "Submit" button on UploadPage.
-230 Wait for text "Upload completed" on UploadPage up to 20 seconds.
-240 Print "Browser flow: Done".
-</code></pre>
+200 print "Program complete. Result =" and result</code></pre>
 
-  <h3>Assertions & screenshots on failure</h3>
-<pre><code>250 If not Exists(text="Upload completed" on UploadPage) then
-260   Take screenshot on UploadPage into "out/upload_error.png".
-270   Print "Upload failed, screenshot saved".
-280 End if.
-</code></pre>
+  <h2 id="subroutines">5. Subroutines</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Reusable code with CALL/RETURN</p>
+  </div>
+<pre><code>10 print "Main program start"
+20 set x to 5
+30 set y to 3
+40 call 1000
+50 print "Sum is:" and sum_result
+60 call 2000
+70 print "Product is:" and product_result
+80 goto 9999
 
-  <h2 id="api">D. REST API + Data join (bonus)</h2>
-<pre><code>10 Call GET "https://api.example.com/v1/products" headers {"Authorization":"Bearer ABC"} into ApiProducts.
-20 Create a table named ProductsApi from json ApiProducts["items"].
-30 Join ProductsApi with Orders2025 on left."ProductID" == right."ProductID" into OrdersWithCatalog.
-40 Group OrdersWithCatalog by "Category" and compute sum of "Amount" as Total into ByCategory.
-50 Export ByCategory to CSV at "out/revenue_by_category.csv".
-</code></pre>
+# Subroutine: Addition
+1000 print "  [ADD] Calculating sum..."
+1010 add x to y and store in sum_result
+1020 return
 
-  <h2 id="errors">E. Error handling patterns (bonus)</h2>
-<pre><code>10 Try Load "missing.csv" as Missing.
-20 If Error then Print "File missing.csv not found" and Continue.
-30 Try Open "https://unstable.example.com" in Browser timeout 5s as MaybePage.
-40 If Error then Wait 3 seconds and Retry up to 3 times else Print "Opened OK".
-</code></pre>
+# Subroutine: Multiplication
+2000 print "  [MULTIPLY] Calculating product..."
+2010 multiply x by y and store in product_result
+2020 return
 
-  <h2 id="scheduling">F. Scheduling & batches (bonus)</h2>
-<pre><code>10 For each Day in daterange("2025-09-01","2025-09-30") do
-20   Load "logs/" + format(Day,"YYYYMMDD") + ".csv" as Daily.
-30   Append Daily to AllLogs.
-40 End for.
-50 Group AllLogs by "Level" and compute count() as N into LogCounts.
-60 Export LogCounts to CSV at "out/log_counts_sep2025.csv".
-</code></pre>
+9999 print "Program end"</code></pre>
 
-  <hr/>
-  <p>Tip: mix and match sections A–C to build a fully automated nightly pipeline (ETL → SSH deploy → Browser upload).</p>
+  <h2 id="nested-subroutines">6. Nested Subroutines</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Subroutines calling other subroutines</p>
+  </div>
+<pre><code>10 set number to 6
+20 print "Checking if" and number and "is even..."
+30 call 1000
+40 print "Result:" and number and "is" and parity
+50 goto 9999
+
+# Subroutine: CHECK_PARITY
+1000 print "  [CHECK_PARITY] Checking..."
+1010 call 2000
+1020 if is_even_result is true jump to line 1050
+1030 set parity to "ODD"
+1040 return
+1050 set parity to "EVEN"
+1060 return
+
+# Subroutine: IS_EVEN
+2000 print "    [IS_EVEN] Testing divisibility..."
+2010 set remainder to number modulo 2
+2020 if remainder equals 0 jump to line 2050
+2030 set is_even_result to false
+2040 return
+2050 set is_even_result to true
+2060 return
+
+9999 print "Done"</code></pre>
+
+  <h2 id="s3-storage">7. S3/MinIO Storage</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Upload and download files from S3</p>
+  </div>
+<pre><code>10 (csv) read file "data.csv" into dataset
+20 (df) filter dataset where value is greater than 100
+30 (csv) save dataset to "filtered_data.csv"
+40 (s3) upload file "filtered_data.csv" to bucket "reports"
+50 print "File uploaded to S3"
+60 (s3) list objects in bucket "reports" with prefix "filtered"
+70 print "Files in S3:" and object_list
+80 (s3) generate presigned URL for object "filtered_data.csv"
+90 print "Download URL:" and presigned_url</code></pre>
+
+  <h2 id="ssh-automation">8. SSH Server Automation</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Execute commands on remote servers with error handling</p>
+  </div>
+<pre><code>10 set servers to list "192.168.1.10" "192.168.1.11" "192.168.1.12"
+20 set index to 0
+
+30 if index >= length of servers jump to line 999
+40 get server at index from servers
+50 print "Connecting to" and server
+
+60 on error goto 200
+70 (ssh) connect to server
+80 (ssh) execute command "uptime"
+90 (ssh) execute command "df -h"
+100 print "Server" and server and "OK"
+110 goto 300
+
+200 print "ERROR on server" and server
+210 print _last_error
+
+300 increment index by 1
+310 goto 30
+
+999 print "All servers checked"</code></pre>
+
+  <h2 id="email-notification">9. Email Notification</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Send report via email with attachment</p>
+  </div>
+<pre><code>10 (csv) read file "daily_report.csv" into report
+20 (df) calculate summary statistics for report
+30 (csv) save report to "summary.csv"
+40 (email) send email to "manager@example.com"
+50 (email) set subject to "Daily Report - " and today's date
+60 (email) set body to "Please find attached the daily report"
+70 (email) attach file "summary.csv"
+80 print "Email sent successfully"</code></pre>
+
+  <h2 id="api-integration">10. REST API Integration</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Fetch data from API and process</p>
+  </div>
+<pre><code>10 (api) GET request to "https://api.example.com/users"
+20 (api) set bearer token for authentication
+30 (json) parse response into users_data
+40 (df) create dataframe from users_data
+50 (df) filter where status equals "active"
+60 (api) POST data to "https://api.example.com/analytics"
+70 print "API integration complete"</code></pre>
+
+  <h2 id="kafka-streaming">11. Kafka Message Processing</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Consume messages from Kafka and process with error handling</p>
+  </div>
+<pre><code>10 (kafka) connect to topic "orders"
+20 set processed to 0
+
+30 (kafka) consume message from topic "orders"
+40 if no message available jump to line 999
+50 print "Processing message:" and message
+
+60 on error goto 200
+70 (json) parse message into order_data
+80 (postgres) insert order_data into orders table
+90 increment processed by 1
+100 goto 30
+
+200 print "Failed to process message"
+210 (kafka) publish message to topic "failed-orders"
+220 goto 30
+
+999 print "Processed" and processed and "messages"</code></pre>
+
+  <h2 id="redis-caching">12. Redis Caching Pattern</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Cache expensive calculations in Redis</p>
+  </div>
+<pre><code>10 set user_id to "12345"
+20 (redis) get value from key "user:" and user_id
+
+30 if value exists jump to line 100
+
+# Cache miss - calculate and store
+40 print "Cache MISS - calculating..."
+50 (postgres) query "SELECT * FROM users WHERE id =" and user_id
+60 (json) convert query result to json
+70 (redis) set key "user:" and user_id to value json
+80 (redis) set expiration to 3600 seconds
+90 goto 200
+
+# Cache hit
+100 print "Cache HIT - using cached data"
+110 (json) parse value into user_data
+
+200 print "User data:" and user_data
+210 print "Processing complete"</code></pre>
+
+  <h2 id="opensearch">13. OpenSearch/Elasticsearch</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Index documents and perform search</p>
+  </div>
+<pre><code>10 (csv) read file "products.csv" into products
+20 (opensearch) connect to index "products"
+30 (opensearch) bulk index documents from products
+40 print "Indexed" and row count of products and "products"
+
+50 (opensearch) search for "laptop" in all fields
+60 (opensearch) filter results where price is less than 1000
+70 (df) create dataframe from search results
+80 (excel) save results to "laptop_search.xlsx"
+90 print "Search complete"</code></pre>
+
+  <h2 id="vault-secrets">14. Vault Secrets Management</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Securely retrieve secrets from HashiCorp Vault</p>
+  </div>
+<pre><code>10 (vault) read secret from path "secret/database/prod"
+20 set db_user to secret field "username"
+30 set db_pass to secret field "password"
+40 (postgres) connect with username db_user and password db_pass
+50 (postgres) query "SELECT COUNT(*) FROM orders"
+60 print "Query executed successfully"</code></pre>
+
+  <h2 id="compression">15. File Compression</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Compress and extract files</p>
+  </div>
+<pre><code>10 set folder to "reports"
+20 (compress) compress folder to "archive.zip"
+30 print "Compressed" and folder and "to archive.zip"
+40 (s3) upload file "archive.zip" to bucket "backups"
+50 print "Backup complete"
+
+60 on error goto 200
+70 (compress) extract archive "old_backup.zip" to "restored/"
+80 print "Restore successful"
+90 goto 999
+
+200 print "Restore failed:" and _last_error
+
+999 print "Done"</code></pre>
+
+  <h2 id="complex-etl">16. Complex ETL with Multiple Sources</h2>
+  <div class="panel">
+    <p><strong>Goal:</strong> Combine data from multiple sources with error handling</p>
+  </div>
+<pre><code>10 on error goto 900
+
+# Extract from multiple sources
+20 (postgres) connect to database "sales_db"
+30 (postgres) query "SELECT * FROM sales WHERE date > '2025-01-01'"
+40 set sales_data to query result
+
+50 (mongodb) connect to collection "customers"
+60 (mongodb) find all documents
+70 set customer_data to documents
+
+80 (api) GET request to "https://api.example.com/products"
+90 set product_data to response
+
+# Transform
+100 (df) create dataframe from sales_data
+110 (df) join with customer_data on customer_id
+120 (df) join with product_data on product_id
+130 (df) add calculated column revenue from price times quantity
+140 (df) group by category and calculate sum of revenue
+
+# Load
+150 (excel) save result to "sales_report.xlsx"
+160 (s3) upload file "sales_report.xlsx" to bucket "reports"
+170 (email) send email with attachment "sales_report.xlsx"
+
+180 print "ETL pipeline completed successfully"
+190 goto 999
+
+900 print "ETL pipeline failed"
+910 print "Error at line" and _last_error_line
+920 print "Error:" and _last_error
+930 (email) send error notification to "admin@example.com"
+
+999 print "End"</code></pre>
+
+  <div class="panel">
+    <h3>Pro Tips</h3>
+    <ul>
+      <li>Use <strong>error handlers</strong> (ON ERROR GOTO) for risky operations</li>
+      <li>Create <strong>subroutines</strong> (CALL/RETURN) for reusable logic</li>
+      <li>Use <strong>task type hints</strong> for clarity: <code>(postgres)</code>, <code>(csv)</code>, <code>(api)</code></li>
+      <li>Space line numbers by 10s for easy insertion</li>
+      <li>Use line 1000+ for subroutines, 9000+ for error handlers</li>
+      <li>Test incrementally — compile and run frequently</li>
+    </ul>
+  </div>
 </div>
 
-<div class="footer container">
-  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+<div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
+  © 2025 AIbasic v1.0 — Natural Language Programming
 </div>
 <script src="script.js"></script>
 </body></html>

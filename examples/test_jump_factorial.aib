@@ -1,0 +1,10 @@
+# Factorial calculator using jumps
+# Calculates factorial of n (n!)
+
+10 set n to 5
+20 set factorial to 1
+30 set i to 1
+40 if i is greater than n jump to line 70
+50 multiply factorial by i
+60 increment i by 1 and goto 40
+70 print "Factorial of" and n and "is" and factorial

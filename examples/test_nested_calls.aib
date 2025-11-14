@@ -1,0 +1,49 @@
+# AIBasic Example - Nested Subroutine Calls
+# Demonstrates subroutines calling other subroutines
+
+# ==================== Main Program ====================
+
+10 print "Nested Subroutine Example"
+20 print "========================="
+
+30 set number to 6
+40 print "Checking if" and number and "is even or odd..."
+50 call 1000
+60 print "Result:" and number and "is" and parity
+
+70 print ""
+80 set number to 7
+90 print "Checking if" and number and "is even or odd..."
+100 call 1000
+110 print "Result:" and number and "is" and parity
+
+120 goto 9999
+
+# ==================== Subroutine: CHECK_PARITY ====================
+# Checks if number is even or odd
+# Calls IS_EVEN subroutine
+
+1000 print "  [CHECK_PARITY] Checking parity..."
+1010 call 2000
+1020 if is_even_result is true jump to line 1050
+1030 set parity to "ODD"
+1040 return
+
+1050 set parity to "EVEN"
+1060 return
+
+# ==================== Subroutine: IS_EVEN ====================
+# Returns true if number is even, false otherwise
+
+2000 print "    [IS_EVEN] Testing divisibility by 2..."
+2010 set remainder to number modulo 2
+2020 if remainder equals 0 jump to line 2050
+2030 set is_even_result to false
+2040 return
+
+2050 set is_even_result to true
+2060 return
+
+# ==================== End ====================
+
+9999 print "Program finished"

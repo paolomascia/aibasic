@@ -1,0 +1,27 @@
+# Test error handling with "on error goto"
+# Demonstrates how to catch and handle errors
+
+10 print "Starting program..."
+20 set x to 10
+30 set y to 0
+40 on error goto 100
+50 print "Attempting division..."
+60 divide x by y and store result in z
+70 print "Result is" and z
+80 print "This line should not execute"
+90 goto 200
+
+100 print "ERROR CAUGHT!"
+110 print "Error occurred at line" and _last_error_line
+120 print "Error message:" and _last_error
+130 print "Recovering from error..."
+140 set y to 2
+150 on error goto 180
+160 divide x by y and store result in z
+170 print "Recovery successful! Result is" and z
+175 goto 200
+
+180 print "ERROR DURING RECOVERY!"
+190 print "Cannot recover, exiting..."
+
+200 print "Program finished"

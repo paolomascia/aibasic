@@ -1,0 +1,349 @@
+# AIBasic Example - MongoDB NoSQL Document Database Operations
+# Requirements: pip install pymongo
+# Configure mongodb connection in aibasic.conf
+
+# ==================== Database and Collection Management ====================
+
+# Connect to MongoDB (automatically done via config)
+10 (mongodb) connect to mongodb database
+
+# List all databases
+20 (mongodb) list all mongodb databases
+
+# Create or switch to database
+30 (mongodb) use mongodb database my_app
+
+# List collections in database
+40 (mongodb) list all collections in mongodb database
+
+# Create collection
+50 (mongodb) create mongodb collection users
+
+# Drop collection
+60 (mongodb) drop mongodb collection old_collection
+
+# Drop database
+70 (mongodb) drop mongodb database test_db
+
+# ==================== Basic CRUD Operations ====================
+
+# Insert single document
+80 (mongodb) insert document into mongodb collection users with name Alice age 30 email alice@example.com
+90 (mongodb) insert one document {"name": "Bob", "age": 25, "city": "New York"} into users collection
+
+# Insert multiple documents
+100 (mongodb) insert many documents into mongodb users collection from list
+110 (mongodb) batch insert 100 user documents into mongodb
+
+# Find all documents
+120 (mongodb) find all documents in mongodb collection users
+130 (mongodb) select all from mongodb users
+
+# Find one document
+140 (mongodb) find one document in mongodb users where name equals Alice
+150 (mongodb) get first document from mongodb users collection
+
+# Find with filter
+160 (mongodb) find documents in mongodb users where age greater than 25
+170 (mongodb) find users in mongodb where city equals New York
+180 (mongodb) query mongodb users where age between 25 and 40
+
+# Find with projection (select specific fields)
+190 (mongodb) find users in mongodb selecting only name and email fields
+200 (mongodb) query mongodb users excluding password field
+
+# Count documents
+210 (mongodb) count all documents in mongodb users collection
+220 (mongodb) count mongodb users where age greater than 30
+
+# Update single document
+230 (mongodb) update one document in mongodb users where name Alice set age to 31
+240 (mongodb) update mongodb user with id user_id set email to newemail@example.com
+
+# Update multiple documents
+250 (mongodb) update many documents in mongodb users where city New York set status to active
+260 (mongodb) update all mongodb users where age less than 18 set minor to true
+
+# Delete single document
+270 (mongodb) delete one document from mongodb users where name equals Bob
+280 (mongodb) remove mongodb user with id user_id
+
+# Delete multiple documents
+290 (mongodb) delete many documents from mongodb users where age less than 18
+300 (mongodb) remove all mongodb users where inactive equals true
+
+# ==================== Advanced Queries ====================
+
+# Sorting
+310 (mongodb) find all users from mongodb sorted by age ascending
+320 (mongodb) query mongodb users sorted by name descending
+330 (mongodb) find mongodb users sorted by age desc and name asc
+
+# Limiting and skipping
+340 (mongodb) find first 10 documents from mongodb users
+350 (mongodb) find mongodb users skip 20 limit 10 for pagination
+360 (mongodb) get page 3 of mongodb users with 10 per page
+
+# Regex search
+370 (mongodb) find mongodb users where name matches regex pattern ^A
+380 (mongodb) query mongodb users where email contains gmail.com
+
+# Array queries
+390 (mongodb) find mongodb users where tags array contains python
+400 (mongodb) query mongodb users where skills includes mongodb
+
+# Nested document queries
+410 (mongodb) find mongodb users where address.city equals Boston
+420 (mongodb) query mongodb users where profile.age greater than 30
+
+# Exists and type queries
+430 (mongodb) find mongodb users where phone field exists
+440 (mongodb) query mongodb users where age field is number type
+
+# ==================== Aggregation Pipelines ====================
+
+# Simple aggregation
+450 (mongodb) aggregate mongodb users group by city and count
+460 (mongodb) aggregate users in mongodb calculate average age
+
+# Match and group
+470 (mongodb) aggregate mongodb users match age greater 25 then group by city
+480 (mongodb) aggregate users filter active true group by department sum salary
+
+# Sort in aggregation
+490 (mongodb) aggregate mongodb users group by city count then sort by count desc
+500 (mongodb) aggregate users group by country then sort by total desc
+
+# Project fields in aggregation
+510 (mongodb) aggregate mongodb users project name age city fields only
+520 (mongodb) aggregate users select specific fields and calculated values
+
+# Multiple pipeline stages
+530 (mongodb) aggregate mongodb users match filter group calculate sort limit results
+540 (mongodb) aggregate users with complex pipeline for analytics
+
+# Aggregation with lookup (join)
+550 (mongodb) aggregate mongodb orders lookup from users on user_id
+560 (mongodb) aggregate orders join with products collection
+
+# Aggregation with unwind
+570 (mongodb) aggregate mongodb users unwind tags array
+580 (mongodb) aggregate products unwind categories for analysis
+
+# ==================== Indexing ====================
+
+# Create single field index
+590 (mongodb) create index on mongodb users collection field email
+600 (mongodb) create mongodb index on users.name ascending
+
+# Create compound index
+610 (mongodb) create compound index on mongodb users fields name and age
+620 (mongodb) create mongodb index on users age desc and city asc
+
+# Create unique index
+630 (mongodb) create unique index on mongodb users email field
+640 (mongodb) create mongodb unique index on username
+
+# Create text index for full-text search
+650 (mongodb) create text index on mongodb users fields name and bio
+660 (mongodb) create mongodb text index on products description
+
+# List indexes
+670 (mongodb) list all indexes on mongodb users collection
+680 (mongodb) show mongodb indexes for products collection
+
+# Drop index
+690 (mongodb) drop index email_1 from mongodb users collection
+700 (mongodb) remove mongodb index on users.name
+
+# ==================== Text Search ====================
+
+# Full-text search
+710 (mongodb) text search in mongodb users for keyword python
+720 (mongodb) search mongodb products for machine learning
+
+# Text search with score
+730 (mongodb) text search mongodb articles for database score results
+740 (mongodb) search mongodb jobs for developer sort by relevance
+
+# ==================== Bulk Operations ====================
+
+# Bulk insert
+750 (mongodb) bulk insert documents into mongodb users from list
+760 (mongodb) batch insert 1000 records into mongodb collection
+
+# Bulk write mixed operations
+770 (mongodb) bulk write operations to mongodb users insert update delete
+780 (mongodb) execute bulk operations on mongodb collection
+
+# ==================== Integration with Pandas ====================
+
+# Import from CSV to MongoDB
+790 (csv) read data from file users.csv
+800 (df) process dataframe
+810 (mongodb) insert dataframe rows into mongodb users collection
+
+# Export MongoDB to CSV
+820 (mongodb) find all documents from mongodb users
+830 (df) convert mongodb results to dataframe
+840 (csv) export dataframe to mongodb_export.csv
+
+# ==================== Integration with PostgreSQL ====================
+
+# Migrate from PostgreSQL to MongoDB
+850 (postgres) query all customers from postgres
+860 (mongodb) insert postgres results into mongodb customers collection
+
+# Sync data between databases
+870 (postgres) query orders from postgres where status pending
+880 (mongodb) insert postgres orders into mongodb for analytics
+
+# ==================== Integration with Redis Cache ====================
+
+# Cache MongoDB queries in Redis
+890 (redis) check if cached data exists for user_id in redis
+900 (mongodb) if cache miss query user from mongodb by id
+910 (redis) store mongodb result in redis with TTL 3600
+
+# Invalidate cache on update
+920 (mongodb) update user document in mongodb
+930 (redis) delete cached user data from redis
+
+# ==================== Integration with OpenSearch ====================
+
+# Index MongoDB documents in OpenSearch for search
+940 (mongodb) find all products from mongodb
+950 (opensearch) bulk index mongodb products into opensearch
+960 (opensearch) search products with full-text query
+970 (mongodb) retrieve full product details from mongodb by id
+
+# ==================== Real-Time Data Processing ====================
+
+# Kafka to MongoDB pipeline
+980 (kafka) consume messages from kafka topic events
+990 (mongodb) insert kafka messages into mongodb events collection
+
+# MongoDB to Kafka pipeline
+1000 (mongodb) find new orders from mongodb
+1010 (kafka) publish new orders to kafka topic
+
+# ==================== Time-Series Data ====================
+
+# Store sensor data
+1020 (mongodb) insert sensor reading into mongodb with timestamp device_id value
+1030 (mongodb) insert time-series data into mongodb metrics collection
+
+# Query recent data
+1040 (mongodb) find mongodb sensor_data where timestamp greater than yesterday
+1050 (mongodb) query last 24 hours of metrics from mongodb
+
+# Aggregate time-series
+1060 (mongodb) aggregate mongodb sensor_data group by hour calculate average
+1070 (mongodb) aggregate metrics by day sum values
+
+# ==================== User Management and Authentication ====================
+
+# Create user document
+1080 (mongodb) insert user into mongodb with username password_hash email created_at
+
+# Find user for login
+1090 (mongodb) find one user from mongodb where username equals john
+
+# Update user profile
+1100 (mongodb) update mongodb user set last_login to current timestamp
+
+# Store user sessions
+1110 (mongodb) insert session into mongodb with user_id token expires_at
+
+# ==================== E-commerce Use Cases ====================
+
+# Product catalog
+1120 (mongodb) insert product into mongodb with name price description category stock
+1130 (mongodb) find mongodb products where category electronics and price less than 500
+
+# Shopping cart
+1140 (mongodb) update mongodb user add product to cart array
+1150 (mongodb) find user cart items from mongodb
+
+# Order processing
+1160 (mongodb) insert order into mongodb with user_id items total_price status created_at
+1170 (mongodb) update mongodb order set status to shipped where order_id equals id
+
+# Inventory management
+1180 (mongodb) update mongodb product decrement stock by quantity
+1190 (mongodb) find mongodb products where stock less than reorder_level
+
+# ==================== Analytics and Reporting ====================
+
+# User activity analytics
+1200 (mongodb) aggregate mongodb user_activity group by action count occurrences
+1210 (mongodb) aggregate activity by date calculate daily active users
+
+# Sales analytics
+1220 (mongodb) aggregate mongodb orders group by product sum revenue
+1230 (mongodb) aggregate sales by month calculate total and average
+
+# Geographic analytics
+1240 (mongodb) aggregate mongodb users group by country count users
+1250 (mongodb) aggregate orders by region sum revenue
+
+# ==================== Content Management ====================
+
+# Blog posts
+1260 (mongodb) insert blog post into mongodb with title content author tags published_at
+1270 (mongodb) find mongodb blog posts where tags contains python sorted by date desc
+
+# Comments
+1280 (mongodb) insert comment into mongodb with post_id user_id text created_at
+1290 (mongodb) find all comments for post from mongodb where post_id equals id
+
+# Categories and tags
+1300 (mongodb) find mongodb posts where tags array intersects with user_interests
+
+# ==================== Geospatial Queries ====================
+
+# Store location data
+1310 (mongodb) insert location into mongodb with name coordinates type Point
+
+# Create geospatial index
+1320 (mongodb) create 2dsphere index on mongodb locations field coordinates
+
+# Find nearby locations
+1330 (mongodb) find mongodb locations near coordinates within 5000 meters
+1340 (mongodb) query mongodb places near latitude longitude radius 10km
+
+# ==================== Advanced Features ====================
+
+# Transactions (multi-document ACID)
+1350 (mongodb) start transaction in mongodb
+1360 (mongodb) insert order and update inventory in mongodb transaction
+1370 (mongodb) commit mongodb transaction
+
+# Change streams (real-time notifications)
+1380 (mongodb) watch mongodb collection users for changes
+1390 (mongodb) subscribe to mongodb change stream
+
+# GridFS (large file storage)
+1400 (mongodb) store file in mongodb gridfs
+1410 (mongodb) retrieve file from mongodb gridfs by id
+
+# Backup and restore
+1420 (mongodb) export mongodb collection to json file
+1430 (mongodb) import data into mongodb from json file
+
+# Database statistics
+1440 (mongodb) get mongodb database statistics
+1450 (mongodb) show mongodb collection stats for users
+
+# ==================== Performance Optimization ====================
+
+# Explain query execution
+1460 (mongodb) explain query execution plan for mongodb users where age greater 30
+1470 (mongodb) analyze mongodb query performance
+
+# Profiling
+1480 (mongodb) enable mongodb profiling level 2
+1490 (mongodb) get mongodb profiling data for slow queries
+
+# Connection pooling (configured in aibasic.conf)
+1500 (mongodb) check mongodb connection pool status

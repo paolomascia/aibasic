@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modules · AIbasic (v1.0)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="brandbar">
+    <div class="inner">
+      <a href="index.html" class="brand">
+        <img src="logo_dark.png" alt="AIBASIC logo">
+        <div class="titles">
+          <div class="name">AIBASIC</div>
+          <div class="tagline">Natural Language Programming</div>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="navbar">
+    <div class="inner">
+      <nav>
+        <a href="manifesto.html">Manifesto</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="language.html">Language</a>
+        <a href="modules.html">Modules</a>
+        <a href="control-flow.html">Control Flow</a>
+        <a href="examples.html">Examples</a>
+        <a href="changelog.html">Changelog</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<div class="container grid">
+  <aside class="sidebar">
+    <strong>Modules (14)</strong>
+    <a href="#postgres">PostgreSQL</a>
+    <a href="#mysql">MySQL</a>
+    <a href="#mongodb">MongoDB</a>
+    <a href="#cassandra">Cassandra</a>
+    <a href="#redis">Redis</a>
+    <a href="#rabbitmq">RabbitMQ</a>
+    <a href="#kafka">Kafka</a>
+    <a href="#opensearch">OpenSearch</a>
+    <a href="#email">Email</a>
+    <a href="#s3">S3/MinIO</a>
+    <a href="#ssh">SSH/SFTP</a>
+    <a href="#vault">Vault</a>
+    <a href="#compress">Compression</a>
+    <a href="#api">REST API</a>
+  </aside>
+  <main>
+    <h1>Modules Reference</h1>
+    <p class="muted">AIbasic includes 14 production-ready modules for databases, messaging, storage, networking, and security.</p>
+
+    <h2 id="postgres">1. PostgreSQL Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(postgres)</code></p>
+      <p><strong>Purpose:</strong> Connect to PostgreSQL databases, execute queries, manage transactions</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[postgres]
+HOST = localhost
+PORT = 5432
+DATABASE = mydb
+USERNAME = user
+PASSWORD = pass</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (postgres) connect to database "mydb"
+20 (postgres) execute query "SELECT * FROM users WHERE age > 18"
+30 (postgres) insert record into users table with values
+40 (postgres) update users set status = 'active' where id = 123
+50 (postgres) begin transaction
+60 (postgres) commit transaction
+70 (postgres) rollback transaction
+80 (postgres) close connection</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Connection pooling</li>
+        <li>Parameterized queries (SQL injection protection)</li>
+        <li>Transaction management</li>
+        <li>Batch operations</li>
+        <li>Result set to DataFrame conversion</li>
+      </ul>
+    </div>
+
+    <h2 id="mysql">2. MySQL/MariaDB Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(mysql)</code></p>
+      <p><strong>Purpose:</strong> MySQL and MariaDB database operations</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[mysql]
+HOST = localhost
+PORT = 3306
+DATABASE = mydb
+USERNAME = user
+PASSWORD = pass</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (mysql) connect to database "customers"
+20 (mysql) query "SELECT name, email FROM users"
+30 (mysql) insert into orders values (1, '2025-01-01', 100.50)
+40 (mysql) update inventory set stock = stock - 1 where product_id = 5
+50 (mysql) execute stored procedure "calculate_totals"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Compatible with MySQL and MariaDB</li>
+        <li>Stored procedure support</li>
+        <li>Prepared statements</li>
+        <li>Connection pooling</li>
+      </ul>
+    </div>
+
+    <h2 id="mongodb">3. MongoDB Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(mongodb)</code></p>
+      <p><strong>Purpose:</strong> NoSQL document database operations</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[mongodb]
+CONNECTION_STRING = mongodb://localhost:27017
+DATABASE = mydb
+COLLECTION = products</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (mongodb) connect to collection "products"
+20 (mongodb) find documents where price > 100
+30 (mongodb) find one document with id "12345"
+40 (mongodb) insert document with name "Product A" and price 99.99
+50 (mongodb) update documents set category = "Electronics" where type = "gadget"
+60 (mongodb) delete documents where expired is true
+70 (mongodb) aggregate pipeline for sales analysis
+80 (mongodb) create index on field "customer_id"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Find, insert, update, delete operations</li>
+        <li>Aggregation pipelines</li>
+        <li>Index management</li>
+        <li>Bulk operations</li>
+        <li>Document to DataFrame conversion</li>
+      </ul>
+    </div>
+
+    <h2 id="cassandra">4. Cassandra Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(cassandra)</code></p>
+      <p><strong>Purpose:</strong> Distributed NoSQL database for high-scale applications</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[cassandra]
+HOSTS = 127.0.0.1
+PORT = 9042
+KEYSPACE = analytics</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (cassandra) connect to keyspace "analytics"
+20 (cassandra) execute query "SELECT * FROM events WHERE date > '2025-01-01'"
+30 (cassandra) insert into events values (uuid, timestamp, data)
+40 (cassandra) batch insert multiple records
+50 (cassandra) use prepared statement for query</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>CQL query support</li>
+        <li>Prepared statements</li>
+        <li>Batch operations</li>
+        <li>High-throughput writes</li>
+      </ul>
+    </div>
+
+    <h2 id="redis">5. Redis Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(redis)</code></p>
+      <p><strong>Purpose:</strong> In-memory cache and data structure store</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[redis]
+HOST = localhost
+PORT = 6379
+DB = 0
+PASSWORD = optional</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (redis) set key "user:1000" to value "John Doe"
+20 (redis) get value from key "user:1000"
+30 (redis) set key with expiration 3600 seconds
+40 (redis) increment counter "visits"
+50 (redis) decrement counter "stock"
+60 (redis) push value to list "queue"
+70 (redis) pop value from list "queue"
+80 (redis) add member to set "tags"
+90 (redis) check if member exists in set
+100 (redis) delete key "old_data"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>String operations (get/set)</li>
+        <li>Counter operations (incr/decr)</li>
+        <li>List operations (push/pop)</li>
+        <li>Set operations</li>
+        <li>Hash operations</li>
+        <li>TTL/expiration support</li>
+        <li>Connection pooling</li>
+      </ul>
+    </div>
+
+    <h2 id="rabbitmq">6. RabbitMQ Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(rabbitmq)</code></p>
+      <p><strong>Purpose:</strong> Message queue for asynchronous processing</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[rabbitmq]
+HOST = localhost
+PORT = 5672
+USERNAME = guest
+PASSWORD = guest
+VIRTUAL_HOST = /</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (rabbitmq) publish message "Order #123" to queue "orders"
+20 (rabbitmq) consume messages from queue "notifications"
+30 (rabbitmq) declare exchange "events" type fanout
+40 (rabbitmq) bind queue "alerts" to exchange "events"
+50 (rabbitmq) acknowledge message
+60 (rabbitmq) reject message and requeue</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Publish/consume messages</li>
+        <li>Queue declaration and binding</li>
+        <li>Exchange types (direct, fanout, topic)</li>
+        <li>Message acknowledgment</li>
+        <li>Durable queues</li>
+      </ul>
+    </div>
+
+    <h2 id="kafka">7. Apache Kafka Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(kafka)</code></p>
+      <p><strong>Purpose:</strong> Distributed streaming platform</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[kafka]
+BOOTSTRAP_SERVERS = localhost:9092
+GROUP_ID = my-consumer-group</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (kafka) produce message to topic "user-events"
+20 (kafka) consume messages from topic "logs"
+30 (kafka) subscribe to topics "orders" and "payments"
+40 (kafka) commit offset for consumer group
+50 (kafka) seek to beginning of topic
+60 (kafka) get topic metadata</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Producer API</li>
+        <li>Consumer API with consumer groups</li>
+        <li>Offset management</li>
+        <li>Topic subscription</li>
+        <li>Batch processing</li>
+      </ul>
+    </div>
+
+    <h2 id="opensearch">8. OpenSearch Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(opensearch)</code></p>
+      <p><strong>Purpose:</strong> Full-text search and analytics (OpenSearch/Elasticsearch compatible)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[opensearch]
+HOSTS = https://localhost:9200
+USERNAME = admin
+PASSWORD = admin
+VERIFY_CERTS = false</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (opensearch) index document in "products" index
+20 (opensearch) search for "laptop" in all fields
+30 (opensearch) search with filter where price < 1000
+40 (opensearch) aggregate data by category
+50 (opensearch) delete document by id
+60 (opensearch) bulk index documents from dataframe
+70 (opensearch) update document</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Full-text search</li>
+        <li>Index management</li>
+        <li>Aggregations</li>
+        <li>Bulk operations</li>
+        <li>Query DSL support</li>
+      </ul>
+    </div>
+
+    <h2 id="email">9. Email Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(email)</code></p>
+      <p><strong>Purpose:</strong> Send emails with attachments</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[email]
+SMTP_HOST = smtp.gmail.com
+SMTP_PORT = 587
+USERNAME = your-email@gmail.com
+PASSWORD = your-app-password
+FROM_EMAIL = your-email@gmail.com
+USE_TLS = true</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (email) send email to "user@example.com"
+20 (email) set subject to "Daily Report"
+30 (email) set body to "Please find the attached report"
+40 (email) attach file "report.pdf"
+50 (email) send HTML email with template
+60 (email) send to multiple recipients
+70 (email) add CC and BCC recipients</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Plain text and HTML emails</li>
+        <li>File attachments</li>
+        <li>Multiple recipients (To, CC, BCC)</li>
+        <li>TLS/SSL support</li>
+        <li>Template support</li>
+      </ul>
+    </div>
+
+    <h2 id="s3">10. S3/MinIO Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(s3)</code></p>
+      <p><strong>Purpose:</strong> Object storage (AWS S3, MinIO, DigitalOcean Spaces, Wasabi)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[s3]
+AWS_ACCESS_KEY_ID = your-access-key
+AWS_SECRET_ACCESS_KEY = your-secret-key
+BUCKET_NAME = my-bucket
+REGION = us-east-1
+# For MinIO:
+# ENDPOINT_URL = http://localhost:9000</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (s3) upload file "data.csv" to bucket "my-bucket"
+20 (s3) upload to path "reports/2025/data.csv"
+30 (s3) download object "report.pdf" from bucket
+40 (s3) list objects in bucket with prefix "2025/"
+50 (s3) delete object "old_file.csv"
+60 (s3) generate presigned URL for object valid for 3600 seconds
+70 (s3) check if object exists
+80 (s3) get object metadata</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Upload/download files</li>
+        <li>Multipart uploads for large files</li>
+        <li>Presigned URLs for temporary access</li>
+        <li>List/delete operations</li>
+        <li>Server-side encryption</li>
+        <li>Compatible with S3, MinIO, Spaces, Wasabi</li>
+      </ul>
+    </div>
+
+    <h2 id="ssh">11. SSH/SFTP Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(ssh)</code></p>
+      <p><strong>Purpose:</strong> Remote server access and file transfer</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[ssh]
+HOST = server.example.com
+PORT = 22
+USERNAME = admin
+PASSWORD = password
+# OR use key-based auth:
+# KEY_FILE = ~/.ssh/id_rsa</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (ssh) connect to server "192.168.1.100"
+20 (ssh) execute command "uptime"
+30 (ssh) execute command "df -h"
+40 (ssh) transfer file "local.txt" to "/remote/path/file.txt"
+50 (ssh) download file from "/var/log/app.log" to "local.log"
+60 (ssh) execute multiple commands
+70 (ssh) create SSH tunnel
+80 (ssh) disconnect</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Command execution</li>
+        <li>SFTP file transfer (upload/download)</li>
+        <li>Password and key-based authentication</li>
+        <li>SSH tunneling/port forwarding</li>
+        <li>Sudo command support</li>
+      </ul>
+    </div>
+
+    <h2 id="vault">12. HashiCorp Vault Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(vault)</code></p>
+      <p><strong>Purpose:</strong> Secure secrets management</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[vault]
+VAULT_ADDR = http://localhost:8200
+VAULT_TOKEN = your-vault-token
+# OR use AppRole:
+# ROLE_ID = your-role-id
+# SECRET_ID = your-secret-id</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (vault) read secret from path "secret/database/prod"
+20 (vault) get field "username" from secret
+30 (vault) get field "password" from secret
+40 (vault) write secret to path "secret/api-keys"
+50 (vault) write with data {"key": "value", "token": "abc123"}
+60 (vault) delete secret at path "secret/old-credentials"
+70 (vault) list secrets at path "secret/"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Read/write/delete secrets</li>
+        <li>Token and AppRole authentication</li>
+        <li>KV v1 and v2 support</li>
+        <li>Dynamic secrets support</li>
+        <li>Secret versioning</li>
+      </ul>
+    </div>
+
+    <h2 id="compress">13. Compression Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(compress)</code></p>
+      <p><strong>Purpose:</strong> File compression and extraction</p>
+
+      <h3>Configuration</h3>
+      <p>No configuration required</p>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (compress) compress file "data.txt" to "data.zip"
+20 (compress) compress folder "reports" to "reports.tar.gz"
+30 (compress) extract archive "data.zip" to "output/"
+40 (compress) create password-protected zip with password "secret"
+50 (compress) list contents of archive "backup.tar.gz"
+60 (compress) add file to existing archive</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>ZIP, TAR, TAR.GZ, TAR.BZ2 formats</li>
+        <li>Compress files and folders</li>
+        <li>Extract archives</li>
+        <li>Password-protected archives</li>
+        <li>List archive contents</li>
+      </ul>
+    </div>
+
+    <h2 id="api">14. REST API Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(api)</code></p>
+      <p><strong>Purpose:</strong> HTTP client for REST API calls</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[restapi]
+BASE_URL = https://api.example.com
+AUTH_METHOD = bearer
+BEARER_TOKEN = your-token
+# OR use other auth methods:
+# AUTH_METHOD = basic
+# USERNAME = user
+# PASSWORD = pass</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (api) GET request to "https://api.example.com/users"
+20 (api) POST data to "/users" with JSON payload
+30 (api) PUT request to "/users/123" with update data
+40 (api) DELETE request to "/users/123"
+50 (api) set bearer token for authentication
+60 (api) set custom headers "X-API-Key: abc123"
+70 (api) upload file to "/upload" endpoint
+80 (api) download file from "/files/report.pdf"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>GET, POST, PUT, DELETE, PATCH methods</li>
+        <li>Multiple authentication: Bearer, Basic, API Key, OAuth2</li>
+        <li>Custom headers</li>
+        <li>JSON/form data payloads</li>
+        <li>File uploads/downloads</li>
+        <li>Retry logic with exponential backoff</li>
+        <li>Session management</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Module Usage Tips</h3>
+      <ul>
+        <li>Configure modules in <code>aibasic.conf</code> before use</li>
+        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(s3)</code></li>
+        <li>Combine modules for powerful workflows (e.g., Postgres → DataFrame → S3)</li>
+        <li>Use error handling (<code>ON ERROR GOTO</code>) with I/O operations</li>
+        <li>Close connections explicitly or rely on automatic cleanup</li>
+      </ul>
+    </div>
+  </main>
+</div>
+
+<div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
+  © 2025 AIbasic v1.0 — Complete documentation with 14 integrated modules
+</div>
+<script src="script.js"></script>
+</body></html>

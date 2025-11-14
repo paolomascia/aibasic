@@ -15,5 +15,10 @@ from .opensearch_module import OpenSearchModule
 from .compression_module import CompressionModule
 from .vault_module import VaultModule
 from .cassandra_module import CassandraModule
+from .email_module import EmailModule
+from .mongodb_module import MongoDBModule
+from .s3_module import S3Module
+from .restapi_module import RestAPIModule
+from .ssh_module import SSHModule
 
-__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule']
+__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule', 'EmailModule', 'MongoDBModule', 'S3Module', 'RestAPIModule', 'SSHModule']

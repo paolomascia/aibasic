@@ -97,6 +97,53 @@ If you don't specify a task type, the compiler will automatically detect it base
   - Use `mysql.call_procedure()` for calling stored procedures
   - Or use `mysql.get_connection()` / `mysql.release_connection()` for manual control
 
+#### `mongodb` - MongoDB NoSQL Operations (with Module)
+- **Description**: Document-oriented NoSQL database with flexible schema and powerful query capabilities
+- **Keywords**: mongodb, nosql, document database, mongo, collection, bson
+- **Common Libraries**: pymongo
+- **Module**: `aibasic.modules.MongoDBModule`
+- **Configuration**: Requires `[mongodb]` section in `aibasic.conf`
+- **Examples**:
+  - `10 (mongodb) insert document into mongodb collection users`
+  - `20 (mongodb) find documents in mongodb where age greater than 25`
+  - `30 (mongodb) update mongodb users set status to active`
+  - `40 (mongodb) aggregate mongodb orders group by customer`
+  - `50 (mongodb) create index on mongodb users email field`
+- **Usage Notes**:
+  - The MongoDBModule manages connections and pooling automatically
+  - First mongodb operation initializes the module from config
+  - Module instance is reused across all mongodb operations
+  - Use `mongo.insert_one()` / `insert_many()` for insertions
+  - Use `mongo.find()` / `find_one()` for queries
+  - Use `mongo.update_one()` / `update_many()` for updates
+  - Use `mongo.delete_one()` / `delete_many()` for deletions
+  - Use `mongo.aggregate()` for aggregation pipelines
+  - Use `mongo.create_index()` for index management
+  - Supports SSL/TLS with `TLS_ALLOW_INVALID_CERTIFICATES=true` for self-signed certs
+  - ObjectId fields automatically converted to strings in results
+
+#### `cassandra` - Apache Cassandra NoSQL Operations (with Module)
+- **Description**: Distributed NoSQL database with high scalability and availability
+- **Keywords**: cassandra, nosql, cql, distributed database, wide column, time series
+- **Common Libraries**: cassandra-driver
+- **Module**: `aibasic.modules.CassandraModule`
+- **Configuration**: Requires `[cassandra]` section in `aibasic.conf`
+- **Examples**:
+  - `10 (cassandra) execute cql query on cassandra`
+  - `20 (cassandra) insert data into cassandra table users`
+  - `30 (cassandra) select from cassandra where key equals value`
+  - `40 (cassandra) batch insert multiple rows to cassandra`
+- **Usage Notes**:
+  - The CassandraModule manages cluster connections automatically
+  - Supports multiple contact points for high availability
+  - Supports consistency levels: ONE, QUORUM, ALL, LOCAL_QUORUM, etc.
+  - Use `cass.execute()` for CQL queries
+  - Use `cass.execute_prepared()` for better performance with repeated queries
+  - Use `cass.execute_batch()` for atomic multi-row operations
+  - Use `cass.insert()` / `select()` / `update()` / `delete()` for CRUD
+  - Supports SSL/TLS with `SSL_VERIFY=false` for self-signed certs
+  - TTL supported for automatic data expiration
+
 ### Network Operations
 
 #### `api` - API/REST Operations
@@ -114,6 +161,26 @@ If you don't specify a task type, the compiler will automatically detect it base
 - **Examples**:
   - `10 (web) scrape product prices from website`
   - `20 (web) extract links from page`
+
+#### `ssh` - SSH Remote Server Operations (with Module)
+- **Description**: Secure Shell for remote server management, command execution, and file transfer
+- **Keywords**: ssh, remote, server, sftp, command, execute, transfer, tunnel, shell
+- **Common Libraries**: paramiko
+- **Module**: `ssh_module.SSHModule`
+- **Examples**:
+  - `10 (ssh) execute command on remote server via ssh`
+  - `20 (ssh) transfer file to remote server via sftp`
+  - `30 (ssh) download file from remote server`
+  - `40 (ssh) run shell script on remote host`
+  - `50 (ssh) create ssh tunnel to server`
+- **Module Features**:
+  - Password and SSH key authentication
+  - SFTP file upload/download
+  - Interactive shell sessions
+  - Batch command execution
+  - Port forwarding and tunneling
+  - Jump host/bastion support
+  - Host key verification options
 
 ### Data Processing
 

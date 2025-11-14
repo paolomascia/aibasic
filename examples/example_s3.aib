@@ -1,0 +1,342 @@
+# AIBasic Example - S3/MinIO Object Storage Operations
+# Requirements: pip install boto3
+# Configure s3 connection in aibasic.conf
+# Supports: AWS S3, MinIO, DigitalOcean Spaces, Wasabi, and other S3-compatible services
+
+# ==================== Bucket Management ====================
+
+# Create bucket
+10 (s3) create s3 bucket my-data-bucket
+20 (s3) create bucket my-files in region us-west-2
+
+# Create bucket with ACL
+30 (s3) create s3 bucket public-bucket with acl public-read
+40 (s3) create private bucket secure-data
+
+# List all buckets
+50 (s3) list all s3 buckets
+60 (s3) show all my buckets
+
+# Check if bucket exists
+70 (s3) check if s3 bucket my-data-bucket exists
+80 (s3) verify bucket exists
+
+# Delete bucket
+90 (s3) delete s3 bucket old-bucket
+100 (s3) delete bucket temp-data force delete all objects
+
+# ==================== File Upload Operations ====================
+
+# Upload single file
+110 (s3) upload file data.csv to s3 bucket my-data-bucket
+120 (s3) upload report.pdf to s3 bucket reports as monthly/report.pdf
+130 (s3) upload local file image.jpg to s3 bucket images with key photos/image.jpg
+
+# Upload with metadata
+140 (s3) upload file data.csv to s3 with metadata author John version 1.0
+150 (s3) upload file with custom metadata
+
+# Upload with encryption
+160 (s3) upload file sensitive.txt to s3 with encryption AES256
+170 (s3) upload encrypted file to s3 bucket secure-data
+
+# Upload with ACL
+180 (s3) upload file public.html to s3 bucket website with acl public-read
+190 (s3) upload file to s3 with public read access
+
+# Upload directory
+200 (s3) upload directory data/ to s3 bucket my-data-bucket
+210 (s3) upload folder logs/ to s3 with prefix logs/2024/
+220 (s3) upload all files from local-dir to s3 bucket backups
+
+# Upload with pattern filtering
+230 (s3) upload directory reports/ to s3 only csv files
+240 (s3) upload folder data/ to s3 bucket my-data matching pattern *.json
+
+# ==================== File Download Operations ====================
+
+# Download single file
+250 (s3) download file from s3 bucket my-data-bucket key data.csv
+260 (s3) download s3 object reports/monthly.pdf to local file report.pdf
+270 (s3) download from s3 bucket images key photos/image.jpg save as downloaded.jpg
+
+# Download specific version (if versioning enabled)
+280 (s3) download file from s3 with version id version123
+290 (s3) download specific version of s3 object
+
+# Download directory
+300 (s3) download directory from s3 bucket my-data-bucket prefix data/
+310 (s3) download all files from s3 bucket backups with prefix 2024/ to local folder ./downloads
+320 (s3) download folder from s3 to local directory
+
+# ==================== Object Listing and Search ====================
+
+# List all objects in bucket
+330 (s3) list objects in s3 bucket my-data-bucket
+340 (s3) list all files in s3 bucket reports
+
+# List with prefix filter
+350 (s3) list s3 objects in bucket my-data with prefix data/csv/
+360 (s3) list files in s3 bucket reports starting with 2024/
+370 (s3) find all objects in s3 bucket logs with prefix error/
+
+# List with pagination
+380 (s3) list first 100 objects from s3 bucket my-data-bucket
+390 (s3) list s3 objects max 50 keys
+
+# List with delimiter (folder-like)
+400 (s3) list s3 objects in bucket my-data with delimiter /
+410 (s3) list folders in s3 bucket
+
+# ==================== Object Operations ====================
+
+# Delete single object
+420 (s3) delete object from s3 bucket my-data-bucket key old-file.csv
+430 (s3) delete s3 file reports/old-report.pdf from bucket reports
+440 (s3) remove object from s3 bucket my-data key data/temp.txt
+
+# Delete specific version
+450 (s3) delete s3 object with version id version456
+460 (s3) delete specific version from s3
+
+# Delete multiple objects
+470 (s3) delete objects from s3 bucket my-data keys file1.csv file2.csv file3.csv
+480 (s3) batch delete s3 objects from bucket
+490 (s3) delete all files matching pattern from s3
+
+# Copy object
+500 (s3) copy s3 object from bucket source-bucket key data.csv to bucket dest-bucket
+510 (s3) copy file in s3 from source-bucket/file.txt to dest-bucket/copy.txt
+520 (s3) copy s3 object to same bucket with new key
+
+# Copy with metadata replacement
+530 (s3) copy s3 object and replace metadata
+540 (s3) copy file in s3 bucket with new metadata author Alice
+
+# Check if object exists
+550 (s3) check if s3 object exists in bucket my-data key data.csv
+560 (s3) verify s3 file exists
+
+# Get object metadata
+570 (s3) get metadata for s3 object in bucket my-data key data.csv
+580 (s3) get s3 file info for report.pdf
+590 (s3) show s3 object metadata
+
+# ==================== Presigned URLs ====================
+
+# Generate presigned URL for download
+600 (s3) generate presigned url for s3 bucket my-data object data.csv
+610 (s3) create temporary download link for s3 file reports/monthly.pdf
+620 (s3) generate s3 presigned url expires in 3600 seconds
+
+# Generate presigned URL for upload
+630 (s3) generate presigned upload url for s3 bucket my-data key uploads/new-file.csv
+640 (s3) create temporary upload link for s3
+
+# Generate with custom expiration
+650 (s3) generate presigned url for s3 object expires in 7200 seconds
+660 (s3) create presigned url valid for 2 hours
+
+# ==================== Integration with Data Processing ====================
+
+# Upload processed data
+670 (csv) read data from sales.csv
+680 (df) filter dataframe where revenue greater than 1000
+690 (df) export dataframe to processed_sales.csv
+700 (s3) upload file processed_sales.csv to s3 bucket analytics
+
+# Download and process
+710 (s3) download file from s3 bucket raw-data key sales/daily.csv
+720 (csv) read downloaded file daily.csv
+730 (df) group by product and sum revenue
+740 (df) save aggregated results to summary.csv
+750 (s3) upload summary.csv to s3 bucket reports
+
+# ==================== Backup Workflows ====================
+
+# Backup database export to S3
+760 (postgres) export table customers to customers.csv
+770 (s3) upload customers.csv to s3 bucket database-backups with prefix backups/postgres/
+780 (s3) upload file with timestamp to s3 for versioning
+
+# Backup logs to S3
+790 (compress) compress folder logs/ into logs.tar.gz
+800 (s3) upload logs.tar.gz to s3 bucket backups with prefix logs/2024/
+810 (s3) delete local file logs.tar.gz after upload
+
+# Scheduled backup
+820 (mongodb) export collection users to users.json
+830 (compress) compress users.json into users-backup.zip with password secret
+840 (s3) upload users-backup.zip to s3 bucket mongo-backups
+850 (email) send email notification backup completed
+
+# ==================== MinIO Specific Operations ====================
+
+# Connect to MinIO
+860 (s3) connect to minio at endpoint http://localhost:9000
+870 (s3) create bucket in minio my-minio-bucket
+
+# Upload to MinIO
+880 (s3) upload file data.csv to minio bucket my-minio-bucket
+890 (s3) upload directory to minio with prefix uploads/
+
+# MinIO bucket policy
+900 (s3) set bucket policy for minio bucket public-data to public-read
+910 (s3) get bucket policy for minio bucket
+
+# ==================== DigitalOcean Spaces Operations ====================
+
+# Upload to DigitalOcean Spaces
+920 (s3) upload file image.jpg to spaces bucket my-space
+930 (s3) upload to digitalocean spaces with key images/photo.jpg
+
+# Generate CDN URL for Spaces
+940 (s3) generate presigned url for spaces object
+950 (s3) create cdn link for spaces file
+
+# ==================== Advanced S3 Features ====================
+
+# Multipart upload (automatic for large files)
+960 (s3) upload large file bigdata.zip to s3 bucket large-files
+970 (s3) upload 10GB file to s3 with multipart
+
+# Server-side encryption
+980 (s3) upload file sensitive.doc to s3 with SSE-S3 encryption
+990 (s3) upload with encryption aws:kms
+1000 (s3) upload encrypted file to s3 bucket secure-storage
+
+# Object tagging
+1010 (s3) upload file to s3 with tags environment production project data-pipeline
+1020 (s3) set tags on s3 object
+
+# Storage class
+1030 (s3) upload file archive.zip to s3 with storage class GLACIER
+1040 (s3) upload to s3 with storage class STANDARD_IA for infrequent access
+
+# Versioning
+1050 (s3) enable versioning on s3 bucket my-data-bucket
+1060 (s3) list all versions of s3 object data.csv
+1070 (s3) download specific version of file from s3
+
+# ==================== Batch Operations ====================
+
+# Batch upload from CSV list
+1080 (csv) read file upload-list.csv
+1090 (df) iterate through dataframe rows
+1100 (s3) upload each file from list to s3 bucket
+
+# Batch download
+1110 (s3) list objects in bucket my-data with prefix exports/
+1120 (s3) download all listed objects to local folder
+
+# Sync directory with S3
+1130 (s3) upload directory local-data/ to s3 bucket my-data prefix data/
+1140 (s3) download directory from s3 prefix data/ to local-data/
+
+# ==================== S3 Statistics ====================
+
+# Get bucket size
+1150 (s3) calculate total size of s3 bucket my-data-bucket
+1160 (s3) get bucket size for s3 bucket reports
+
+# Count objects
+1170 (s3) count objects in s3 bucket my-data-bucket
+1180 (s3) count files in s3 bucket with prefix logs/
+
+# Storage class distribution
+1190 (s3) get storage class statistics for s3 bucket
+1200 (s3) analyze s3 bucket storage usage
+
+# ==================== Data Pipeline Examples ====================
+
+# ETL Pipeline: Download, Transform, Upload
+1210 (s3) download raw data from s3 bucket raw-data key daily/sales.csv
+1220 (csv) read sales.csv into dataframe
+1230 (df) clean dataframe remove nulls
+1240 (df) aggregate by customer
+1250 (df) export to cleaned_sales.csv
+1260 (s3) upload cleaned_sales.csv to s3 bucket processed-data
+
+# Machine Learning Workflow
+1270 (s3) download training data from s3 bucket ml-data key datasets/train.csv
+1280 (csv) read train.csv
+1290 (df) preprocess data normalize features
+1300 (df) export to preprocessed.csv
+1310 (s3) upload preprocessed.csv to s3 bucket ml-data key processed/train.csv
+
+# ==================== Cross-Region Operations ====================
+
+# Copy between regions
+1320 (s3) copy object from s3 bucket us-east-bucket to bucket eu-west-bucket
+1330 (s3) replicate s3 data across regions
+
+# Regional backup
+1340 (s3) download from s3 bucket us-data
+1350 (s3) upload to s3 bucket eu-backup in region eu-west-1
+
+# ==================== Integration with Other Services ====================
+
+# S3 to Database
+1360 (s3) download csv from s3 bucket data key customers.csv
+1370 (csv) read customers.csv
+1380 (postgres) bulk insert dataframe into postgres table customers
+
+# Database to S3
+1390 (postgres) query all orders from postgres
+1400 (df) export query results to orders.csv
+1410 (s3) upload orders.csv to s3 bucket data-exports
+
+# S3 to NoSQL
+1420 (s3) download json from s3 bucket data key users.json
+1430 (json) parse users.json
+1440 (mongodb) insert json documents into mongodb collection users
+
+# Email with S3 attachment
+1450 (s3) generate presigned url for s3 report file
+1460 (email) send email to manager with presigned url link
+
+# ==================== Monitoring and Logging ====================
+
+# Log S3 operations
+1470 (s3) upload file to s3 bucket my-data
+1480 (log) log upload successful with timestamp
+1490 (mongodb) insert log entry into logs collection
+
+# Error handling
+1500 (s3) try upload file to s3 bucket
+1510 (log) if upload fails log error
+1520 (email) send alert email on failure
+
+# Audit trail
+1530 (s3) list recent uploads to s3 bucket
+1540 (cassandra) store audit trail in cassandra
+1550 (s3) upload audit log to s3 compliance bucket
+
+# ==================== Content Delivery ====================
+
+# Static website hosting
+1560 (s3) upload html files to s3 bucket website
+1570 (s3) set bucket policy for website public-read
+1580 (s3) configure bucket for static website hosting
+
+# CDN integration
+1590 (s3) upload images to s3 bucket cdn-assets
+1600 (s3) generate public urls for cdn distribution
+
+# Media streaming
+1610 (s3) upload video files to s3 bucket media
+1620 (s3) generate presigned streaming urls
+
+# ==================== Cost Optimization ====================
+
+# Lifecycle management
+1630 (s3) set lifecycle policy on bucket to archive old files
+1640 (s3) transition objects to GLACIER after 30 days
+1650 (s3) delete objects older than 90 days
+
+# Storage class optimization
+1660 (s3) upload infrequently accessed data with STANDARD_IA storage class
+1670 (s3) migrate old backups to DEEP_ARCHIVE
+
+# Intelligent tiering
+1680 (s3) upload with INTELLIGENT_TIERING storage class for automatic optimization

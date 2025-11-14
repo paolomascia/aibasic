@@ -1,0 +1,243 @@
+# AIBasic Example - Email Sending with SMTP
+# No external dependencies - uses Python standard library
+# Configure SMTP settings in aibasic.conf
+
+# ==================== Basic Email Operations ====================
+
+# Send simple text email
+10 (email) send email to customer@example.com subject "Welcome" body "Thank you for signing up"
+20 (email) send plain text email to user@example.com with subject "Notification" and message "Your order has been shipped"
+
+# Send email with custom sender name
+30 (email) send email from "Customer Support" to user@example.com subject "Help Request" body "We received your inquiry"
+
+# ==================== Email with Attachments ====================
+
+# Send email with single attachment
+40 (email) send email to manager@example.com subject "Monthly Report" body "Please find attached" with attachment report.pdf
+50 (email) send email with PDF attachment invoice.pdf to client@example.com
+
+# Send email with multiple attachments
+60 (email) send email to team@example.com subject "Project Files" with attachments proposal.pdf contract.docx budget.xlsx
+70 (email) attach files data.csv and analysis.xlsx to email and send to analyst@example.com
+
+# Send compressed files as attachments
+80 (compress) compress folder reports/ into reports.zip
+90 (email) send email with attachment reports.zip to backup@example.com subject "Weekly Backup"
+
+# ==================== Multiple Recipients ====================
+
+# Send to multiple recipients
+100 (email) send email to alice@example.com bob@example.com carol@example.com subject "Team Meeting" body "Meeting tomorrow at 10 AM"
+
+# Send with CC
+110 (email) send email to employee@example.com CC manager@example.com subject "Task Assignment"
+
+# Send with BCC (hidden recipients)
+120 (email) send email to customer@example.com BCC archive@example.com subject "Order Confirmation"
+
+# Combination of To, CC, BCC
+130 (email) send email to team-lead@example.com CC manager@example.com BCC hr@example.com subject "Performance Review"
+
+# ==================== HTML Emails ====================
+
+# Send HTML email with formatting
+140 (email) send HTML email to customer@example.com subject "Newsletter" with HTML body containing h1 Welcome and paragraph
+
+# HTML email with styling
+150 (email) send HTML email with style tags blue color and bold text to subscriber@example.com
+
+# HTML email with inline images
+160 (email) send HTML email with embedded logo image to customer@example.com
+170 (email) send HTML email with inline image logo_dark.png as cid logo to marketing@example.com
+
+# HTML email with plain text fallback
+180 (email) send HTML email with plain text alternative to ensure compatibility
+
+# ==================== Template-Based Emails ====================
+
+# Send email using template with variables
+190 (email) send template email to {user_email} with subject "Hello {name}" and body "Your order {order_id} is ready"
+200 (email) send email from template welcome.txt with variables name email order_number to customer
+
+# Personalized batch emails with templates
+210 (csv) read customer list from customers.csv
+220 (email) send personalized email to each customer using template with their name
+
+# ==================== Email Priority ====================
+
+# High priority email
+230 (email) send high priority email to support@example.com subject "URGENT: Server Down"
+240 (email) send urgent email with priority high to admin@example.com
+
+# Low priority email
+250 (email) send low priority email to newsletter@example.com subject "Monthly Update"
+
+# ==================== Reply-To and Headers ====================
+
+# Email with Reply-To address
+260 (email) send email to customer@example.com with reply-to support@example.com subject "Contact Us"
+
+# Email with custom headers
+270 (email) send email with custom X-Campaign-ID header to track campaign
+
+# ==================== Batch Email Sending ====================
+
+# Send emails to list of recipients with delay
+280 (email) send batch emails to mailing list with 2 second delay between each
+290 (email) send newsletter to 1000 subscribers in batches
+
+# Batch personalized emails
+300 (csv) read subscriber list
+310 (email) send personalized email to each subscriber from list
+320 (email) add delay between emails to avoid spam filters
+
+# ==================== Database Integration ====================
+
+# Send emails from database query results
+330 (postgres) query all customers with pending orders
+340 (email) send order reminder email to each customer from query results
+
+# Send daily report via email
+350 (postgres) query sales data for yesterday
+360 (df) generate sales report dataframe
+370 (plot) create sales chart and save as chart.png
+380 (email) send email to management with report attachment chart.png and data
+
+# User registration confirmation
+390 (postgres) insert new user into database
+400 (email) send welcome email to new user with account details
+
+# ==================== Automated Reports ====================
+
+# Daily CSV report via email
+410 (cassandra) query daily metrics from cassandra
+420 (df) export metrics to CSV file daily_metrics.csv
+430 (email) send daily_metrics.csv to analytics team via email
+
+# Weekly summary email
+440 (redis) get weekly statistics from redis cache
+450 (df) format statistics into report
+460 (email) send HTML email with weekly summary to stakeholders
+
+# Error notifications
+470 (log) check application logs for errors
+480 (email) if errors found send alert email to devops team with high priority
+
+# ==================== Transactional Emails ====================
+
+# Order confirmation
+490 (email) send order confirmation email to customer with order details and invoice attachment
+
+# Password reset
+500 (email) send password reset email with reset link to user email address
+
+# Shipping notification
+510 (email) send shipping notification to customer with tracking number
+
+# Payment receipt
+520 (email) send payment receipt email with PDF invoice attached
+
+# Account verification
+530 (email) send account verification email with verification code
+
+# ==================== Marketing Campaigns ====================
+
+# Newsletter to subscribers
+540 (opensearch) query all active subscribers from opensearch
+550 (email) send HTML newsletter to subscribers with unsubscribe link
+
+# Product launch announcement
+560 (email) send HTML email with product images to customer list
+
+# Promotional email with coupon
+570 (email) send promotional email with discount code to targeted customers
+
+# Event invitation
+580 (email) send HTML event invitation with calendar attachment to attendees
+
+# ==================== Integration Workflows ====================
+
+# Vault integration: secure email credentials
+590 (vault) read SMTP credentials from vault path email/smtp
+600 (email) configure email module with vault credentials
+610 (email) send secure email using vault-stored credentials
+
+# File processing and email
+620 (compress) compress log files into logs.tar.gz
+630 (vault) encrypt compressed file with vault transit
+640 (email) send encrypted logs to security team
+
+# API to Email workflow
+650 (api) fetch data from external API
+660 (df) process API response into dataframe
+670 (df) export to Excel file
+680 (email) send Excel report via email to requestor
+
+# Kafka event to email notification
+690 (kafka) consume alert message from kafka topic
+700 (email) send alert email to on-call engineer with high priority
+
+# ==================== Monitoring and Alerts ====================
+
+# System health check email
+710 (email) test SMTP connection
+720 (email) if connection successful send test email
+730 (email) if connection failed send alert to admin
+
+# Disk space alert
+740 (shell) check disk space usage
+750 (email) if disk space above 90 percent send warning email to sysadmin
+
+# Database backup notification
+760 (postgres) create database backup
+770 (compress) compress backup file
+780 (email) send backup file to backup email address
+790 (email) send confirmation email that backup completed
+
+# ==================== Advanced Features ====================
+
+# Email validation
+800 (email) validate email address format for user input
+810 (email) check if email address is valid before sending
+
+# Test SMTP connection
+820 (email) test connection to SMTP server before sending emails
+
+# Batch send with error handling
+830 (email) send batch emails and collect failed recipients
+840 (email) retry sending to failed recipients
+850 (log) log email sending results
+
+# Email with dynamic content
+860 (redis) get user preferences from redis
+870 (email) customize email content based on user preferences
+880 (email) send personalized email with user-specific content
+
+# ==================== Email Templates Examples ====================
+
+# Welcome email template
+890 (email) use template "Dear {name}, Welcome to {company}. Your account {username} is active."
+
+# Order confirmation template
+900 (email) use template "Order #{order_id} confirmed. Total: ${amount}. Expected delivery: {delivery_date}."
+
+# Invoice email template
+910 (email) use template subject "Invoice #{invoice_number}" body "Dear {customer_name}, Please find invoice attached."
+
+# Meeting reminder template
+920 (email) use template "Reminder: Meeting on {date} at {time}. Topic: {subject}. Join: {meeting_link}"
+
+# Password reset template
+930 (email) use template "Click this link to reset password: {reset_link}. Expires in {expiry_hours} hours."
+
+# ==================== Email Analytics ====================
+
+# Track email sending success rate
+940 (email) send batch emails and count successful sends
+950 (df) calculate email delivery success rate
+960 (cassandra) store email metrics in cassandra
+
+# Log email activity
+970 (email) send email and log activity to database
+980 (cassandra) insert email log with timestamp recipient subject status

@@ -1,0 +1,161 @@
+# AIBasic Example - Jump/Goto Instructions
+# This demonstrates the jump/goto functionality for conditional and unconditional jumps
+
+# ==================== Example 1: Simple Loop with Goto ====================
+
+# Initialize counter
+10 set x to 0
+
+# Print current value
+20 print the value of x
+
+# Increment counter
+30 increment x by 1
+
+# Check if counter less than 5, if so jump back to line 20
+40 if x is less than 5 jump to line 20
+
+# This line executes after loop completes
+50 print "Loop complete, x is now" and x
+
+# ==================== Example 2: Skip Section with Unconditional Jump ====================
+
+# Set a flag
+60 set skip_section to True
+
+# Check flag and skip if true
+70 if skip_section jump to line 100
+
+# This section will be skipped
+80 print "This will not execute"
+90 set y to 999
+
+# Continue here after jump
+100 print "Skipped section, continuing..."
+
+# ==================== Example 3: Conditional Branch ====================
+
+# Get user input
+110 set age to 25
+
+# Check age and jump accordingly
+120 if age is greater than or equal to 18 jump to line 140
+
+# Minor handling
+130 print "You are a minor" and goto 150
+
+# Adult handling
+140 print "You are an adult"
+
+# Continue
+150 print "Age check complete"
+
+# ==================== Example 4: Multiple Conditions ====================
+
+# Set test value
+160 set score to 85
+
+# Check grade ranges
+170 if score is greater than or equal to 90 jump to line 210
+180 if score is greater than or equal to 80 jump to line 220
+190 if score is greater than or equal to 70 jump to line 230
+200 goto 240
+
+# Grade A
+210 print "Grade: A" and goto 250
+
+# Grade B
+220 print "Grade: B" and goto 250
+
+# Grade C
+230 print "Grade: C" and goto 250
+
+# Grade F
+240 print "Grade: F"
+
+# Continue
+250 print "Grading complete"
+
+# ==================== Example 5: While-like Loop ====================
+
+# Initialize loop counter
+260 set counter to 0
+270 set sum to 0
+
+# Loop start
+280 if counter is greater than or equal to 10 jump to line 320
+
+# Loop body
+290 add counter to sum
+300 increment counter by 1
+310 goto 280
+
+# Loop end
+320 print "Sum of 0 to 9 is" and sum
+
+# ==================== Example 6: Find First Match ====================
+
+# Create list of numbers
+330 set numbers to list with values 5 12 8 15 3 18 7
+
+# Initialize search
+340 set index to 0
+350 set found to False
+
+# Search loop
+360 if index is greater than or equal to length of numbers jump to line 400
+370 get value at index from numbers and store in current
+380 if current is greater than 10 jump to line 410
+390 increment index by 1 and goto 360
+
+# Not found
+400 print "No number greater than 10 found" and goto 420
+
+# Found
+410 print "Found" and current and "at index" and index
+
+# Done
+420 print "Search complete"
+
+# ==================== Example 7: Nested Conditions ====================
+
+# Set values
+430 set a to 5
+440 set b to 10
+
+# Check first condition
+450 if a is less than 10 jump to line 470
+
+# a >= 10 branch
+460 print "a is large" and goto 500
+
+# a < 10, check b
+470 if b is less than 10 jump to line 490
+
+# a < 10 and b >= 10
+480 print "a is small, b is large" and goto 500
+
+# a < 10 and b < 10
+490 print "Both a and b are small"
+
+# Continue
+500 print "Comparison complete"
+
+# ==================== Example 8: Early Exit Pattern ====================
+
+# Initialize data
+510 set data to empty list
+
+# Check if data is empty
+520 if data is empty jump to line 560
+
+# Process data (won't execute)
+530 print "Processing data..."
+540 print length of data and "items"
+550 goto 570
+
+# Handle empty case
+560 print "No data to process, exiting early"
+
+# Done
+570 print "Program end"

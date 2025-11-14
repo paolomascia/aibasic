@@ -199,3 +199,194 @@ MODEL = gpt-4o-mini
 # PROTOCOL_VERSION = 4
 # CONNECT_TIMEOUT = 10
 # REQUEST_TIMEOUT = 30
+
+[email]
+# SMTP email sending settings
+# Uncomment and configure these settings to use the email module
+# SMTP_HOST = smtp.gmail.com  # Gmail SMTP server
+# SMTP_PORT = 587  # 587 for TLS, 465 for SSL, 25 for plain
+# USERNAME = your-email@gmail.com
+# PASSWORD = your-app-password  # For Gmail, use App Password not regular password
+
+# Encryption (choose one)
+# USE_TLS = true  # STARTTLS encryption (recommended, port 587)
+# USE_SSL = false  # SSL encryption (port 465)
+
+# Sender Information
+# FROM_EMAIL = your-email@gmail.com  # Default sender email
+# FROM_NAME = My Application  # Default sender name
+
+# Connection Settings
+# TIMEOUT = 30  # Connection timeout in seconds
+
+# Common SMTP Servers:
+# Gmail: smtp.gmail.com:587 (TLS) - Requires App Password
+# Outlook/Office365: smtp.office365.com:587 (TLS)
+# Yahoo: smtp.mail.yahoo.com:587 (TLS)
+# SendGrid: smtp.sendgrid.net:587 (TLS)
+# Amazon SES: email-smtp.us-east-1.amazonaws.com:587 (TLS)
+
+[mongodb]
+# MongoDB document-oriented NoSQL database settings
+# Uncomment and configure these settings to use the mongodb module
+
+# Connection String (recommended - overrides individual parameters if set)
+# CONNECTION_STRING = mongodb://username:password@localhost:27017/mydb?authSource=admin
+
+# Or use individual parameters:
+# HOST = localhost
+# PORT = 27017
+# DATABASE = mydb
+# USERNAME = admin
+# PASSWORD = secret
+
+# Authentication Database (optional, defaults to admin)
+# AUTH_SOURCE = admin
+
+# SSL/TLS Settings (optional)
+# TLS = false
+# TLS_ALLOW_INVALID_CERTIFICATES = false  # Set to true for self-signed certs (dev only)
+# TLS_CA_FILE = /path/to/ca.pem
+# TLS_CERT_KEY_FILE = /path/to/client.pem
+
+# Connection Pool Settings
+# MAX_POOL_SIZE = 100
+# MIN_POOL_SIZE = 0
+
+# Timeout Settings (milliseconds)
+# SERVER_SELECTION_TIMEOUT_MS = 30000
+# CONNECT_TIMEOUT_MS = 20000
+# SOCKET_TIMEOUT_MS = 20000
+
+# Replica Set (optional)
+# REPLICA_SET = rs0
+
+# Read/Write Preferences
+# READ_PREFERENCE = primary  # primary, primaryPreferred, secondary, secondaryPreferred, nearest
+# W = 1  # Write concern: number of nodes that must acknowledge writes
+
+[s3]
+# S3/MinIO object storage settings
+# Uncomment and configure these settings to use the s3 module
+
+# AWS S3 Configuration
+# ENDPOINT_URL = https://s3.amazonaws.com  # Omit for AWS S3 (auto-detected)
+# AWS_ACCESS_KEY_ID = AKIAIOSFODNN7EXAMPLE
+# AWS_SECRET_ACCESS_KEY = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+# REGION = us-east-1
+
+# MinIO Configuration (alternative to AWS S3)
+# ENDPOINT_URL = http://localhost:9000
+# AWS_ACCESS_KEY_ID = minioadmin
+# AWS_SECRET_ACCESS_KEY = minioadmin
+# REGION = us-east-1
+# VERIFY_SSL = false  # Set to false for MinIO with self-signed certs
+
+# DigitalOcean Spaces Configuration (alternative)
+# ENDPOINT_URL = https://nyc3.digitaloceanspaces.com
+# AWS_ACCESS_KEY_ID = your_spaces_key
+# AWS_SECRET_ACCESS_KEY = your_spaces_secret
+# REGION = nyc3
+
+# Wasabi Configuration (alternative)
+# ENDPOINT_URL = https://s3.wasabisys.com
+# AWS_ACCESS_KEY_ID = your_wasabi_key
+# AWS_SECRET_ACCESS_KEY = your_wasabi_secret
+# REGION = us-east-1
+
+# SSL/TLS Settings
+# VERIFY_SSL = true  # Set to false for self-signed certificates (dev only)
+
+# Optional Settings
+# DEFAULT_BUCKET = my-default-bucket  # Default bucket for operations
+# SIGNATURE_VERSION = s3v4  # Signature version (s3v4 recommended)
+# MULTIPART_THRESHOLD = 8388608  # 8MB - files larger than this use multipart upload
+# MULTIPART_CHUNKSIZE = 8388608  # 8MB - chunk size for multipart uploads
+
+[restapi]
+# REST API client settings
+# Uncomment and configure these settings to use the restapi module
+
+# Base URL for API (optional - can be specified per request)
+# BASE_URL = https://api.example.com/v1
+
+# Authentication Method: none, basic, bearer, apikey, oauth2
+# AUTH_METHOD = none
+
+# Bearer Token Authentication (for JWT, OAuth 2.0 access tokens)
+# AUTH_METHOD = bearer
+# BEARER_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# Basic Authentication (username and password)
+# AUTH_METHOD = basic
+# USERNAME = your_username
+# PASSWORD = your_password
+
+# API Key Authentication (header-based or query parameter)
+# AUTH_METHOD = apikey
+# API_KEY = your_api_key_here
+# API_KEY_HEADER = X-API-Key  # Header name for API key
+# API_KEY_PARAM = api_key  # Or use query parameter instead of header
+
+# OAuth 2.0 Client Credentials Flow
+# AUTH_METHOD = oauth2
+# OAUTH2_CLIENT_ID = your_client_id
+# OAUTH2_CLIENT_SECRET = your_client_secret
+# OAUTH2_TOKEN_URL = https://auth.example.com/oauth/token
+
+# SSL/TLS Settings
+# VERIFY_SSL = true  # Set to false for self-signed certificates (dev only)
+
+# Request Settings
+# TIMEOUT = 30  # Request timeout in seconds
+# MAX_RETRIES = 3  # Maximum number of retries for failed requests
+# RETRY_BACKOFF = 1.0  # Backoff factor for retries (exponential)
+
+# Default Headers (JSON format)
+# HEADERS = {"User-Agent": "AIBasic/1.0", "Accept": "application/json"}
+
+# Proxy Settings (optional)
+# HTTP_PROXY = http://proxy.example.com:8080
+# HTTPS_PROXY = https://proxy.example.com:8080
+
+# =============================================================================
+# SSH Module Configuration
+# =============================================================================
+# [ssh]
+# HOST = server.example.com
+# PORT = 22
+# USERNAME = admin
+
+# Password Authentication
+# PASSWORD = your_password_here
+
+# Key-Based Authentication (recommended)
+# KEY_FILE = /path/to/private_key  # e.g., ~/.ssh/id_rsa or ~/.ssh/id_ed25519
+# KEY_PASSWORD = key_passphrase  # Only if the key is encrypted
+
+# Host Key Verification
+# VERIFY_HOST_KEY = false  # true (strict), false (ignore), or auto-add
+
+# Connection Timeouts (seconds)
+# TIMEOUT = 30  # Overall connection timeout
+# BANNER_TIMEOUT = 15  # SSH banner read timeout
+# AUTH_TIMEOUT = 10  # Authentication timeout
+
+# Keep-Alive Settings
+# KEEPALIVE_INTERVAL = 30  # Send keepalive every N seconds (0 to disable)
+
+# Compression
+# COMPRESS = false  # Enable SSH compression
+
+# Known Hosts File
+# KNOWN_HOSTS_FILE = ~/.ssh/known_hosts
+
+# Jump Host / Bastion Configuration (optional)
+# PROXY_HOST = bastion.example.com
+# PROXY_PORT = 22
+# PROXY_USERNAME = bastion_user
+# PROXY_PASSWORD = bastion_password
+# PROXY_KEY_FILE = /path/to/bastion_key
+
+# SFTP Settings
+# SFTP_TIMEOUT = 60  # SFTP operation timeout

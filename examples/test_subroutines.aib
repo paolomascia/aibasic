@@ -1,0 +1,60 @@
+# AIBasic Example - Subroutines with CALL and RETURN
+# Demonstrates how to create reusable subroutines
+
+# ==================== Main Program ====================
+
+10 print "Subroutine Example Program"
+20 print "=========================="
+
+30 set x to 5
+40 set y to 3
+50 print "Initial values: x =" and x and ", y =" and y
+
+60 print ""
+70 print "Calling add subroutine..."
+80 call 1000
+90 print "Result of addition:" and result
+
+100 print ""
+110 print "Calling multiply subroutine..."
+120 call 2000
+130 print "Result of multiplication:" and result
+
+140 print ""
+150 print "Calling factorial subroutine with n = 5..."
+160 set n to 5
+170 call 3000
+180 print "Factorial of" and n and "is" and factorial
+
+190 print ""
+200 print "Program complete!"
+210 goto 9999
+
+# ==================== Subroutine: ADD ====================
+# Adds x and y, stores result in 'result'
+
+1000 print "  [ADD subroutine]"
+1010 add x to y and store in result
+1020 return
+
+# ==================== Subroutine: MULTIPLY ====================
+# Multiplies x and y, stores result in 'result'
+
+2000 print "  [MULTIPLY subroutine]"
+2010 multiply x by y and store in result
+2020 return
+
+# ==================== Subroutine: FACTORIAL ====================
+# Calculates factorial of n, stores result in 'factorial'
+
+3000 print "  [FACTORIAL subroutine]"
+3010 set factorial to 1
+3020 set i to 1
+3030 if i is greater than n jump to line 3060
+3040 multiply factorial by i
+3050 increment i by 1 and goto 3030
+3060 return
+
+# ==================== End of Program ====================
+
+9999 print "End"

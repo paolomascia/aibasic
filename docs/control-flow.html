@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control Flow · AIbasic (v1.0)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="brandbar">
+    <div class="inner">
+      <a href="index.html" class="brand">
+        <img src="logo_dark.png" alt="AIBASIC logo">
+        <div class="titles">
+          <div class="name">AIBASIC</div>
+          <div class="tagline">Natural Language Programming</div>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="navbar">
+    <div class="inner">
+      <nav>
+        <a href="manifesto.html">Manifesto</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="language.html">Language</a>
+        <a href="modules.html">Modules</a>
+        <a href="control-flow.html">Control Flow</a>
+        <a href="examples.html">Examples</a>
+        <a href="changelog.html">Changelog</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<div class="container grid">
+  <aside class="sidebar">
+    <strong>Sections</strong>
+    <a href="#overview">Overview</a>
+    <a href="#jumps">Jumps (GOTO)</a>
+    <a href="#error-handling">Error Handling</a>
+    <a href="#subroutines">Subroutines</a>
+    <a href="#patterns">Common Patterns</a>
+    <a href="#best-practices">Best Practices</a>
+  </aside>
+  <main>
+    <h1>Control Flow <span class="badge">v1.0</span></h1>
+    <p class="muted">Advanced control flow constructs including jumps, error handling, and subroutines with automatic call stack management.</p>
+
+    <h2 id="overview">Overview</h2>
+    <div class="panel">
+      <p>AIbasic v1.0 introduces three powerful control flow mechanisms:</p>
+      <ul>
+        <li><strong>Jumps (GOTO)</strong> — Unconditional and conditional branching</li>
+        <li><strong>Error Handling (ON ERROR GOTO)</strong> — Try-except blocks with error variables</li>
+        <li><strong>Subroutines (CALL/RETURN)</strong> — Reusable code blocks with call stack</li>
+      </ul>
+      <p>All control flow is compiled to optimized Python with function-based dispatch (O(1) lookup).</p>
+    </div>
+
+    <h2 id="jumps">Jumps (GOTO)</h2>
+
+    <h3>Unconditional Jump</h3>
+    <div class="panel">
+      <p>Jump directly to a specific line number:</p>
+      <pre><code>10 print "Start"
+20 set x to 5
+30 goto 50
+40 print "This is skipped"
+50 print "Jumped here!"
+60 print "x =" and x</code></pre>
+      <p><strong>Output:</strong></p>
+      <pre><code>Start
+Jumped here!
+x = 5</code></pre>
+    </div>
+
+    <h3>Conditional Jump</h3>
+    <div class="panel">
+      <p>Jump only if a condition is true:</p>
+      <pre><code>10 set x to 10
+20 if x is greater than 5 jump to line 50
+30 print "x is small"
+40 goto 60
+50 print "x is large"
+60 print "Done"</code></pre>
+      <p><strong>Syntax variants:</strong></p>
+      <ul>
+        <li><code>if x > 5 jump to line 50</code></li>
+        <li><code>if x is greater than 5 jump to 50</code></li>
+        <li><code>if condition jump to line 100</code></li>
+      </ul>
+    </div>
+
+    <h3>Loop Pattern with Jumps</h3>
+    <div class="panel">
+      <p>Create loops using conditional jumps:</p>
+      <pre><code>10 set counter to 0
+20 print "Iteration:" and counter
+30 increment counter by 1
+40 if counter is less than 5 jump to line 20
+50 print "Loop complete"</code></pre>
+      <p><strong>Output:</strong></p>
+      <pre><code>Iteration: 0
+Iteration: 1
+Iteration: 2
+Iteration: 3
+Iteration: 4
+Loop complete</code></pre>
+    </div>
+
+    <h3>Implementation Details</h3>
+    <div class="panel">
+      <p>Jumps are compiled to function-based dispatch:</p>
+      <pre><code># AIbasic
+30 goto 50
+
+# Compiled Python
+def _line_30():
+    global _next_line
+    _next_line = 50  # Jump target
+
+# Dispatch loop
+_line_functions = {10: _line_10, 20: _line_20, ...}
+_current_line = _next_line  # O(1) lookup</code></pre>
+    </div>
+
+    <h2 id="error-handling">Error Handling (ON ERROR GOTO)</h2>
+
+    <h3>Basic Error Handler</h3>
+    <div class="panel">
+      <p>Set an error handler that catches exceptions:</p>
+      <pre><code>10 set x to 10
+20 set y to 0
+30 on error goto 100
+40 divide x by y and store in result
+50 print "Result:" and result
+60 goto 200
+
+100 print "ERROR caught!"
+110 print "Error message:" and _last_error
+120 print "Error at line:" and _last_error_line
+
+200 print "Program complete"</code></pre>
+      <p><strong>Output:</strong></p>
+      <pre><code>ERROR caught!
+Error message: division by zero
+Error at line: 40
+Program complete</code></pre>
+    </div>
+
+    <h3>Error Variables</h3>
+    <div class="panel">
+      <p>AIbasic provides special variables for error handling:</p>
+      <table>
+        <tr>
+          <th>Variable</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>_last_error</code></td>
+          <td>Exception object (contains error message)</td>
+        </tr>
+        <tr>
+          <td><code>_last_error_line</code></td>
+          <td>Line number where error occurred</td>
+        </tr>
+        <tr>
+          <td><code>_error_handler</code></td>
+          <td>Current error handler line (internal)</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Multiple Error Handlers</h3>
+    <div class="panel">
+      <p>You can update the error handler dynamically:</p>
+      <pre><code>10 on error goto 900
+
+20 (csv) read file "data.csv"
+30 on error goto 910
+40 (postgres) connect to database
+50 on error goto 920
+60 (postgres) execute complex query
+
+70 print "All operations succeeded"
+80 goto 999
+
+900 print "File error:" and _last_error
+905 goto 999
+
+910 print "Database connection error:" and _last_error
+915 goto 999
+
+920 print "Query error:" and _last_error
+
+999 print "End"</code></pre>
+    </div>
+
+    <h3>Error Recovery Pattern</h3>
+    <div class="panel">
+      <pre><code>10 set retry_count to 0
+20 on error goto 100
+
+30 (api) GET request to "https://api.example.com/data"
+40 print "Request successful"
+50 goto 200
+
+100 print "Request failed, retrying..."
+110 increment retry_count by 1
+120 if retry_count < 3 jump to line 30
+130 print "Max retries reached, giving up"
+
+200 print "Done"</code></pre>
+    </div>
+
+    <h3>Implementation Details</h3>
+    <div class="panel">
+      <p>Error handlers compile to try-except blocks:</p>
+      <pre><code># AIbasic
+30 on error goto 100
+40 divide x by y
+
+# Compiled Python
+def _line_30():
+    global _error_handler
+    _error_handler = 100
+
+def _line_40():
+    global _last_error, _last_error_line
+    try:
+        result = x / y
+    except Exception as e:
+        _last_error = e
+        _last_error_line = 40
+        _next_line = _error_handler</code></pre>
+    </div>
+
+    <h2 id="subroutines">Subroutines (CALL/RETURN)</h2>
+
+    <h3>Basic Subroutine</h3>
+    <div class="panel">
+      <p>Call reusable code blocks with automatic return:</p>
+      <pre><code>10 print "Main program start"
+20 set x to 5
+30 call 1000
+40 print "x is now" and x
+50 goto 9999
+
+# Subroutine
+1000 print "  [Subroutine] Doubling x..."
+1010 multiply x by 2
+1020 return
+
+9999 print "Program end"</code></pre>
+      <p><strong>Output:</strong></p>
+      <pre><code>Main program start
+  [Subroutine] Doubling x...
+x is now 10
+Program end</code></pre>
+    </div>
+
+    <h3>Multiple Subroutines</h3>
+    <div class="panel">
+      <pre><code>10 set a to 10
+20 set b to 5
+
+30 call 1000
+40 print "Sum:" and sum_result
+
+50 call 2000
+60 print "Product:" and product_result
+
+70 goto 9999
+
+# Subroutine 1: Addition
+1000 add a to b and store in sum_result
+1010 return
+
+# Subroutine 2: Multiplication
+2000 multiply a by b and store in product_result
+2010 return
+
+9999 print "Done"</code></pre>
+    </div>
+
+    <h3>Nested Subroutines</h3>
+    <div class="panel">
+      <p>Subroutines can call other subroutines (call stack managed automatically):</p>
+      <pre><code>10 set number to 12
+20 call 1000
+30 print "Is even?" and is_even
+40 goto 9999
+
+# Subroutine: Check if even
+1000 print "  [CHECK_EVEN]"
+1010 call 2000
+1020 if remainder equals 0 jump to line 1050
+1030 set is_even to false
+1040 return
+1050 set is_even to true
+1060 return
+
+# Subroutine: Calculate modulo
+2000 print "    [MODULO]"
+2010 set remainder to number modulo 2
+2020 return
+
+9999 print "End"</code></pre>
+      <p><strong>Output:</strong></p>
+      <pre><code>  [CHECK_EVEN]
+    [MODULO]
+Is even? true
+End</code></pre>
+    </div>
+
+    <h3>Subroutine Library Pattern</h3>
+    <div class="panel">
+      <p>Organize subroutines by line number ranges:</p>
+      <pre><code># Main program: 10-990
+10 call 1000
+20 call 2000
+30 call 3000
+990 goto 9999
+
+# Subroutine Library: 1000-8999
+# Data processing: 1000-1990
+1000 # Load data subroutine
+1990 return
+
+# Calculations: 2000-2990
+2000 # Calculate totals subroutine
+2990 return
+
+# Reports: 3000-3990
+3000 # Generate report subroutine
+3990 return
+
+# Program end: 9999
+9999 print "Complete"</code></pre>
+    </div>
+
+    <h3>Implementation Details</h3>
+    <div class="panel">
+      <p>Subroutines use an automatic call stack:</p>
+      <pre><code># AIbasic
+30 call 1000
+
+# Compiled Python
+def _line_30():
+    global _call_stack, _next_line
+    _call_stack.append(40)  # Return address
+    _next_line = 1000       # Jump to subroutine
+
+def _line_1020():  # RETURN statement
+    global _call_stack, _next_line
+    if _call_stack:
+        _next_line = _call_stack.pop()
+    else:
+        _next_line = None  # End program</code></pre>
+    </div>
+
+    <h2 id="patterns">Common Patterns</h2>
+
+    <h3>Loop with Error Handling</h3>
+    <div class="panel">
+      <pre><code>10 set items to list "file1" "file2" "file3"
+20 set index to 0
+
+30 if index >= length of items jump to line 999
+40 get item at index from items
+50 on error goto 200
+
+60 (csv) read file item
+70 print "Processed" and item
+80 goto 300
+
+200 print "Error processing" and item
+210 print _last_error
+
+300 increment index by 1
+310 goto 30
+
+999 print "All items processed"</code></pre>
+    </div>
+
+    <h3>Retry Logic with Subroutine</h3>
+    <div class="panel">
+      <pre><code>10 set max_retries to 3
+20 set retry_count to 0
+30 call 1000
+40 goto 999
+
+# Subroutine: API call with retry
+1000 on error goto 1100
+1010 (api) GET request to "https://api.example.com/data"
+1020 print "Success!"
+1030 return
+
+1100 print "Attempt" and retry_count and "failed"
+1110 increment retry_count by 1
+1120 if retry_count < max_retries jump to line 1010
+1130 print "Max retries reached"
+1140 return
+
+999 print "Done"</code></pre>
+    </div>
+
+    <h3>State Machine</h3>
+    <div class="panel">
+      <pre><code>10 set state to "START"
+
+20 if state equals "START" jump to line 100
+30 if state equals "PROCESS" jump to line 200
+40 if state equals "FINISH" jump to line 300
+50 goto 999
+
+100 print "State: START"
+110 set state to "PROCESS"
+120 goto 20
+
+200 print "State: PROCESS"
+210 set state to "FINISH"
+220 goto 20
+
+300 print "State: FINISH"
+310 set state to "DONE"
+
+999 print "Final state:" and state</code></pre>
+    </div>
+
+    <h2 id="best-practices">Best Practices</h2>
+
+    <div class="panel">
+      <h3>Line Numbering Convention</h3>
+      <ul>
+        <li><strong>10-990</strong>: Main program code</li>
+        <li><strong>1000-8999</strong>: Subroutine library</li>
+        <li><strong>9000-9899</strong>: Error handlers</li>
+        <li><strong>9999</strong>: Program end</li>
+      </ul>
+      <p>Example:</p>
+      <pre><code>10 call 1000
+20 goto 9999
+
+1000 # Subroutine code
+1990 return
+
+9000 # Error handler
+9010 print "Error"
+
+9999 print "End"</code></pre>
+    </div>
+
+    <div class="panel">
+      <h3>Error Handling Guidelines</h3>
+      <ul>
+        <li>✅ Set error handlers before risky operations (file I/O, network, database)</li>
+        <li>✅ Use specific error handlers for different operation types</li>
+        <li>✅ Always provide a recovery path or cleanup code</li>
+        <li>✅ Log errors with <code>_last_error</code> and <code>_last_error_line</code></li>
+        <li>❌ Don't rely on error handlers for normal control flow</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Subroutine Guidelines</h3>
+      <ul>
+        <li>✅ Always include RETURN statement at end of subroutine</li>
+        <li>✅ Use line numbers 1000+ for subroutines</li>
+        <li>✅ Group related subroutines (1000-1990, 2000-2990, etc.)</li>
+        <li>✅ Document subroutine purpose with comments</li>
+        <li>✅ Use GOTO to skip subroutine sections in main flow</li>
+        <li>❌ Don't jump into the middle of a subroutine</li>
+        <li>❌ Don't mix main code with subroutine code without GOTO</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Jump Guidelines</h3>
+      <ul>
+        <li>✅ Use jumps for loops and conditional branching</li>
+        <li>✅ Prefer forward jumps over backward jumps when possible</li>
+        <li>✅ Use meaningful line numbers (100, 200, 300 for major sections)</li>
+        <li>❌ Avoid creating infinite loops without exit condition</li>
+        <li>❌ Don't create "spaghetti code" with excessive jumping</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Performance Notes</h3>
+      <ul>
+        <li>All control flow uses <strong>O(1) function dispatch</strong> (dictionary lookup)</li>
+        <li>No performance penalty for jumps compared to sequential execution</li>
+        <li>Call stack is a simple Python list (fast push/pop operations)</li>
+        <li>Error handling uses try-except blocks (minimal overhead when no errors)</li>
+      </ul>
+    </div>
+  </main>
+</div>
+
+<div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
+  © 2025 AIbasic v1.0 — Advanced control flow with jumps, error handling, and subroutines
+</div>
+<script src="script.js"></script>
+</body></html>

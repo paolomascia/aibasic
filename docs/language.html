@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Language · AIbasic (v0.9)</title>
+<title>Language · AIbasic (v1.0)</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,26 +11,25 @@
   <div class="brandbar">
     <div class="inner">
       <a href="index.html" class="brand">
-        <img src="logo.png" alt="AIBASIC logo">
+        <img src="logo_dark.png" alt="AIBASIC logo">
         <div class="titles">
           <div class="name">AIBASIC</div>
-          <div class="tagline">AI-assisted BASIC programming language</div>
+          <div class="tagline">Natural Language Programming</div>
         </div>
       </a>
     </div>
   </div>
   <div class="navbar">
     <div class="inner">
-      <nav><a href="history.html">History</a>
-      <a href="language.html">Language</a>
-      <a href="semantics.html">Semantics</a>
-      <a href="rpa.html">RPA</a>
-      <a href="compilation.html">Compilation</a>
-      <a href="tooling.html">Tooling</a>
-      <a href="examples.html">Examples</a>
-      <a href="ebnf.html">EBNF</a>
-      <a href="glossary.html">Glossary</a>
-      <a href="changelog.html">Changelog</a></nav>
+      <nav>
+        <a href="manifesto.html">Manifesto</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="language.html">Language</a>
+        <a href="modules.html">Modules</a>
+        <a href="control-flow.html">Control Flow</a>
+        <a href="examples.html">Examples</a>
+        <a href="changelog.html">Changelog</a>
+      </nav>
     </div>
   </div>
 </header>
@@ -39,61 +38,183 @@
   <aside class="sidebar">
     <strong>Sections</strong>
     <a href="#purpose">Purpose</a>
-    <a href="#program-structure">Program structure</a>
-    <a href="#comments">Comments & Labels</a>
-    <a href="#lexicon">Lexicon & style</a>
-    <a href="#types">Types & data structures</a>
-    <a href="#ai-context">AI Context</a>
+    <a href="#program-structure">Program Structure</a>
+    <a href="#task-types">Task Types</a>
+    <a href="#control-flow">Control Flow</a>
+    <a href="#variables">Variables</a>
+    <a href="#comments">Comments</a>
   </aside>
   <main>
-    <h1>Language</h1>
+    <h1>Language Guide</h1>
+
     <h2 id="purpose">Purpose</h2>
-    <p><strong>AIbasic</strong> is a text-first language with <em>English, numbered instructions</em>, focused on
-    data manipulation (CSV/Parquet/DB) and RPA (browser/desktop). The compiler concatenates Python code
-    generated for each line.</p>
+    <p><strong>AIbasic</strong> is a natural-language programming language where you write instructions in plain English.
+    The AI compiler translates your intent into optimized Python code. Focus on what you want to do, not how to do it.</p>
 
-    <h2 id="program-structure">Program structure</h2>
-    <pre><code>&lt;line_number&gt; &lt;instruction in English&gt;</code></pre>
+    <h2 id="program-structure">Program Structure</h2>
+    <pre><code>&lt;line_number&gt; &lt;instruction in natural language&gt;
+&lt;line_number&gt; (&lt;task_type&gt;) &lt;instruction in natural language&gt;</code></pre>
+
+    <div class="panel">
+      <h3>Basic Rules</h3>
+      <ul>
+        <li><strong>Line numbers</strong>: Positive integers (10, 20, 30...)</li>
+        <li><strong>Spacing</strong>: Use increments of 10 to allow insertions</li>
+        <li><strong>Task types</strong>: Optional hints in parentheses: <code>(csv)</code>, <code>(postgres)</code>, <code>(api)</code></li>
+        <li><strong>Natural language</strong>: Write instructions as you would speak them</li>
+      </ul>
+    </div>
+
+    <h3>Examples</h3>
+    <pre><code>10 set x to 5
+20 multiply x by 2 and store in result
+30 if result is greater than 5 print "Large"
+40 (csv) read file "data.csv" into dataset
+50 (df) filter dataset where age > 18</code></pre>
+
+    <h2 id="task-types">Task Types (36)</h2>
+    <p>Task type hints help the AI compiler understand your intent. They're optional but recommended for clarity.</p>
+
+    <div class="panel">
+      <h3>Data Operations</h3>
+      <ul>
+        <li><code>csv</code> — CSV file operations</li>
+        <li><code>excel</code> — Excel spreadsheets</li>
+        <li><code>json</code> — JSON data handling</li>
+        <li><code>xml</code> — XML parsing</li>
+        <li><code>df</code> — DataFrame operations (pandas)</li>
+        <li><code>text</code> — Text file operations</li>
+        <li><code>pdf</code> — PDF generation/parsing</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Databases (Modules)</h3>
+      <ul>
+        <li><code>postgres</code> — PostgreSQL operations</li>
+        <li><code>mysql</code> — MySQL/MariaDB operations</li>
+        <li><code>mongodb</code> — MongoDB NoSQL operations</li>
+        <li><code>cassandra</code> — Cassandra operations</li>
+        <li><code>redis</code> — Redis cache operations</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Messaging & Streaming (Modules)</h3>
+      <ul>
+        <li><code>rabbitmq</code> — RabbitMQ messaging</li>
+        <li><code>kafka</code> — Apache Kafka</li>
+        <li><code>stream</code> — Stream processing</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Storage & Networking (Modules)</h3>
+      <ul>
+        <li><code>s3</code> — S3/MinIO object storage</li>
+        <li><code>api</code> — REST API calls</li>
+        <li><code>ssh</code> — SSH remote operations</li>
+        <li><code>email</code> — Email sending</li>
+        <li><code>web</code> — Web scraping</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Other Task Types</h3>
+      <ul>
+        <li><code>opensearch</code> — OpenSearch/Elasticsearch</li>
+        <li><code>vault</code> — HashiCorp Vault secrets</li>
+        <li><code>compress</code> — File compression</li>
+        <li><code>crypto</code> — Cryptography</li>
+        <li><code>math</code> — Mathematical operations</li>
+        <li><code>plot</code> — Data visualization</li>
+        <li><code>ml</code> — Machine learning</li>
+        <li><code>image</code> — Image processing</li>
+        <li><code>date</code> — Date/time operations</li>
+        <li><code>log</code> — Logging</li>
+        <li><code>config</code> — Configuration</li>
+        <li><code>fs</code> — File system operations</li>
+        <li><code>shell</code> — Shell commands</li>
+        <li><code>rpa</code> — RPA/automation</li>
+      </ul>
+    </div>
+
+    <h2 id="control-flow">Control Flow</h2>
+
+    <div class="panel">
+      <h3>Jumps (GOTO)</h3>
+      <pre><code># Unconditional jump
+30 goto 100
+
+# Conditional jump
+40 if x > 10 jump to line 100</code></pre>
+    </div>
+
+    <div class="panel">
+      <h3>Error Handling</h3>
+      <pre><code>10 on error goto 900
+20 # risky operation
+30 divide x by y
+
+900 print "Error:" and _last_error
+910 print "At line:" and _last_error_line</code></pre>
+      <p><strong>Error Variables:</strong></p>
+      <ul>
+        <li><code>_last_error</code> — Exception object</li>
+        <li><code>_last_error_line</code> — Line number of error</li>
+        <li><code>_error_handler</code> — Current error handler line</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Subroutines</h3>
+      <pre><code>10 set x to 5
+20 call 1000
+30 print "x is now" and x
+40 goto 999
+
+1000 print "In subroutine"
+1010 multiply x by 2
+1020 return
+
+999 print "End"</code></pre>
+      <p><strong>Best Practice:</strong> Use line numbers 1000+, 2000+, etc. for subroutines</p>
+    </div>
+
+    <h2 id="variables">Variables</h2>
     <ul>
-      <li><code>line_number</code>: positive integer (commonly 10, 20, 30…).</li>
-      <li>Each line defines/transforms data or automates actions.</li>
-      <li>The compiler sorts by line number; labels and line refs drive control flow.</li>
+      <li><strong>Declaration</strong>: Implicit, just use them</li>
+      <li><strong>Assignment</strong>: <code>set x to 5</code></li>
+      <li><strong>Types</strong>: Inferred automatically (int, float, string, bool, list, dict, DataFrame)</li>
+      <li><strong>Scope</strong>: Global by default</li>
     </ul>
 
-    <h2 id="comments">Comments & Labels</h2>
-    <ul>
-      <li>Inline comment: <code># ...</code></li>
-      <li>Line comment: a line starting with <code>#</code></li>
-      <li>Label: <code>LABEL Name:</code> before the instruction text.</li>
-    </ul>
-    <pre><code>30 LABEL RetryStep: Click the "Login" button.</code></pre>
+    <h3>Examples</h3>
+    <pre><code>10 set counter to 0
+20 set name to "Alice"
+30 set prices to list 10.5, 20.0, 15.75
+40 set user to dict with "name" as "Bob" and "age" as 30</code></pre>
 
-    <h2 id="lexicon">Lexicon & style</h2>
-    <ul>
-      <li><strong>Imperative/declarative</strong> style: “Load…”, “Filter…”, “Group… by… and compute…”, “Click…”.</li>
-      <li><strong>Variables</strong> in <em>TitleCase</em> → <code>snake_case</code> in Python.</li>
-      <li><strong>Ambiguous fields</strong> quoted: <code>"Order Date"</code>, <code>"Revenue"</code>.</li>
-      <li><strong>Literals</strong>: strings, numbers, dates (<code>YYYY-MM-DD</code>), relative time (<code>today</code>, <code>last month</code>).</li>
-      <li><strong>Paths</strong>: quoted strings.</li>
-      <li><strong>RPA selectors</strong>: visible text, CSS/XPath, roles/ARIA.</li>
-    </ul>
+    <h2 id="comments">Comments</h2>
+    <pre><code># Full line comment
+10 set x to 5  # Inline comment
+20 print x</code></pre>
 
-    <h2 id="types">Types & data structures</h2>
-    <ul>
-      <li>Scalars: <code>int</code>, <code>float</code>, <code>bool</code>, <code>string</code>, <code>date</code>, <code>datetime</code></li>
-      <li>Collections: <code>list[T]</code>, <code>dict[K,V]</code></li>
-      <li>Table/DataFrame, Record/Row, Selector, Handle</li>
-    </ul>
-
-    <h2 id="ai-context">AI Context</h2>
-    <p>The AI Context is an incremental JSON describing metadata for each variable
-    (<code>schema</code>, <code>shape</code>, <code>derives_from</code>, <code>privacy</code>, <code>mutability</code>, …) and global state
-    (<code>symbol_table</code>, <code>imports</code>, <code>resources</code>, <code>capabilities</code>).</p>
+    <div class="panel">
+      <h3>Pro Tips</h3>
+      <ul>
+        <li>Use task type hints for clarity: <code>(postgres)</code>, <code>(csv)</code>, <code>(api)</code></li>
+        <li>Space line numbers by 10s for easy insertion</li>
+        <li>Use line 1000+ for subroutines, 9000+ for error handlers</li>
+        <li>Add comments to document complex logic</li>
+        <li>Test incrementally — compile and run frequently</li>
+      </ul>
+    </div>
   </main>
 </div>
 
-<div class="footer container">
-  © 2025 AIbasic spec v0.9 — Auto-generated documentation.
+<div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
+  © 2025 AIbasic v1.0 — Natural Language Programming
 </div>
 <script src="script.js"></script>
 </body></html>

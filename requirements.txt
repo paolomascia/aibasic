@@ -33,3 +33,12 @@ requests>=2.31.0
 
 # Apache Cassandra module
 # cassandra-driver>=3.28.0  # DataStax Python driver for Cassandra
+
+# MongoDB module
+# pymongo>=4.0.0  # MongoDB Python driver
+
+# S3/MinIO module
+# boto3>=1.26.0  # AWS SDK for Python (S3, MinIO, DigitalOcean Spaces, etc.)
+
+# SSH module
+# paramiko>=3.0.0  # SSH2 protocol library for remote server connections

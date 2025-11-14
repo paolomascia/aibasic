@@ -137,14 +137,68 @@ AIBasic now supports **explicit task types** to help the compiler generate more 
 40 create Excel report with results
 ```
 
-📖 **See [TASK_TYPES.md](TASK_TYPES.md) for the complete list of 31 available task types** including:
-- Data: `csv`, `excel`, `json`, `xml`, `db`, **`postgres`**, **`mysql`** (with modules)
+## 🔀 6. Jump/Goto Support (New Feature!)
+
+AIBasic now supports **conditional and unconditional jumps** for control flow, similar to classic BASIC:
+
+**Unconditional jumps:**
+```text
+10 set x to 0
+20 print x
+30 goto 50
+40 print "This is skipped"
+50 print "Jumped here!"
+```
+
+**Conditional jumps:**
+```text
+10 set counter to 0
+20 print counter
+30 increment counter by 1
+40 if counter is less than 5 jump to line 20
+50 print "Loop complete!"
+```
+
+**Jump syntax options:**
+- `goto <line>` - Unconditional jump
+- `jump to <line>` - Unconditional jump
+- `if <condition> jump to line <line>` - Conditional jump
+- `if <condition> goto <line>` - Conditional jump
+
+**Error handling:**
+- `on error goto <line>` - Set error handler that catches exceptions
+- Access error details via `_last_error` and `_last_error_line`
+- Update error handlers dynamically throughout program execution
+
+**Subroutines:**
+- `call <line>` - Call a subroutine and save return address
+- `return` - Return from subroutine to calling location
+- Supports nested subroutine calls with automatic call stack management
+- Perfect for creating reusable code blocks and libraries
+
+The compiler automatically generates efficient Python code with function-based dispatch, try-except blocks for error handling, and call stack management for subroutines.
+
+📖 **See [examples/example_jumps.aib](examples/example_jumps.aib) for complete examples** including:
+- Simple loops with goto
+- Conditional branching
+- Multiple conditions
+- While-like loops
+- Early exit patterns
+- Nested conditions
+- Error handling with recovery
+- Multiple error handlers
+- Subroutines and nested calls
+
+📖 **See [TASK_TYPES.md](TASK_TYPES.md) for the complete list of 36 available task types** including:
+- Data: `csv`, `excel`, `json`, `xml`, `db`, **`postgres`**, **`mysql`**, **`mongodb`**, **`cassandra`** (with modules)
 - Messaging: **`rabbitmq`**, **`kafka`** (with modules), `stream`
 - Cache: **`redis`** (with module)
 - Search: **`opensearch`** (with module)
-- Network: `api`, `web`
+- Security: **`vault`** (with module)
+- Storage: **`s3`** (with module - AWS S3, MinIO, DigitalOcean Spaces)
+- Network: `api`, `web`, **`ssh`** (with module)
 - Processing: `df`, `math`, `plot`
-- Files: `fs`, `text`, `compress`, `pdf`
+- Files: `fs`, `text`, **`compress`** (with module), `pdf`, **`email`** (with module)
 - And many more!
 
 ### 🔌 New: Modules System

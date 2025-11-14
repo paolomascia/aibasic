@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Home · AIbasic (v0.9)</title>
+<title>Home · AIbasic (v1.0)</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,10 +11,10 @@
   <div class="brandbar">
     <div class="inner">
       <a href="index.html" class="brand">
-        <img src="logo.png" alt="AIBASIC logo">
+        <img src="logo_dark.png" alt="AIBASIC logo">
         <div class="titles">
           <div class="name">AIBASIC</div>
-          <div class="tagline">AI-assisted BASIC programming language</div>
+          <div class="tagline">Natural Language Programming</div>
         </div>
       </a>
     </div>
@@ -25,13 +25,9 @@
         <a href="manifesto.html">Manifesto</a>
         <a href="architecture.html">Architecture</a>
         <a href="language.html">Language</a>
-        <a href="semantics.html">Semantics</a>
-        <a href="rpa.html">RPA</a>
-        <a href="compilation.html">Compilation</a>
-        <a href="tooling.html">Tooling</a>
+        <a href="modules.html">Modules</a>
+        <a href="control-flow.html">Control Flow</a>
         <a href="examples.html">Examples</a>
-        <a href="ebnf.html">EBNF</a>
-        <a href="glossary.html">Glossary</a>
         <a href="changelog.html">Changelog</a>
       </nav>
     </div>
@@ -39,23 +35,101 @@
 </header>
 
 <div class="container">
-  <h1>AIbasic — Program by Intent, Not by Syntax <span class="badge">v0.9</span></h1>
-  <p class="muted">AIbasic redefines programming: you describe outcomes in natural language, the LLM compiler creates the
-  executable plan, and the runtime architecture (data fabric, communication buses, RPA interfaces) carries out your intent.
-  This site replaces the old “language-first” view with a full <em>executable architecture</em> perspective.</p>
+  <h1>AIbasic — Natural Language Programming <span class="badge">v1.0</span></h1>
+  <p class="muted">Write code in plain English, let AI compile it to Python. With 14 integrated modules,
+  36 task types, and advanced control flow including jumps, error handling, and subroutines,
+  AIbasic makes complex automation accessible to everyone.</p>
 
   <div class="panel">
-    <h3>Start here</h3>
+    <h3>🚀 Quick Example</h3>
+    <pre><code>10 (csv) read file "customers.csv" into data
+20 (df) filter data where age is greater than 18
+30 (df) group data by country and calculate average revenue
+40 (excel) save result to "report.xlsx"
+50 print "Report generated!"</code></pre>
+    <p>That's it! AIbasic compiles this to production-ready Python code.</p>
+  </div>
+
+  <div class="panel">
+    <h3>✨ Key Features</h3>
     <ul>
-      <li><strong><a href="manifesto.html">Manifesto</a>:</strong> why AIbasic is not a language but a new programming paradigm.</li>
-      <li><strong><a href="architecture.html">Architecture</a>:</strong> compiler/VM reimagined, AI Context, data & RPA services.</li>
-      <li><strong><a href="examples.html">Examples</a>:</strong> intent-first pipelines: ETL, SSH orchestration, browser automation.</li>
+      <li><strong>Natural Language Syntax</strong> — Write code as plain English instructions</li>
+      <li><strong>14 Integrated Modules</strong> — PostgreSQL, MySQL, MongoDB, Cassandra, Redis, Kafka, RabbitMQ, OpenSearch, Email, S3, SSH, Vault, Compression, REST APIs</li>
+      <li><strong>36 Task Types</strong> — From data processing to automation</li>
+      <li><strong>Advanced Control Flow</strong> — Jumps (GOTO), error handling (ON ERROR GOTO), subroutines (CALL/RETURN)</li>
+      <li><strong>AI-Powered Compilation</strong> — LLM translates intent to optimized Python</li>
+      <li><strong>Production Ready</strong> — Generates clean, efficient code</li>
     </ul>
+  </div>
+
+  <div class="panel">
+    <h3>🔥 What's New in v1.0</h3>
+    <ul>
+      <li><strong>Subroutines (CALL/RETURN)</strong> — Create reusable code blocks with automatic call stack</li>
+      <li><strong>Error Handling (ON ERROR GOTO)</strong> — Robust exception handling with try-except</li>
+      <li><strong>Function-Based Dispatch</strong> — Each line compiles to a separate function (O(1) dispatch)</li>
+      <li><strong>3 New Modules</strong> — MongoDB, S3/MinIO, SSH/SFTP</li>
+      <li><strong>Enhanced Jumps</strong> — Optimized goto/jump implementation</li>
+      <li><strong>36 Task Types</strong> — Expanded from 33 to 36</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h3>📚 Documentation</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+      <div>
+        <h4><a href="language.html">Language Guide</a></h4>
+        <p>Syntax and natural language patterns</p>
+      </div>
+      <div>
+        <h4><a href="modules.html">Modules (14)</a></h4>
+        <p>All integrated modules reference</p>
+      </div>
+      <div>
+        <h4><a href="control-flow.html">Control Flow</a></h4>
+        <p>Jumps, loops, error handling, subroutines</p>
+      </div>
+      <div>
+        <h4><a href="examples.html">Examples</a></h4>
+        <p>Real-world code examples</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>💡 Example: Subroutines</h3>
+    <pre><code>10 print "Main program"
+20 set x to 5
+30 call 1000
+40 print "x after subroutine:" and x
+50 goto 999
+
+1000 print "In subroutine"
+1010 multiply x by 2
+1020 return
+
+999 print "End"</code></pre>
+  </div>
+
+  <div class="panel">
+    <h3>💡 Example: Error Handling</h3>
+    <pre><code>10 set x to 10
+20 set y to 0
+30 on error goto 100
+40 divide x by y and store in result
+50 print "Result:" and result
+60 goto 200
+
+100 print "ERROR:" and _last_error
+110 print "At line:" and _last_error_line
+120 print "Recovering..."
+
+200 print "Program complete"</code></pre>
   </div>
 </div>
 
 <div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
-  © 2025 AIbasic v0.9 — Documentation regenerated with the new paradigm.
+  © 2025 AIbasic v1.0 — Complete documentation with all modules and features.
 </div>
 <script src="script.js"></script>
 </body></html>
