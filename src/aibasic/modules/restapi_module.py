@@ -118,7 +118,7 @@ except ImportError:
     HTTPAdapter = None
     HTTPBasicAuth = None
     AuthBase = None
-    Retry = None
+    Retry = None 
     print("[RestAPIModule] Warning: requests not installed. Install with: pip install requests")
 
 
@@ -383,7 +383,7 @@ class RestAPIModule:
         files: Optional[Dict] = None,
         timeout: Optional[int] = None,
         **kwargs
-    ) -> requests.Response:
+    ):
         """
         Make HTTP request with configured authentication.
 
@@ -432,31 +432,31 @@ class RestAPIModule:
             print(f"[RestAPIModule] ✗ Request failed: {e}")
             raise
 
-    def get(self, endpoint: str, params: Optional[Dict] = None, **kwargs) -> requests.Response:
+    def get(self, endpoint: str, params: Optional[Dict] = None, **kwargs):
         """Make GET request."""
         return self.request('GET', endpoint, params=params, **kwargs)
 
-    def post(self, endpoint: str, json: Optional[Dict] = None, data: Optional[Union[Dict, str]] = None, **kwargs) -> requests.Response:
+    def post(self, endpoint: str, json: Optional[Dict] = None, data: Optional[Union[Dict, str]] = None, **kwargs):
         """Make POST request."""
         return self.request('POST', endpoint, json=json, data=data, **kwargs)
 
-    def put(self, endpoint: str, json: Optional[Dict] = None, data: Optional[Union[Dict, str]] = None, **kwargs) -> requests.Response:
+    def put(self, endpoint: str, json: Optional[Dict] = None, data: Optional[Union[Dict, str]] = None, **kwargs):
         """Make PUT request."""
         return self.request('PUT', endpoint, json=json, data=data, **kwargs)
 
-    def patch(self, endpoint: str, json: Optional[Dict] = None, data: Optional[Union[Dict, str]] = None, **kwargs) -> requests.Response:
+    def patch(self, endpoint: str, json: Optional[Dict] = None, data: Optional[Union[Dict, str]] = None, **kwargs):
         """Make PATCH request."""
         return self.request('PATCH', endpoint, json=json, data=data, **kwargs)
 
-    def delete(self, endpoint: str, **kwargs) -> requests.Response:
+    def delete(self, endpoint: str, **kwargs):
         """Make DELETE request."""
         return self.request('DELETE', endpoint, **kwargs)
 
-    def head(self, endpoint: str, **kwargs) -> requests.Response:
+    def head(self, endpoint: str, **kwargs):
         """Make HEAD request."""
         return self.request('HEAD', endpoint, **kwargs)
 
-    def options(self, endpoint: str, **kwargs) -> requests.Response:
+    def options(self, endpoint: str, **kwargs):
         """Make OPTIONS request."""
         return self.request('OPTIONS', endpoint, **kwargs)
 
@@ -506,7 +506,7 @@ class RestAPIModule:
         file_field: str = 'file',
         additional_data: Optional[Dict] = None,
         **kwargs
-    ) -> requests.Response:
+    ):
         """
         Upload a file to the API.
 

@@ -144,6 +144,65 @@ If you don't specify a task type, the compiler will automatically detect it base
   - Supports SSL/TLS with `SSL_VERIFY=false` for self-signed certs
   - TTL supported for automatic data expiration
 
+#### `clickhouse` - ClickHouse OLAP Database Operations (with Module)
+- **Description**: High-performance column-oriented database for real-time analytics and OLAP
+- **Keywords**: clickhouse, olap, analytics, column database, time series, data warehouse
+- **Common Libraries**: requests (HTTP interface)
+- **Module**: `aibasic.modules.ClickHouseModule`
+- **Configuration**: Requires `[clickhouse]` section in `aibasic.conf`
+- **Examples**:
+  - `10 (clickhouse) query SELECT * FROM events WHERE event_date = today()`
+  - `20 (clickhouse) insert into events values from dataframe`
+  - `30 (clickhouse) create table analytics with MergeTree engine`
+  - `40 (clickhouse) batch insert 100000 rows from dataframe`
+  - `50 (clickhouse) create materialized view for aggregations`
+  - `60 (clickhouse) optimize table events final`
+- **Usage Notes**:
+  - The ClickHouseModule uses HTTP interface (port 8123 by default)
+  - Extremely fast for analytical queries on large datasets
+  - Use `clickhouse.query()` for SELECT queries (returns list of dicts)
+  - Use `clickhouse.query_df()` to get results as pandas DataFrame
+  - Use `clickhouse.insert()` for single/small inserts
+  - Use `clickhouse.batch_insert()` for high-performance bulk loading
+  - Use `clickhouse.create_table()` with appropriate table engine
+  - Supports compression: LZ4, ZSTD for network efficiency
+  - Use partitioning for time-series data: `PARTITION BY toYYYYMM(date)`
+  - Use `ORDER BY` to define primary key (required for MergeTree)
+  - Materialized views for pre-aggregated data
+  - Excellent for: web analytics, time-series data, log aggregation, data warehousing
+
+#### `timescaledb` - TimescaleDB Time-Series Database Operations (with Module)
+- **Description**: PostgreSQL extension optimized for time-series data with hypertables, continuous aggregates, and compression
+- **Keywords**: timescaledb, time-series, hypertable, iot, sensor, metrics, monitoring, analytics
+- **Common Libraries**: psycopg2-binary
+- **Module**: `aibasic.modules.TimescaleDBModule`
+- **Configuration**: Requires `[timescaledb]` section in `aibasic.conf`
+- **Examples**:
+  - `10 (timescaledb) create hypertable sensor_data with time column time`
+  - `20 (timescaledb) insert sensor readings into timescaledb hypertable`
+  - `30 (timescaledb) time bucket query with 15 minute intervals`
+  - `40 (timescaledb) create continuous aggregate for hourly summaries`
+  - `50 (timescaledb) add compression policy compress after 7 days`
+  - `60 (timescaledb) add retention policy keep data for 30 days`
+  - `70 (timescaledb) fill gaps in time-series using LOCF method`
+  - `80 (timescaledb) query to dataframe with aggregations`
+- **Usage Notes**:
+  - The TimescaleDBModule uses PostgreSQL with TimescaleDB extension
+  - Hypertables automatically partition time-series data into chunks
+  - Use `tsdb.create_hypertable()` to convert regular PostgreSQL table
+  - Use `tsdb.time_bucket_query()` for time-based aggregations (15min, 1hour, etc.)
+  - Use `tsdb.create_continuous_aggregate()` for auto-updating materialized views
+  - Use `tsdb.add_compression_policy()` for automatic compression (90%+ storage reduction)
+  - Use `tsdb.add_retention_policy()` for automatic old data deletion
+  - Use `tsdb.fill_gaps()` to fill missing data points (LOCF, linear interpolation, NULL)
+  - Use `tsdb.query_to_dataframe()` to get results as pandas DataFrame
+  - Supports space partitioning for multi-dimensional data (e.g., partition by sensor_id)
+  - Chunk intervals: 1 hour (high-frequency), 1 day (medium), 1 week (low-frequency)
+  - 100% PostgreSQL compatible - all PostgreSQL features work seamlessly
+  - Compression is transparent - compressed data is still queryable
+  - Continuous aggregates refresh automatically based on policies
+  - Perfect for: IoT sensor data, application metrics, financial data, server monitoring, logs
+
 ### Network Operations
 
 #### `api` - API/REST Operations
@@ -243,6 +302,27 @@ If you don't specify a task type, the compiler will automatically detect it base
 - **Examples**:
   - `10 (email) send email to customer`
   - `20 (email) read unread messages`
+
+#### `teams` - Microsoft Teams Integration
+- **Description**: Send messages, alerts, and adaptive cards to Microsoft Teams channels
+- **Keywords**: teams, microsoft teams, teams message, teams alert, teams notification
+- **Common Libraries**: requests (for webhooks), Microsoft Graph API
+- **Examples**:
+  - `10 (teams) send message to channel with title "Pipeline Complete"`
+  - `20 (teams) send alert with severity "warning"`
+  - `30 (teams) send status card with details`
+  - `40 (teams) send notification with facts`
+
+#### `slack` - Slack Integration
+- **Description**: Send messages, alerts, blocks, and files to Slack channels
+- **Keywords**: slack, slack message, slack alert, slack notification, slack blocks
+- **Common Libraries**: requests (for webhooks), Slack API
+- **Examples**:
+  - `10 (slack) send message to channel "#general"`
+  - `20 (slack) send alert with severity "error"`
+  - `30 (slack) send status message with fields`
+  - `40 (slack) upload file to channel`
+  - `50 (slack) send block message with sections`
 
 ### Media Processing
 
@@ -422,6 +502,52 @@ If you don't specify a task type, the compiler will automatically detect it base
   - Aggregations: `{'agg_name': {'avg': {'field': 'price'}}}` for statistics
   - Perfect for: full-text search, log analytics, real-time analytics, e-commerce search
   - AWS OpenSearch Service: Set `USE_AWS_AUTH=true` and configure AWS credentials
+
+#### `elasticsearch` - Elasticsearch Search and Analytics Engine (with Module)
+- **Description**: Elasticsearch distributed search and analytics engine for full-text search and real-time data
+- **Keywords**: elasticsearch, search, index, query, aggregate, full-text, logs
+- **Common Libraries**: elasticsearch
+- **Module**: `aibasic.modules.ElasticsearchModule`
+- **Configuration**: Requires `[elasticsearch]` section in `aibasic.conf`
+- **Examples**:
+  - `10 (elasticsearch) create elasticsearch index products with mappings`
+  - `20 (elasticsearch) index document in elasticsearch index products`
+  - `30 (elasticsearch) search elasticsearch for products matching "laptop"`
+  - `40 (elasticsearch) search with query {"match": {"description": "wireless"}}`
+  - `50 (elasticsearch) range query where price between 50 and 100`
+  - `60 (elasticsearch) bool query with must and filter conditions`
+  - `70 (elasticsearch) aggregate by category with average price`
+  - `80 (elasticsearch) bulk index 10000 documents from dataframe`
+  - `90 (elasticsearch) update elasticsearch document by id`
+  - `100 (elasticsearch) delete elasticsearch documents matching query`
+  - `110 (elasticsearch) search elasticsearch and return as dataframe`
+- **Usage Notes**:
+  - The ElasticsearchModule manages connection automatically
+  - First elasticsearch operation initializes the module from config
+  - Module instance is reused across all elasticsearch operations
+  - Supports basic auth (username/password) and API key authentication
+  - API keys recommended for production (more secure than passwords)
+  - Set `VERIFY_CERTS=false` in config to skip SSL verification (dev/testing only)
+  - Use `es.create_index()` to create index with mappings and settings
+  - Use `es.index_document()` to index a single document
+  - Use `es.bulk_index()` for batch indexing (high performance)
+  - Use `es.search()` for full-text search with Query DSL
+  - Use `es.search_df()` to get search results as pandas DataFrame
+  - Use `es.get_document()` / `update_document()` / `delete_document()` for CRUD
+  - Use `es.count()` to count documents matching query
+  - Use `es.delete_by_query()` / `update_by_query()` for bulk operations
+  - Query DSL: `{'match': {'field': 'value'}}` for text search (analyzed)
+  - Query DSL: `{'term': {'field': 'exact'}}` for exact matches on keyword fields
+  - Query DSL: `{'range': {'price': {'gte': 50, 'lte': 100}}}` for ranges
+  - Query DSL: `{'bool': {'must': [...], 'filter': [...], 'should': [...]}}` for complex queries
+  - Query DSL: `{'fuzzy': {'name': {'value': 'keybord', 'fuzziness': 'AUTO'}}}` for typo-tolerant search
+  - Query DSL: `{'wildcard': {'name': {'value': '*mouse*'}}}` for wildcard patterns
+  - Query DSL: `{'multi_match': {'query': 'wireless keyboard', 'fields': ['name', 'description']}}` for multi-field search
+  - Aggregations: `{'categories': {'terms': {'field': 'category'}}}` for grouping
+  - Aggregations: `{'avg_price': {'avg': {'field': 'price'}}}` for statistics
+  - Aggregations: `{'price_histogram': {'histogram': {'field': 'price', 'interval': 50}}}` for distributions
+  - Aggregations: `{'logs_over_time': {'date_histogram': {'field': 'timestamp', 'fixed_interval': '1h'}}}` for time-series
+  - Perfect for: Application search, log analytics, e-commerce search, real-time analytics, business intelligence
 
 ### Logging & Security
 

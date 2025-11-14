@@ -1,0 +1,175 @@
+# Neo4j Graph Database Example
+# This example demonstrates using Neo4j for storing and querying connected data
+
+10 print "Neo4j Graph Database Example"
+20 print "============================"
+30 print ""
+
+# Verify connectivity
+40 (neo4j) verify connectivity
+50 print "Connected to Neo4j successfully"
+60 print ""
+
+# Clear database (for fresh start - be careful in production!)
+70 print "Clearing database..."
+80 (neo4j) clear database
+90 print "Database cleared"
+100 print ""
+
+# Example 1: Social Network - Create People
+110 print "Creating social network..."
+120 (neo4j) create node Person with properties:
+130 (neo4j) property "name" value "Alice"
+140 (neo4j) property "age" value 30
+150 (neo4j) property "city" value "New York"
+
+160 (neo4j) create node Person with properties:
+170 (neo4j) property "name" value "Bob"
+180 (neo4j) property "age" value 35
+190 (neo4j) property "city" value "London"
+
+200 (neo4j) create node Person with properties:
+210 (neo4j) property "name" value "Charlie"
+220 (neo4j) property "age" value 28
+230 (neo4j) property "city" value "Paris"
+
+240 (neo4j) create node Person with properties:
+250 (neo4j) property "name" value "Diana"
+260 (neo4j) property "age" value 32
+270 (neo4j) property "city" value "Berlin"
+
+280 print "Created 4 people"
+290 print ""
+
+# Create relationships
+300 print "Creating friendships..."
+310 (neo4j) execute query "MATCH (a:Person {name: 'Alice'}), (b:Person {name: 'Bob'}) CREATE (a)-[:KNOWS {since: 2020}]->(b)"
+320 (neo4j) execute query "MATCH (a:Person {name: 'Bob'}), (c:Person {name: 'Charlie'}) CREATE (a)-[:KNOWS {since: 2019}]->(c)"
+330 (neo4j) execute query "MATCH (a:Person {name: 'Alice'}), (c:Person {name: 'Charlie'}) CREATE (a)-[:KNOWS {since: 2021}]->(c)"
+340 (neo4j) execute query "MATCH (c:Person {name: 'Charlie'}), (d:Person {name: 'Diana'}) CREATE (c)-[:KNOWS {since: 2022}]->(d)"
+350 print "Created friendship relationships"
+360 print ""
+
+# Example 2: Product Recommendations
+370 print "Creating product catalog..."
+380 (neo4j) batch create nodes Product with data:
+390 (neo4j) node {"name": "Laptop", "category": "Electronics", "price": 999}
+400 (neo4j) node {"name": "Mouse", "category": "Electronics", "price": 25}
+410 (neo4j) node {"name": "Keyboard", "category": "Electronics", "price": 75}
+420 (neo4j) node {"name": "Monitor", "category": "Electronics", "price": 299}
+
+430 print "Created products"
+440 print ""
+
+# Create purchase relationships
+450 print "Recording purchases..."
+460 (neo4j) execute query "MATCH (a:Person {name: 'Alice'}), (p:Product {name: 'Laptop'}) CREATE (a)-[:PURCHASED {date: '2025-01-10', rating: 5}]->(p)"
+470 (neo4j) execute query "MATCH (a:Person {name: 'Alice'}), (p:Product {name: 'Mouse'}) CREATE (a)-[:PURCHASED {date: '2025-01-11', rating: 4}]->(p)"
+480 (neo4j) execute query "MATCH (b:Person {name: 'Bob'}), (p:Product {name: 'Laptop'}) CREATE (b)-[:PURCHASED {date: '2025-01-12', rating: 5}]->(p)"
+490 (neo4j) execute query "MATCH (b:Person {name: 'Bob'}), (p:Product {name: 'Monitor'}) CREATE (b)-[:PURCHASED {date: '2025-01-13', rating: 4}]->(p)"
+500 print "Recorded purchases"
+510 print ""
+
+# Query 1: Find friends of friends
+520 print "Query 1: Friends of Alice (2 degrees)"
+530 (neo4j) execute query "MATCH (alice:Person {name: 'Alice'})-[:KNOWS*1..2]-(friend) WHERE friend.name <> 'Alice' RETURN DISTINCT friend.name as name, friend.city as city"
+540 print "Results:"
+550 print query_result
+560 print ""
+
+# Query 2: Find shortest path
+570 print "Query 2: Shortest path from Alice to Diana"
+580 (neo4j) find path from Person "Alice" to Person "Diana" max depth 5
+590 print "Path found:"
+600 print path_result
+610 print ""
+
+# Query 3: Product recommendations (collaborative filtering)
+620 print "Query 3: Product recommendations for Alice"
+630 (neo4j) execute query """
+    MATCH (alice:Person {name: 'Alice'})-[:PURCHASED]->(p:Product)<-[:PURCHASED]-(other:Person)
+    MATCH (other)-[:PURCHASED]->(rec:Product)
+    WHERE NOT (alice)-[:PURCHASED]->(rec)
+    RETURN rec.name as product, rec.price as price, count(*) as recommendations
+    ORDER BY recommendations DESC
+    LIMIT 3
+"""
+640 print "Recommended products:"
+650 print query_result
+660 print ""
+
+# Query 4: Average rating by category
+670 print "Query 4: Average ratings by product"
+680 (neo4j) execute query """
+    MATCH (p:Person)-[r:PURCHASED]->(prod:Product)
+    RETURN prod.name as product,
+           avg(r.rating) as avg_rating,
+           count(r) as purchase_count
+    ORDER BY avg_rating DESC
+"""
+690 print "Product ratings:"
+700 print query_result
+710 print ""
+
+# Create indexes for performance
+720 print "Creating indexes..."
+730 (neo4j) create index on Person property "name"
+740 (neo4j) create index on Product property "name"
+750 print "Indexes created"
+760 print ""
+
+# Create constraints
+770 print "Creating constraints..."
+780 (neo4j) create unique constraint on Person property "name"
+790 (neo4j) create unique constraint on Product property "name"
+800 print "Constraints created"
+810 print ""
+
+# Get database statistics
+820 (neo4j) get database statistics
+830 print "Database Statistics:"
+840 print "Total nodes:" and total_nodes
+850 print "Total relationships:" and total_relationships
+860 print "Node labels:" and labels
+870 print "Relationship types:" and relationship_types
+880 print ""
+
+# Example with DataFrame export
+890 print "Exporting query results to DataFrame..."
+900 (neo4j) query to dataframe "MATCH (p:Person) RETURN p.name as name, p.age as age, p.city as city ORDER BY age"
+910 (df) show dataframe
+920 (df) calculate statistics
+930 print "DataFrame statistics:"
+940 print dataframe_stats
+950 print ""
+
+# Update node example
+960 print "Updating Alice's age..."
+970 (neo4j) update Person where name="Alice" set age=31
+980 print "Alice's age updated"
+990 print ""
+
+# Complex traversal: Who should Alice meet?
+1000 print "Query 5: Friend recommendations for Alice"
+1010 (neo4j) execute query """
+    MATCH (alice:Person {name: 'Alice'})-[:KNOWS*2..3]-(suggested:Person)
+    WHERE NOT (alice)-[:KNOWS]-(suggested) AND alice <> suggested
+    RETURN suggested.name as name, suggested.city as city, count(*) as mutual_friends
+    ORDER BY mutual_friends DESC
+    LIMIT 3
+"""
+1020 print "Friend suggestions:"
+1030 print query_result
+1040 print ""
+
+1050 print "Example complete!"
+1060 print ""
+1070 print "Graph database operations demonstrated:"
+1080 print "- Node creation (people and products)"
+1090 print "- Relationship creation (friendships and purchases)"
+1100 print "- Path finding (shortest path)"
+1110 print "- Pattern matching (friends of friends)"
+1120 print "- Collaborative filtering (recommendations)"
+1130 print "- Aggregations (ratings, counts)"
+1140 print "- Indexes and constraints"
+1150 print "- DataFrame integration"

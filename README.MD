@@ -189,9 +189,10 @@ The compiler automatically generates efficient Python code with function-based d
 - Multiple error handlers
 - Subroutines and nested calls
 
-📖 **See [TASK_TYPES.md](TASK_TYPES.md) for the complete list of 36 available task types** including:
+📖 **See [TASK_TYPES.md](TASK_TYPES.md) for the complete list of 37 available task types** including:
 - Data: `csv`, `excel`, `json`, `xml`, `db`, **`postgres`**, **`mysql`**, **`mongodb`**, **`cassandra`** (with modules)
 - Messaging: **`rabbitmq`**, **`kafka`** (with modules), `stream`
+- Collaboration: **`teams`**, **`slack`** (with modules), `email`
 - Cache: **`redis`** (with module)
 - Search: **`opensearch`** (with module)
 - Security: **`vault`** (with module)

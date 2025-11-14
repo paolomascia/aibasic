@@ -1,0 +1,435 @@
+# =========================================
+# TimescaleDB Module Examples
+# =========================================
+# This example demonstrates the TimescaleDB module capabilities in AIbasic
+# for time-series data storage, analysis, and optimization.
+
+# Initialize variables
+var host = "localhost"
+var port = 5432
+var database = "tsdb"
+
+print "=== TimescaleDB Module Demo ==="
+print ""
+
+# =========================================
+# Example 1: Create Regular Tables
+# =========================================
+print "1. Creating regular tables for time-series data..."
+
+(timescaledb) {
+    "action": "execute_query",
+    "query": "CREATE TABLE IF NOT EXISTS sensor_data (time TIMESTAMPTZ NOT NULL, sensor_id INTEGER, temperature DOUBLE PRECISION, humidity DOUBLE PRECISION, location TEXT)",
+    "fetch": false
+}
+
+(timescaledb) {
+    "action": "execute_query",
+    "query": "CREATE TABLE IF NOT EXISTS metrics (time TIMESTAMPTZ NOT NULL, metric_name TEXT, value DOUBLE PRECISION, tags JSONB)",
+    "fetch": false
+}
+
+(timescaledb) {
+    "action": "execute_query",
+    "query": "CREATE TABLE IF NOT EXISTS stock_prices (time TIMESTAMPTZ NOT NULL, symbol TEXT, open DOUBLE PRECISION, high DOUBLE PRECISION, low DOUBLE PRECISION, close DOUBLE PRECISION, volume BIGINT)",
+    "fetch": false
+}
+
+# =========================================
+# Example 2: Convert to Hypertables
+# =========================================
+print ""
+print "2. Converting tables to hypertables (time-series optimized)..."
+
+# Create hypertable with 1-day chunks
+(timescaledb) {
+    "action": "create_hypertable",
+    "table_name": "sensor_data",
+    "time_column": "time",
+    "chunk_time_interval": "1 day",
+    "if_not_exists": true
+}
+
+# Create hypertable with 1-hour chunks for high-frequency data
+(timescaledb) {
+    "action": "create_hypertable",
+    "table_name": "metrics",
+    "time_column": "time",
+    "chunk_time_interval": "1 hour",
+    "if_not_exists": true
+}
+
+# Create hypertable with space partitioning (by symbol)
+(timescaledb) {
+    "action": "create_hypertable",
+    "table_name": "stock_prices",
+    "time_column": "time",
+    "chunk_time_interval": "1 week",
+    "partitioning_column": "symbol",
+    "number_partitions": 4,
+    "if_not_exists": true
+}
+
+# =========================================
+# Example 3: Insert Time-Series Data
+# =========================================
+print ""
+print "3. Inserting time-series data..."
+
+# Insert sensor data
+(timescaledb) {
+    "action": "execute_query",
+    "query": "INSERT INTO sensor_data (time, sensor_id, temperature, humidity, location) VALUES (NOW() - INTERVAL '1 hour', 1, 22.5, 45.0, 'Office'), (NOW() - INTERVAL '45 minutes', 1, 23.0, 46.5, 'Office'), (NOW() - INTERVAL '30 minutes', 1, 22.8, 45.8, 'Office'), (NOW() - INTERVAL '15 minutes', 1, 23.2, 47.0, 'Office'), (NOW(), 1, 23.5, 47.5, 'Office')",
+    "fetch": false
+}
+
+# Insert metrics data
+(timescaledb) {
+    "action": "execute_query",
+    "query": "INSERT INTO metrics (time, metric_name, value, tags) VALUES (NOW() - INTERVAL '10 minutes', 'cpu_usage', 75.5, '{\"host\": \"server1\", \"region\": \"us-east\"}'), (NOW() - INTERVAL '5 minutes', 'cpu_usage', 78.2, '{\"host\": \"server1\", \"region\": \"us-east\"}'), (NOW(), 'cpu_usage', 72.1, '{\"host\": \"server1\", \"region\": \"us-east\"}')",
+    "fetch": false
+}
+
+# Insert stock data
+(timescaledb) {
+    "action": "execute_query",
+    "query": "INSERT INTO stock_prices (time, symbol, open, high, low, close, volume) VALUES (NOW() - INTERVAL '1 day', 'AAPL', 150.0, 152.5, 149.0, 151.5, 50000000), (NOW() - INTERVAL '12 hours', 'AAPL', 151.5, 153.0, 150.5, 152.0, 45000000), (NOW(), 'AAPL', 152.0, 154.0, 151.0, 153.5, 48000000)",
+    "fetch": false
+}
+
+# =========================================
+# Example 4: Time-Bucket Queries
+# =========================================
+print ""
+print "4. Performing time-bucket aggregations..."
+
+# Average temperature per 15-minute bucket
+(timescaledb) {
+    "action": "time_bucket_query",
+    "table_name": "sensor_data",
+    "time_column": "time",
+    "bucket_interval": "15 minutes",
+    "aggregations": {
+        "temperature": "AVG",
+        "humidity": "AVG",
+        "count": "COUNT(*)"
+    },
+    "start_time": "NOW() - INTERVAL '2 hours'",
+    "order_by": "bucket ASC"
+}
+
+# Metrics aggregation by 5-minute buckets
+(timescaledb) {
+    "action": "time_bucket_query",
+    "table_name": "metrics",
+    "time_column": "time",
+    "bucket_interval": "5 minutes",
+    "aggregations": {
+        "value": "AVG"
+    },
+    "where_clause": "metric_name = 'cpu_usage'"
+}
+
+# =========================================
+# Example 5: Continuous Aggregates
+# =========================================
+print ""
+print "5. Creating continuous aggregates (auto-updating materialized views)..."
+
+# Create hourly sensor summary
+(timescaledb) {
+    "action": "create_continuous_aggregate",
+    "view_name": "sensor_data_hourly",
+    "hypertable": "sensor_data",
+    "time_column": "time",
+    "bucket_interval": "1 hour",
+    "select_query": "sensor_id, AVG(temperature) as avg_temp, AVG(humidity) as avg_humidity, MAX(temperature) as max_temp, MIN(temperature) as min_temp FROM sensor_data GROUP BY bucket, sensor_id",
+    "with_data": true
+}
+
+# Create daily stock summary
+(timescaledb) {
+    "action": "create_continuous_aggregate",
+    "view_name": "stock_prices_daily",
+    "hypertable": "stock_prices",
+    "time_column": "time",
+    "bucket_interval": "1 day",
+    "select_query": "symbol, FIRST(open, time) as open, MAX(high) as high, MIN(low) as low, LAST(close, time) as close, SUM(volume) as total_volume FROM stock_prices GROUP BY bucket, symbol",
+    "with_data": true
+}
+
+# Query continuous aggregate
+(timescaledb) {
+    "action": "execute_query",
+    "query": "SELECT * FROM sensor_data_hourly ORDER BY bucket DESC LIMIT 10"
+}
+
+# =========================================
+# Example 6: Add Refresh Policy for Continuous Aggregates
+# =========================================
+print ""
+print "6. Adding automatic refresh policies..."
+
+# Refresh hourly aggregate every 30 minutes
+(timescaledb) {
+    "action": "add_continuous_aggregate_policy",
+    "view_name": "sensor_data_hourly",
+    "start_offset": "3 days",
+    "end_offset": "1 hour",
+    "schedule_interval": "30 minutes"
+}
+
+# Refresh daily aggregate every day
+(timescaledb) {
+    "action": "add_continuous_aggregate_policy",
+    "view_name": "stock_prices_daily",
+    "start_offset": "1 month",
+    "end_offset": "1 day",
+    "schedule_interval": "1 day"
+}
+
+# =========================================
+# Example 7: Data Retention Policies
+# =========================================
+print ""
+print "7. Adding data retention policies (automatic deletion)..."
+
+# Keep sensor data for 30 days
+(timescaledb) {
+    "action": "add_retention_policy",
+    "table_name": "sensor_data",
+    "drop_after": "30 days",
+    "if_not_exists": true
+}
+
+# Keep metrics for 7 days
+(timescaledb) {
+    "action": "add_retention_policy",
+    "table_name": "metrics",
+    "drop_after": "7 days",
+    "if_not_exists": true
+}
+
+# Keep stock data for 5 years
+(timescaledb) {
+    "action": "add_retention_policy",
+    "table_name": "stock_prices",
+    "drop_after": "5 years",
+    "if_not_exists": true
+}
+
+# =========================================
+# Example 8: Compression Policies
+# =========================================
+print ""
+print "8. Adding compression policies (automatic compression)..."
+
+# Compress sensor data older than 7 days
+(timescaledb) {
+    "action": "add_compression_policy",
+    "table_name": "sensor_data",
+    "compress_after": "7 days",
+    "if_not_exists": true
+}
+
+# Compress metrics older than 1 day
+(timescaledb) {
+    "action": "add_compression_policy",
+    "table_name": "metrics",
+    "compress_after": "1 day",
+    "if_not_exists": true
+}
+
+# =========================================
+# Example 9: Gap Filling
+# =========================================
+print ""
+print "9. Filling gaps in time-series data..."
+
+# Fill gaps using last observation carried forward (LOCF)
+(timescaledb) {
+    "action": "fill_gaps",
+    "table_name": "sensor_data",
+    "time_column": "time",
+    "bucket_interval": "10 minutes",
+    "start_time": "NOW() - INTERVAL '2 hours'",
+    "end_time": "NOW()",
+    "columns": ["temperature"],
+    "fill_method": "locf"
+}
+
+# Fill gaps using linear interpolation
+(timescaledb) {
+    "action": "fill_gaps",
+    "table_name": "sensor_data",
+    "time_column": "time",
+    "bucket_interval": "10 minutes",
+    "start_time": "NOW() - INTERVAL '2 hours'",
+    "end_time": "NOW()",
+    "columns": ["temperature"],
+    "fill_method": "linear"
+}
+
+# =========================================
+# Example 10: Query with DataFrame
+# =========================================
+print ""
+print "10. Querying data and converting to DataFrame..."
+
+# Get recent sensor data as DataFrame
+(timescaledb) {
+    "action": "query_to_dataframe",
+    "query": "SELECT * FROM sensor_data WHERE time > NOW() - INTERVAL '1 day' ORDER BY time DESC"
+}
+
+# Get aggregated metrics as DataFrame
+(timescaledb) {
+    "action": "query_to_dataframe",
+    "query": "SELECT time_bucket('5 minutes', time) as bucket, AVG(value) as avg_value FROM metrics WHERE metric_name = 'cpu_usage' GROUP BY bucket ORDER BY bucket DESC LIMIT 100"
+}
+
+# =========================================
+# Example 11: Hypertable Statistics
+# =========================================
+print ""
+print "11. Getting hypertable statistics..."
+
+# Get sensor_data stats
+(timescaledb) {
+    "action": "get_hypertable_stats",
+    "table_name": "sensor_data"
+}
+
+# Get chunk information
+(timescaledb) {
+    "action": "get_chunk_info",
+    "table_name": "sensor_data"
+}
+
+# =========================================
+# Example 12: Advanced Time-Series Queries
+# =========================================
+print ""
+print "12. Advanced time-series analysis..."
+
+# Calculate moving average
+(timescaledb) {
+    "action": "execute_query",
+    "query": "SELECT time, temperature, AVG(temperature) OVER (ORDER BY time ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as moving_avg FROM sensor_data WHERE sensor_id = 1 ORDER BY time DESC LIMIT 20"
+}
+
+# Calculate rate of change
+(timescaledb) {
+    "action": "execute_query",
+    "query": "SELECT time_bucket('15 minutes', time) as bucket, AVG(temperature) as avg_temp, AVG(temperature) - LAG(AVG(temperature)) OVER (ORDER BY time_bucket('15 minutes', time)) as temp_change FROM sensor_data GROUP BY bucket ORDER BY bucket DESC LIMIT 10"
+}
+
+# Percentile analysis
+(timescaledb) {
+    "action": "execute_query",
+    "query": "SELECT time_bucket('1 hour', time) as bucket, percentile_cont(0.5) WITHIN GROUP (ORDER BY temperature) as median_temp, percentile_cont(0.95) WITHIN GROUP (ORDER BY temperature) as p95_temp FROM sensor_data GROUP BY bucket ORDER BY bucket DESC LIMIT 24"
+}
+
+# =========================================
+# Example 13: IoT Sensor Monitoring Use Case
+# =========================================
+print ""
+print "13. IoT sensor monitoring example..."
+
+# Create IoT sensor table
+(timescaledb) {
+    "action": "execute_query",
+    "query": "CREATE TABLE IF NOT EXISTS iot_sensors (time TIMESTAMPTZ NOT NULL, device_id TEXT, sensor_type TEXT, value DOUBLE PRECISION, unit TEXT, latitude DOUBLE PRECISION, longitude DOUBLE PRECISION)",
+    "fetch": false
+}
+
+# Convert to hypertable
+(timescaledb) {
+    "action": "create_hypertable",
+    "table_name": "iot_sensors",
+    "time_column": "time",
+    "chunk_time_interval": "1 day",
+    "if_not_exists": true
+}
+
+# Insert IoT data
+(timescaledb) {
+    "action": "execute_query",
+    "query": "INSERT INTO iot_sensors VALUES (NOW() - INTERVAL '5 minutes', 'device_001', 'temperature', 25.5, 'celsius', 40.7128, -74.0060), (NOW() - INTERVAL '4 minutes', 'device_001', 'temperature', 25.7, 'celsius', 40.7128, -74.0060), (NOW() - INTERVAL '3 minutes', 'device_001', 'temperature', 25.9, 'celsius', 40.7128, -74.0060)",
+    "fetch": false
+}
+
+# Query latest readings per device
+(timescaledb) {
+    "action": "execute_query",
+    "query": "SELECT DISTINCT ON (device_id, sensor_type) device_id, sensor_type, time, value, unit FROM iot_sensors ORDER BY device_id, sensor_type, time DESC"
+}
+
+# =========================================
+# Example 14: Application Performance Monitoring
+# =========================================
+print ""
+print "14. Application performance monitoring (APM)..."
+
+# Create APM metrics table
+(timescaledb) {
+    "action": "execute_query",
+    "query": "CREATE TABLE IF NOT EXISTS apm_metrics (time TIMESTAMPTZ NOT NULL, service_name TEXT, endpoint TEXT, response_time_ms INTEGER, status_code INTEGER, error_message TEXT)",
+    "fetch": false
+}
+
+# Convert to hypertable
+(timescaledb) {
+    "action": "create_hypertable",
+    "table_name": "apm_metrics",
+    "time_column": "time",
+    "chunk_time_interval": "1 hour",
+    "if_not_exists": true
+}
+
+# Insert APM data
+(timescaledb) {
+    "action": "execute_query",
+    "query": "INSERT INTO apm_metrics VALUES (NOW() - INTERVAL '10 minutes', 'api-service', '/users', 45, 200, NULL), (NOW() - INTERVAL '9 minutes', 'api-service', '/users', 52, 200, NULL), (NOW() - INTERVAL '8 minutes', 'api-service', '/orders', 120, 200, NULL), (NOW() - INTERVAL '7 minutes', 'api-service', '/users', 5000, 500, 'Timeout')",
+    "fetch": false
+}
+
+# Create continuous aggregate for performance summary
+(timescaledb) {
+    "action": "create_continuous_aggregate",
+    "view_name": "apm_summary_5min",
+    "hypertable": "apm_metrics",
+    "time_column": "time",
+    "bucket_interval": "5 minutes",
+    "select_query": "service_name, endpoint, AVG(response_time_ms) as avg_response, MAX(response_time_ms) as max_response, COUNT(*) as request_count, COUNT(*) FILTER (WHERE status_code >= 500) as error_count FROM apm_metrics GROUP BY bucket, service_name, endpoint",
+    "with_data": true
+}
+
+# Query performance summary
+(timescaledb) {
+    "action": "execute_query",
+    "query": "SELECT * FROM apm_summary_5min WHERE error_count > 0 ORDER BY bucket DESC LIMIT 10"
+}
+
+# =========================================
+# Example 15: Cleanup
+# =========================================
+print ""
+print "15. Cleanup operations..."
+
+# Manually refresh continuous aggregate
+(timescaledb) {
+    "action": "refresh_continuous_aggregate",
+    "view_name": "sensor_data_hourly"
+}
+
+# Remove policies (if needed)
+# (timescaledb) {
+#     "action": "remove_retention_policy",
+#     "table_name": "sensor_data",
+#     "if_exists": true
+# }
+
+print ""
+print "=== TimescaleDB Demo Complete ==="
+print "Time-series data management with hypertables, continuous aggregates, and policies!"

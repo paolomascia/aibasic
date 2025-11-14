@@ -1,0 +1,150 @@
+# AIBasic Example - Slack Integration
+# Demonstrates sending messages, alerts, and blocks to Slack
+
+# ==================== Simple Messages ====================
+
+10 print "Slack Integration Example"
+20 print "=========================="
+30 print ""
+
+# Send a simple message
+40 (slack) send message to channel "#general"
+50 (slack) set text to "Hello from AIbasic! Pipeline completed successfully."
+60 print "Simple message sent"
+
+70 print ""
+
+# Send message with emoji icon
+80 (slack) send message to channel "#notifications"
+90 (slack) set text to "Deployment to production completed"
+100 (slack) set username to "Deploy Bot"
+110 (slack) set icon emoji to ":rocket:"
+
+120 print "Message with emoji sent"
+130 print ""
+
+# ==================== Alert Messages ====================
+
+140 print "Sending alerts..."
+
+# Warning alert
+150 (slack) send alert with message "High CPU usage detected on server-01"
+160 (slack) set severity to "warning"
+170 (slack) set title to "System Alert"
+180 (slack) set channel to "#alerts"
+
+# Error alert
+190 (slack) send alert with message "Database connection failed"
+200 (slack) set severity to "error"
+210 (slack) set channel to "#alerts"
+
+# Success alert
+220 (slack) send alert with message "Backup completed successfully"
+230 (slack) set severity to "success"
+240 (slack) set channel to "#operations"
+
+250 print "Alerts sent"
+260 print ""
+
+# ==================== Status Messages ====================
+
+270 print "Sending status message..."
+
+280 (slack) send status message
+290 (slack) set title to "Database Backup"
+300 (slack) set status to "Success"
+310 (slack) add field "Database" with value "production_db"
+320 (slack) add field "Size" with value "150 GB"
+330 (slack) add field "Duration" with value "45 minutes"
+340 (slack) add field "Location" with value "s3://backups/2025-01-20/"
+350 (slack) set channel to "#backups"
+
+360 print "Status message sent"
+370 print ""
+
+# ==================== Rich Messages ====================
+
+380 print "Sending rich message..."
+
+390 (slack) send rich message
+400 (slack) set title to "Sales Report - Q1 2025"
+410 (slack) set text to "Quarterly sales performance summary"
+420 (slack) set color to "#36a64f"
+430 (slack) add field "Total Revenue" with value "$1,250,000"
+440 (slack) add field "Orders" with value "3,420"
+450 (slack) add field "Growth" with value "+15%"
+460 (slack) add field "Top Product" with value "Laptop Pro"
+470 (slack) set footer to "Sales Analytics"
+480 (slack) set channel to "#sales"
+
+490 print "Rich message sent"
+500 print ""
+
+# ==================== Block Messages ====================
+
+510 print "Sending block message..."
+
+520 (slack) create block message
+530 (slack) add header block with text "Pipeline Execution Report"
+540 (slack) add divider block
+550 (slack) add section block with text "*Status:* Success :white_check_mark:"
+560 (slack) add fields block with values:
+570 (slack) field "*Records Processed:* 125,000"
+580 (slack) field "*Duration:* 2 hours 15 minutes"
+590 (slack) field "*Errors:* 0"
+600 (slack) field "*Success Rate:* 100%"
+610 (slack) add divider block
+620 (slack) add section block with text "All tasks completed without errors."
+630 (slack) send blocks to channel "#pipelines"
+
+640 print "Block message sent"
+650 print ""
+
+# ==================== File Upload ====================
+
+660 print "Uploading file..."
+
+670 (slack) upload file "report.csv"
+680 (slack) set title to "Daily Sales Report"
+690 (slack) set initial comment to "Here's today's sales report"
+700 (slack) set channel to "#reports"
+
+710 print "File uploaded"
+720 print ""
+
+# ==================== Pipeline Status with Error Handling ====================
+
+730 print "Sending pipeline status..."
+
+740 on error goto 900
+
+750 set pipeline_name to "Daily ETL Pipeline"
+760 set records_processed to 125000
+770 set errors_count to 0
+780 set duration to "2 hours 15 minutes"
+
+790 (slack) send status message
+800 (slack) set title to pipeline_name
+810 (slack) set status to "Success"
+820 (slack) add field "Records" with value records_processed
+830 (slack) add field "Errors" with value errors_count
+840 (slack) add field "Duration" with value duration
+850 (slack) set channel to "#pipelines"
+
+860 goto 999
+
+# ==================== Error Handler ====================
+
+900 print "ERROR: Failed to send Slack notification"
+910 print "Error:" and _last_error
+920 print "At line:" and _last_error_line
+
+930 (slack) send alert with message "Pipeline notification system failed"
+940 (slack) set severity to "error"
+950 (slack) add field "Error" with value _last_error
+960 (slack) add field "Line" with value _last_error_line
+
+# ==================== End ====================
+
+999 print ""
+1000 print "Slack example completed!"

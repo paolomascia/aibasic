@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Manifesto · AIbasic (v0.9)</title>
+<title>Manifesto · AIbasic (v1.0)</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
         <img src="logo_dark.png" alt="AIBASIC logo">
         <div class="titles">
           <div class="name">AIBASIC</div>
-          <div class="tagline">AI-assisted BASIC programming language</div>
+          <div class="tagline">Natural Language Programming</div>
         </div>
       </a>
     </div>
@@ -25,13 +25,9 @@
         <a href="manifesto.html">Manifesto</a>
         <a href="architecture.html">Architecture</a>
         <a href="language.html">Language</a>
-        <a href="semantics.html">Semantics</a>
-        <a href="rpa.html">RPA</a>
-        <a href="compilation.html">Compilation</a>
-        <a href="tooling.html">Tooling</a>
+        <a href="modules.html">Modules</a>
+        <a href="control-flow.html">Control Flow</a>
         <a href="examples.html">Examples</a>
-        <a href="ebnf.html">EBNF</a>
-        <a href="glossary.html">Glossary</a>
         <a href="changelog.html">Changelog</a>
       </nav>
     </div>
@@ -39,48 +35,340 @@
 </header>
 
 <div class="container">
-  <h1>Manifesto — Natural‑Language Programming as an Executable Architecture</h1>
-  <p class="muted">Programming moves from syntax to semantics; from code to conversation; from functions to services.</p>
+  <h1>Manifesto — From Virtual Machine to Complete Enterprise Environment</h1>
+  <p class="muted">AIbasic v1.0 represents a paradigm shift: from a simple execution VM to a complete, production-ready infrastructure with integrated data services, security, messaging, and cloud storage.</p>
 
-  <h2>1) Beyond Traditional Programming</h2>
-  <p>AIbasic is not a new syntax. It is a new way to program: natural language becomes source, an LLM compiler creates a deterministic, auditable plan (e.g., Python), and the runtime executes it.</p>
+  <h2>1) The Evolution: Beyond Simple Execution</h2>
+  <div class="panel">
+    <p><strong>Traditional Approach:</strong> A language is just a virtual machine that executes code.</p>
+    <p><strong>AIbasic v1.0:</strong> A complete environment integrating 14 production-ready modules spanning databases, caching, messaging, search, storage, and security.</p>
+  </div>
 
-  <h2>2) From Language to Architecture</h2>
-  <pre><code>intent → LLM compiler → executable plan → distributed runtime
-→ data fabric + RPA interfaces + communication buses</code></pre>
+  <h2>2) From VM to Enterprise Infrastructure</h2>
+  <div class="panel">
+    <h3>What Changed</h3>
+    <table class="table">
+      <thead><tr><th>Concept</th><th>v0.9 (VM)</th><th>v1.0 (Environment)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Execution</strong></td>
+          <td>Simple code interpreter</td>
+          <td>Function-based dispatch with O(1) lookup</td>
+        </tr>
+        <tr>
+          <td><strong>Data Storage</strong></td>
+          <td>Local files only</td>
+          <td>PostgreSQL, MySQL, MongoDB, Cassandra</td>
+        </tr>
+        <tr>
+          <td><strong>Caching</strong></td>
+          <td>Not available</td>
+          <td>Redis with TTL and data structures</td>
+        </tr>
+        <tr>
+          <td><strong>Messaging</strong></td>
+          <td>Not available</td>
+          <td>RabbitMQ, Apache Kafka</td>
+        </tr>
+        <tr>
+          <td><strong>Search</strong></td>
+          <td>Not available</td>
+          <td>OpenSearch/Elasticsearch</td>
+        </tr>
+        <tr>
+          <td><strong>Object Storage</strong></td>
+          <td>Not available</td>
+          <td>S3/MinIO with multipart uploads</td>
+        </tr>
+        <tr>
+          <td><strong>Security</strong></td>
+          <td>Not available</td>
+          <td>HashiCorp Vault for secrets</td>
+        </tr>
+        <tr>
+          <td><strong>Remote Access</strong></td>
+          <td>Not available</td>
+          <td>SSH/SFTP module</td>
+        </tr>
+        <tr>
+          <td><strong>Networking</strong></td>
+          <td>Not available</td>
+          <td>REST API, Email modules</td>
+        </tr>
+        <tr>
+          <td><strong>Control Flow</strong></td>
+          <td>Sequential only</td>
+          <td>Jumps, error handling, subroutines</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-  <h2>3) Reversing the Paradigm</h2>
-  <p>Developers describe outcomes; the environment provisions data stores, connectors, and RPA actions as services.</p>
+  <h2>3) The Complete Technology Stack</h2>
+  <div class="panel">
+    <h3>Relational Databases</h3>
+    <ul>
+      <li><strong>PostgreSQL</strong> - Enterprise-grade RDBMS with ACID compliance</li>
+      <li><strong>MySQL</strong> - High-performance relational database</li>
+    </ul>
 
-  <h2>4) Data as a Service</h2>
-  <p>Databases are intelligent services, not engines you connect to. The runtime chooses storage strategy, indexing, and caching.</p>
+    <h3>NoSQL Databases</h3>
+    <ul>
+      <li><strong>MongoDB</strong> - Document-oriented database with aggregation pipelines</li>
+      <li><strong>Cassandra</strong> - Wide-column distributed database for high-scale</li>
+    </ul>
 
-  <h2>5) RPA as First‑Class</h2>
-  <p>Automation of GUIs and browsers is unified with data operations: “Open Excel, create sheet, fill cells, save and email”.</p>
+    <h3>Caching & In-Memory</h3>
+    <ul>
+      <li><strong>Redis</strong> - In-memory data structure store with persistence</li>
+    </ul>
 
-  <h2>6) Extended Compiler/VM</h2>
+    <h3>Message Queues & Streaming</h3>
+    <ul>
+      <li><strong>RabbitMQ</strong> - Message broker with multiple exchange types</li>
+      <li><strong>Apache Kafka</strong> - Distributed streaming platform</li>
+    </ul>
+
+    <h3>Search & Analytics</h3>
+    <ul>
+      <li><strong>OpenSearch</strong> - Full-text search with aggregations</li>
+    </ul>
+
+    <h3>Storage & Files</h3>
+    <ul>
+      <li><strong>MinIO/S3</strong> - S3-compatible object storage</li>
+      <li><strong>Compression</strong> - ZIP, TAR.GZ file handling</li>
+    </ul>
+
+    <h3>Security & Secrets</h3>
+    <ul>
+      <li><strong>HashiCorp Vault</strong> - Secrets management with versioning</li>
+      <li><strong>Encryption</strong> - Built-in cryptography support</li>
+    </ul>
+
+    <h3>Networking & Communication</h3>
+    <ul>
+      <li><strong>REST API</strong> - HTTP client with multiple auth methods</li>
+      <li><strong>SSH/SFTP</strong> - Remote server access and file transfer</li>
+      <li><strong>Email/SMTP</strong> - Email sending with attachments</li>
+    </ul>
+  </div>
+
+  <h2>4) Natural Language Meets Infrastructure</h2>
+  <p>Write in English, leverage enterprise infrastructure:</p>
+  <pre><code># Relational Database
+10 (postgres) connect to database "sales_db"
+20 (postgres) query "SELECT * FROM orders WHERE date > '2025-01-01'"
+
+# NoSQL Database
+30 (mongodb) find documents where category equals "Electronics"
+
+# Cache Layer
+40 (redis) set key "user:1000" with expiration 3600 seconds
+
+# Message Queue
+50 (rabbitmq) publish message to queue "notifications"
+
+# Object Storage
+60 (s3) upload file "report.pdf" to bucket "documents"
+
+# Secrets Management
+70 (vault) read secret from path "secret/api-keys"
+
+# Remote Execution
+80 (ssh) execute command "uptime" on remote server</code></pre>
+
+  <h2>5) From Code to Conversation with Infrastructure</h2>
+  <div class="panel">
+    <p>AIbasic v1.0 doesn't just execute code—it orchestrates entire technology stacks through natural language.</p>
+
+    <h3>Example: Complete ETL Pipeline</h3>
+    <pre><code>10 on error goto 900
+
+# Extract from multiple sources
+20 (postgres) query "SELECT * FROM sales"
+30 (mongodb) find documents in "customers"
+40 (api) GET request to "https://api.example.com/products"
+
+# Transform
+50 (df) join sales with customers on customer_id
+60 (df) add calculated column revenue from price times quantity
+70 (df) group by category and calculate sum
+
+# Load
+80 (excel) save to "report.xlsx"
+90 (s3) upload to bucket "reports"
+100 (email) send with attachment to team
+
+110 goto 999
+
+# Error Handler
+900 print "Pipeline failed at line" and _last_error_line
+910 (vault) read secret "slack-webhook"
+920 (api) POST error notification to Slack
+
+999 print "Complete"</code></pre>
+  </div>
+
+  <h2>6) Docker-First Architecture</h2>
+  <div class="panel">
+    <p>AIbasic v1.0 includes a complete Docker environment with:</p>
+    <ul>
+      <li>✅ <strong>One-command deployment</strong> - Start entire infrastructure instantly</li>
+      <li>✅ <strong>12 integrated services</strong> - All modules pre-configured</li>
+      <li>✅ <strong>Sample data included</strong> - Ready-to-use databases</li>
+      <li>✅ <strong>Management UIs</strong> - RabbitMQ, MinIO, OpenSearch dashboards</li>
+      <li>✅ <strong>Health monitoring</strong> - Automatic service health checks</li>
+      <li>✅ <strong>Persistent volumes</strong> - Data survives restarts</li>
+      <li>✅ <strong>Network isolation</strong> - Secure service communication</li>
+    </ul>
+
+    <pre><code>cd docker
+./start.sh
+# Complete environment running in 60 seconds!</code></pre>
+  </div>
+
+  <h2>7) Advanced Control Flow</h2>
+  <div class="panel">
+    <p>Beyond simple sequential execution:</p>
+
+    <h3>Jumps (GOTO)</h3>
+    <pre><code>10 set counter to 0
+20 print counter
+30 increment counter by 1
+40 if counter < 10 jump to line 20
+50 print "Done"</code></pre>
+
+    <h3>Error Handling (ON ERROR GOTO)</h3>
+    <pre><code>10 on error goto 100
+20 (postgres) query "SELECT * FROM missing_table"
+30 goto 200
+
+100 print "Database error:" and _last_error
+110 print "Error at line:" and _last_error_line
+
+200 print "Complete"</code></pre>
+
+    <h3>Subroutines (CALL/RETURN)</h3>
+    <pre><code>10 call 1000
+20 print "Result:" and result
+30 goto 999
+
+1000 set x to 10
+1010 set y to 5
+1020 add x to y and store in result
+1030 return
+
+999 print "End"</code></pre>
+  </div>
+
+  <h2>8) Production-Ready Features</h2>
+  <div class="panel">
+    <ul>
+      <li><strong>Connection Pooling</strong> - Efficient database connections</li>
+      <li><strong>Retry Logic</strong> - Automatic retry with exponential backoff</li>
+      <li><strong>Health Checks</strong> - Service availability monitoring</li>
+      <li><strong>Multipart Uploads</strong> - Large file handling in S3</li>
+      <li><strong>Presigned URLs</strong> - Temporary secure access to objects</li>
+      <li><strong>Transaction Support</strong> - ACID compliance in databases</li>
+      <li><strong>Bulk Operations</strong> - Batch inserts and updates</li>
+      <li><strong>Aggregation Pipelines</strong> - Complex data transformations</li>
+      <li><strong>Full-Text Search</strong> - Advanced search capabilities</li>
+      <li><strong>Message Persistence</strong> - Durable message queues</li>
+      <li><strong>Secret Versioning</strong> - Track secret changes over time</li>
+      <li><strong>SSH Tunneling</strong> - Secure remote connections</li>
+    </ul>
+  </div>
+
+  <h2>9) The Philosophy</h2>
+  <div class="panel">
+    <blockquote>
+      <p>"Programming is not about syntax—it's about orchestrating complex systems to achieve goals."</p>
+    </blockquote>
+
+    <p>AIbasic v1.0 embodies this philosophy by providing:</p>
+    <ul>
+      <li><strong>Natural Language Interface</strong> - Write what you want, not how to do it</li>
+      <li><strong>Complete Infrastructure</strong> - Everything you need, pre-integrated</li>
+      <li><strong>AI-Powered Compilation</strong> - LLM translates intent to code</li>
+      <li><strong>Production-Ready Output</strong> - Generates optimized Python</li>
+      <li><strong>Enterprise Features</strong> - Security, scalability, reliability</li>
+    </ul>
+  </div>
+
+  <h2>10) From Virtual Machine to Cloud-Native Platform</h2>
   <table class="table">
-    <thead><tr><th>Concept</th><th>Traditional</th><th>AIbasic</th></tr></thead>
+    <thead><tr><th>Aspect</th><th>Traditional VM</th><th>AIbasic v1.0 Environment</th></tr></thead>
     <tbody>
-      <tr><td>Compiler</td><td>code → binary</td><td>intent → procedural plan</td></tr>
-      <tr><td>Virtual Machine</td><td>executes bytecode</td><td>executes intent graphs across services</td></tr>
-      <tr><td>Runtime</td><td>CPU/memory process</td><td>cognitive environment incl. AI Context</td></tr>
-      <tr><td>Variable</td><td>memory value</td><td>semantic entity (schema/origin/mutability)</td></tr>
+      <tr>
+        <td><strong>Scope</strong></td>
+        <td>Execute bytecode</td>
+        <td>Orchestrate distributed systems</td>
+      </tr>
+      <tr>
+        <td><strong>Data</strong></td>
+        <td>Local variables</td>
+        <td>14 database/cache systems</td>
+      </tr>
+      <tr>
+        <td><strong>Communication</strong></td>
+        <td>Function calls</td>
+        <td>Message queues, streaming, HTTP</td>
+      </tr>
+      <tr>
+        <td><strong>Storage</strong></td>
+        <td>File system</td>
+        <td>Object storage, compression, SFTP</td>
+      </tr>
+      <tr>
+        <td><strong>Security</strong></td>
+        <td>Process isolation</td>
+        <td>Vault secrets, encryption, SSH</td>
+      </tr>
+      <tr>
+        <td><strong>Deployment</strong></td>
+        <td>Manual setup</td>
+        <td>Docker one-command deploy</td>
+      </tr>
+      <tr>
+        <td><strong>Scalability</strong></td>
+        <td>Single process</td>
+        <td>Distributed, cloud-ready</td>
+      </tr>
+      <tr>
+        <td><strong>Monitoring</strong></td>
+        <td>Basic logs</td>
+        <td>Health checks, management UIs</td>
+      </tr>
     </tbody>
   </table>
 
-  <h2>7) Example: Describing, Not Coding</h2>
-  <pre><code>10 Load "orders.csv" as Orders.
-20 Filter Orders where "status" == "paid" into Paid.
-30 Save Paid into the cloud database "Accounting".
-40 Update the dashboard "Monthly Sales".</code></pre>
+  <h2>11) Real-World Impact</h2>
+  <div class="panel">
+    <p>With AIbasic v1.0, you can build production applications that:</p>
+    <ul>
+      <li>Process millions of records across multiple databases</li>
+      <li>Handle real-time streaming data with Kafka</li>
+      <li>Implement sophisticated caching strategies with Redis</li>
+      <li>Perform full-text search on massive datasets</li>
+      <li>Securely manage API keys and credentials with Vault</li>
+      <li>Store and distribute files via S3-compatible storage</li>
+      <li>Orchestrate complex workflows across remote servers</li>
+      <li>Send notifications via email, Slack, or message queues</li>
+    </ul>
+    <p><strong>All written in plain English.</strong></p>
+  </div>
 
-  <h2>8) Philosophy</h2>
-  <p>From syntax → semantics. From implementation → intention. From code → conversation.</p>
+  <h2>12) The Future is Declarative</h2>
+  <p>AIbasic v1.0 proves that the future of programming is not about learning syntax—it's about declaring intent and letting AI-powered systems handle the implementation details across complex, distributed infrastructure.</p>
+
+  <blockquote>
+    <p><em>"From code to conversation. From VM to environment. From syntax to systems."</em></p>
+  </blockquote>
 </div>
 
 <div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
-  © 2025 AIbasic v0.9 — Documentation regenerated with the new paradigm.
+  © 2025 AIbasic v1.0 — From Virtual Machine to Complete Enterprise Environment
 </div>
 <script src="script.js"></script>
 </body></html>

@@ -36,25 +36,31 @@
 
 <div class="container grid">
   <aside class="sidebar">
-    <strong>Modules (14)</strong>
+    <strong>Modules (20)</strong>
     <a href="#postgres">PostgreSQL</a>
     <a href="#mysql">MySQL</a>
     <a href="#mongodb">MongoDB</a>
     <a href="#cassandra">Cassandra</a>
+    <a href="#clickhouse">ClickHouse</a>
+    <a href="#neo4j">Neo4j</a>
+    <a href="#timescaledb">TimescaleDB</a>
     <a href="#redis">Redis</a>
     <a href="#rabbitmq">RabbitMQ</a>
     <a href="#kafka">Kafka</a>
     <a href="#opensearch">OpenSearch</a>
+    <a href="#elasticsearch">Elasticsearch</a>
     <a href="#email">Email</a>
     <a href="#s3">S3/MinIO</a>
     <a href="#ssh">SSH/SFTP</a>
     <a href="#vault">Vault</a>
     <a href="#compress">Compression</a>
     <a href="#api">REST API</a>
+    <a href="#teams">Microsoft Teams</a>
+    <a href="#slack">Slack</a>
   </aside>
   <main>
     <h1>Modules Reference</h1>
-    <p class="muted">AIbasic includes 14 production-ready modules for databases, messaging, storage, networking, and security.</p>
+    <p class="muted">AIbasic includes 20 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, and security.</p>
 
     <h2 id="postgres">1. PostgreSQL Module</h2>
     <div class="panel">
@@ -176,7 +182,114 @@ KEYSPACE = analytics</code></pre>
       </ul>
     </div>
 
-    <h2 id="redis">5. Redis Module</h2>
+    <h2 id="clickhouse">5. ClickHouse Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(clickhouse)</code></p>
+      <p><strong>Purpose:</strong> High-performance column-oriented analytics database for OLAP workloads</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[clickhouse]
+HOST = localhost
+PORT = 8123
+DATABASE = default
+USERNAME = default
+PASSWORD = your_password
+COMPRESSION = lz4</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (clickhouse) query "SELECT * FROM events WHERE event_date = today()"
+20 (clickhouse) batch insert into analytics from dataframe data
+30 (clickhouse) create table events with MergeTree engine
+40 (clickhouse) optimize table events final
+50 (clickhouse) get stats for table events</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Extremely fast analytical queries (billions of rows)</li>
+        <li>Column-oriented storage with excellent compression (10-20x)</li>
+        <li>Batch inserts for high-performance data loading</li>
+        <li>DataFrame integration (query to DataFrame, insert from DataFrame)</li>
+        <li>Multiple table engines (MergeTree, SummingMergeTree, ReplacingMergeTree)</li>
+        <li>Partitioning support (time-based and custom)</li>
+        <li>Materialized views for pre-aggregated data</li>
+        <li>LZ4/ZSTD compression for network efficiency</li>
+        <li>Perfect for: Web analytics, log aggregation, time-series data, data warehousing</li>
+      </ul>
+    </div>
+
+    <h2 id="neo4j">6. Neo4j Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(neo4j)</code></p>
+      <p><strong>Purpose:</strong> Native graph database for highly connected data</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[neo4j]
+URI = bolt://localhost:7687
+USERNAME = neo4j
+PASSWORD = password
+DATABASE = neo4j</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (neo4j) execute query "CREATE (p:Person {name: 'Alice', age: 30})"
+20 (neo4j) create node with label "Person" and properties
+30 (neo4j) create relationship from "Alice" to "Bob" type "KNOWS"
+40 (neo4j) find path from "Alice" to "Charlie" max depth 3
+50 (neo4j) execute query "MATCH (p:Person) WHERE p.age > 25 RETURN p"
+60 (neo4j) query to dataframe "MATCH (p:Person)-[:WORKS_FOR]->(c:Company) RETURN p.name, c.name"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Cypher query language support</li>
+        <li>Create, read, update, delete nodes and relationships</li>
+        <li>Path finding and graph traversal</li>
+        <li>Pattern matching (social networks, recommendations)</li>
+        <li>Indexes and constraints (UNIQUE, EXISTS)</li>
+        <li>DataFrame integration for analytics</li>
+        <li>Batch operations for high-performance bulk imports</li>
+        <li>Connection pooling</li>
+        <li>Perfect for: Social networks, knowledge graphs, fraud detection, recommendation engines</li>
+      </ul>
+    </div>
+
+    <h2 id="timescaledb">7. TimescaleDB Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(timescaledb)</code></p>
+      <p><strong>Purpose:</strong> Time-series database (PostgreSQL extension) for IoT, monitoring, and analytics</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[timescaledb]
+HOST = localhost
+PORT = 5432
+DATABASE = tsdb
+USERNAME = postgres
+PASSWORD = password
+POOL_SIZE = 5</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (timescaledb) create hypertable "sensor_data" with time column "time"
+20 (timescaledb) insert sensor readings into hypertable
+30 (timescaledb) time bucket query with 15-minute intervals
+40 (timescaledb) create continuous aggregate for hourly summaries
+50 (timescaledb) add compression policy compress after 7 days
+60 (timescaledb) add retention policy keep for 30 days
+70 (timescaledb) fill gaps in time-series data using LOCF
+80 (timescaledb) get hypertable statistics</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Hypertables - Automatic time-based partitioning</li>
+        <li>Continuous aggregates - Auto-updating materialized views</li>
+        <li>Compression - 90%+ storage reduction</li>
+        <li>Retention policies - Automatic data deletion</li>
+        <li>Time-bucket queries - Efficient aggregations</li>
+        <li>Gap filling - Fill missing data points</li>
+        <li>Space partitioning - Multi-dimensional partitioning</li>
+        <li>100% PostgreSQL compatible</li>
+        <li>Perfect for: IoT data, monitoring, financial data, sensor data</li>
+      </ul>
+    </div>
+
+    <h2 id="redis">8. Redis Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(redis)</code></p>
       <p><strong>Purpose:</strong> In-memory cache and data structure store</p>
@@ -212,7 +325,7 @@ PASSWORD = optional</code></pre>
       </ul>
     </div>
 
-    <h2 id="rabbitmq">6. RabbitMQ Module</h2>
+    <h2 id="rabbitmq">9. RabbitMQ Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(rabbitmq)</code></p>
       <p><strong>Purpose:</strong> Message queue for asynchronous processing</p>
@@ -243,7 +356,7 @@ VIRTUAL_HOST = /</code></pre>
       </ul>
     </div>
 
-    <h2 id="kafka">7. Apache Kafka Module</h2>
+    <h2 id="kafka">10. Apache Kafka Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(kafka)</code></p>
       <p><strong>Purpose:</strong> Distributed streaming platform</p>
@@ -271,7 +384,7 @@ GROUP_ID = my-consumer-group</code></pre>
       </ul>
     </div>
 
-    <h2 id="opensearch">8. OpenSearch Module</h2>
+    <h2 id="opensearch">11. OpenSearch Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(opensearch)</code></p>
       <p><strong>Purpose:</strong> Full-text search and analytics (OpenSearch/Elasticsearch compatible)</p>
@@ -302,7 +415,49 @@ VERIFY_CERTS = false</code></pre>
       </ul>
     </div>
 
-    <h2 id="email">9. Email Module</h2>
+    <h2 id="elasticsearch">12. Elasticsearch Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(elasticsearch)</code></p>
+      <p><strong>Purpose:</strong> Distributed search and analytics engine for full-text search and real-time data</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[elasticsearch]
+HOSTS = http://localhost:9200
+USERNAME = elastic
+PASSWORD = changeme
+VERIFY_CERTS = false
+TIMEOUT = 30</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (elasticsearch) create index "products" with mappings
+20 (elasticsearch) index document in "products" index
+30 (elasticsearch) search for "laptop" in all fields
+40 (elasticsearch) search with query DSL {"match": {"description": "wireless"}}
+50 (elasticsearch) range query where price between 50 and 100
+60 (elasticsearch) bool query with must and filter conditions
+70 (elasticsearch) aggregate by category with average price
+80 (elasticsearch) bulk index documents from list
+90 (elasticsearch) update document by id
+100 (elasticsearch) delete documents matching query
+110 (elasticsearch) search and return as dataframe</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Full-text search with fuzzy matching and wildcards</li>
+        <li>Query DSL (match, term, range, bool, wildcard queries)</li>
+        <li>Aggregations (terms, stats, histogram, date histogram)</li>
+        <li>Index management (create, delete, mappings, aliases)</li>
+        <li>Document CRUD operations</li>
+        <li>Bulk operations for high-performance indexing</li>
+        <li>Update/delete by query</li>
+        <li>DataFrame integration for analytics</li>
+        <li>Multi-field search and highlighting</li>
+        <li>Cluster health monitoring and index statistics</li>
+        <li>Perfect for: Application search, log analytics, e-commerce search, real-time analytics</li>
+      </ul>
+    </div>
+
+    <h2 id="email">13. Email Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(email)</code></p>
       <p><strong>Purpose:</strong> Send emails with attachments</p>
@@ -335,7 +490,7 @@ USE_TLS = true</code></pre>
       </ul>
     </div>
 
-    <h2 id="s3">10. S3/MinIO Module</h2>
+    <h2 id="s3">14. S3/MinIO Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(s3)</code></p>
       <p><strong>Purpose:</strong> Object storage (AWS S3, MinIO, DigitalOcean Spaces, Wasabi)</p>
@@ -370,7 +525,7 @@ REGION = us-east-1
       </ul>
     </div>
 
-    <h2 id="ssh">11. SSH/SFTP Module</h2>
+    <h2 id="ssh">15. SSH/SFTP Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(ssh)</code></p>
       <p><strong>Purpose:</strong> Remote server access and file transfer</p>
@@ -404,7 +559,7 @@ PASSWORD = password
       </ul>
     </div>
 
-    <h2 id="vault">12. HashiCorp Vault Module</h2>
+    <h2 id="vault">16. HashiCorp Vault Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(vault)</code></p>
       <p><strong>Purpose:</strong> Secure secrets management</p>
@@ -436,7 +591,7 @@ VAULT_TOKEN = your-vault-token
       </ul>
     </div>
 
-    <h2 id="compress">13. Compression Module</h2>
+    <h2 id="compress">17. Compression Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(compress)</code></p>
       <p><strong>Purpose:</strong> File compression and extraction</p>
@@ -462,7 +617,7 @@ VAULT_TOKEN = your-vault-token
       </ul>
     </div>
 
-    <h2 id="api">14. REST API Module</h2>
+    <h2 id="api">18. REST API Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(api)</code></p>
       <p><strong>Purpose:</strong> HTTP client for REST API calls</p>
@@ -499,6 +654,108 @@ BEARER_TOKEN = your-token
       </ul>
     </div>
 
+    <h2 id="teams">19. Microsoft Teams Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(teams)</code></p>
+      <p><strong>Purpose:</strong> Send messages, alerts, and adaptive cards to Microsoft Teams channels</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[teams]
+# Option 1: Webhook (simple)
+WEBHOOK_URL = https://your-org.webhook.office.com/webhookb2/...
+
+# Option 2: App-based (advanced)
+TENANT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+CLIENT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+CLIENT_SECRET = your-client-secret
+TEAM_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+CHANNEL_ID = 19:xxx@thread.tacv2</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (teams) send message to channel
+20 (teams) set title to "Pipeline Complete"
+30 (teams) set text to "ETL job finished successfully"
+40 (teams) set color to "107C10"
+
+50 (teams) send alert with message "High CPU usage"
+60 (teams) set severity to "warning"
+70 (teams) set title to "System Alert"
+
+80 (teams) send status message
+90 (teams) set title to "Database Backup"
+100 (teams) add field "Size" with value "150 GB"
+110 (teams) add field "Duration" with value "45 minutes"
+
+120 (teams) send adaptive card with title "Sales Report"
+130 (teams) add fact "Revenue" with value "$1.2M"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Simple text messages with color coding</li>
+        <li>Alert messages (info, warning, error, success)</li>
+        <li>Status messages with multiple fields</li>
+        <li>Adaptive Cards with facts and sections</li>
+        <li>Webhook and Microsoft Graph API support</li>
+        <li>Automatic retries with exponential backoff</li>
+        <li>Threaded notifications</li>
+      </ul>
+    </div>
+
+    <h2 id="slack">20. Slack Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(slack)</code></p>
+      <p><strong>Purpose:</strong> Send messages, alerts, blocks, and files to Slack channels</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[slack]
+# Option 1: Webhook (simple)
+WEBHOOK_URL = https://hooks.slack.com/services/T00000000/B00000000/XXX
+
+# Option 2: Bot Token (advanced)
+BOT_TOKEN = xoxb-your-bot-token-here
+DEFAULT_CHANNEL = #general</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (slack) send message to channel "#general"
+20 (slack) set text to "Hello from AIbasic!"
+30 (slack) set username to "Deploy Bot"
+40 (slack) set icon emoji to ":rocket:"
+
+50 (slack) send alert with message "High CPU usage detected"
+60 (slack) set severity to "warning"
+70 (slack) set title to "System Alert"
+
+80 (slack) send status message
+90 (slack) set title to "Database Backup"
+100 (slack) add field "Database" with value "production_db"
+110 (slack) add field "Size" with value "150 GB"
+
+120 (slack) create block message
+130 (slack) add header block with text "Pipeline Report"
+140 (slack) add divider block
+150 (slack) add section block with text "*Status:* Success"
+160 (slack) send blocks to channel "#pipelines"
+
+170 (slack) upload file "report.csv"
+180 (slack) set title to "Daily Report"
+190 (slack) set initial comment to "Today's data"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Simple messages with custom icons and usernames</li>
+        <li>Alert messages with color coding (info, warning, error, success)</li>
+        <li>Status messages with fields</li>
+        <li>Rich messages with attachments</li>
+        <li>Block Kit messages (headers, sections, dividers, fields)</li>
+        <li>File uploads to channels</li>
+        <li>Message updates and deletion</li>
+        <li>Emoji reactions</li>
+        <li>Threaded messages</li>
+        <li>Webhook and bot token support</li>
+        <li>Automatic retries with exponential backoff</li>
+      </ul>
+    </div>
+
     <div class="panel">
       <h3>Module Usage Tips</h3>
       <ul>
@@ -513,7 +770,7 @@ BEARER_TOKEN = your-token
 </div>
 
 <div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
-  © 2025 AIbasic v1.0 — Complete documentation with 14 integrated modules
+  © 2025 AIbasic v1.0 — Complete documentation with 20 integrated modules
 </div>
 <script src="script.js"></script>
 </body></html>

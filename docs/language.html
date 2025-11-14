@@ -72,7 +72,7 @@
 40 (csv) read file "data.csv" into dataset
 50 (df) filter dataset where age > 18</code></pre>
 
-    <h2 id="task-types">Task Types (36)</h2>
+    <h2 id="task-types">Task Types (41)</h2>
     <p>Task type hints help the AI compiler understand your intent. They're optional but recommended for clarity.</p>
 
     <div class="panel">
@@ -95,6 +95,9 @@
         <li><code>mysql</code> — MySQL/MariaDB operations</li>
         <li><code>mongodb</code> — MongoDB NoSQL operations</li>
         <li><code>cassandra</code> — Cassandra operations</li>
+        <li><code>clickhouse</code> — ClickHouse OLAP analytics</li>
+        <li><code>neo4j</code> — Neo4j graph database</li>
+        <li><code>timescaledb</code> — TimescaleDB time-series</li>
         <li><code>redis</code> — Redis cache operations</li>
       </ul>
     </div>
@@ -109,12 +112,20 @@
     </div>
 
     <div class="panel">
+      <h3>Collaboration (Modules)</h3>
+      <ul>
+        <li><code>teams</code> — Microsoft Teams integration</li>
+        <li><code>slack</code> — Slack integration</li>
+        <li><code>email</code> — Email sending</li>
+      </ul>
+    </div>
+
+    <div class="panel">
       <h3>Storage & Networking (Modules)</h3>
       <ul>
         <li><code>s3</code> — S3/MinIO object storage</li>
         <li><code>api</code> — REST API calls</li>
         <li><code>ssh</code> — SSH remote operations</li>
-        <li><code>email</code> — Email sending</li>
         <li><code>web</code> — Web scraping</li>
       </ul>
     </div>
@@ -122,7 +133,8 @@
     <div class="panel">
       <h3>Other Task Types</h3>
       <ul>
-        <li><code>opensearch</code> — OpenSearch/Elasticsearch</li>
+        <li><code>opensearch</code> — OpenSearch</li>
+        <li><code>elasticsearch</code> — Elasticsearch search engine</li>
         <li><code>vault</code> — HashiCorp Vault secrets</li>
         <li><code>compress</code> — File compression</li>
         <li><code>crypto</code> — Cryptography</li>

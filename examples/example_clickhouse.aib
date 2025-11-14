@@ -1,0 +1,120 @@
+# ClickHouse Integration Example
+# This example demonstrates using the ClickHouse module for high-performance analytics
+
+10 print "ClickHouse Integration Example"
+20 print "=============================="
+30 print ""
+
+# Connect and check server
+40 (clickhouse) ping server
+50 (clickhouse) get version
+60 print "Connected to ClickHouse version:" and version
+70 print ""
+
+# Create a database
+80 (clickhouse) create database analytics if not exists
+90 (clickhouse) use database analytics
+100 print "Using database: analytics"
+110 print ""
+
+# Create a table for web analytics
+120 (clickhouse) create table if not exists page_views with columns:
+130 (clickhouse) column "event_date" type "Date"
+140 (clickhouse) column "user_id" type "UInt32"
+150 (clickhouse) column "page_url" type "String"
+160 (clickhouse) column "duration" type "UInt32"
+170 (clickhouse) column "country" type "String"
+180 (clickhouse) engine "MergeTree()"
+190 (clickhouse) partition by "toYYYYMM(event_date)"
+200 (clickhouse) order by "event_date, user_id"
+210 print "Table 'page_views' created"
+220 print ""
+
+# Insert sample data
+230 print "Inserting sample data..."
+240 (clickhouse) insert into page_views values:
+250 (clickhouse) row event_date="2025-01-10", user_id=1001, page_url="/home", duration=45, country="US"
+260 (clickhouse) row event_date="2025-01-10", user_id=1002, page_url="/products", duration=120, country="UK"
+270 (clickhouse) row event_date="2025-01-10", user_id=1003, page_url="/about", duration=30, country="DE"
+280 (clickhouse) row event_date="2025-01-11", user_id=1001, page_url="/products", duration=90, country="US"
+290 (clickhouse) row event_date="2025-01-11", user_id=1004, page_url="/home", duration=60, country="FR"
+300 print "Sample data inserted"
+310 print ""
+
+# Query 1: Total page views by country
+320 print "Query 1: Page views by country"
+330 (clickhouse) query "SELECT country, count() as views, avg(duration) as avg_duration FROM page_views GROUP BY country ORDER BY views DESC"
+340 print "Results:"
+350 print query_result
+360 print ""
+
+# Query 2: Daily statistics
+370 print "Query 2: Daily statistics"
+380 (clickhouse) query "SELECT event_date, count() as views, count(DISTINCT user_id) as unique_users, avg(duration) as avg_duration FROM page_views GROUP BY event_date ORDER BY event_date"
+390 print "Results:"
+400 print query_result
+410 print ""
+
+# Query 3: Top pages
+420 print "Query 3: Top pages"
+430 (clickhouse) query "SELECT page_url, count() as views FROM page_views GROUP BY page_url ORDER BY views DESC LIMIT 5"
+440 print "Results:"
+450 print query_result
+460 print ""
+
+# Get table statistics
+470 (clickhouse) get stats for table page_views
+480 print "Table statistics:"
+490 print "Total rows:" and row_count
+500 print "Total size:" and total_size
+510 print "Partitions:" and partitions
+520 print ""
+
+# Example with batch insert (for large datasets)
+530 print "Example: Batch insert with DataFrame"
+540 (csv) read file "web_events.csv" into events_data
+550 (clickhouse) batch insert into page_views from dataframe events_data with batch_size 10000
+560 print "Batch insert completed:" and rows_inserted and "rows"
+570 print ""
+
+# Advanced: Create materialized view for aggregations
+580 print "Creating materialized view for country statistics..."
+590 (clickhouse) execute query "CREATE MATERIALIZED VIEW IF NOT EXISTS country_stats ENGINE = SummingMergeTree() ORDER BY country AS SELECT country, count() as total_views, sum(duration) as total_duration FROM page_views GROUP BY country"
+600 print "Materialized view created"
+610 print ""
+
+# Query the materialized view
+620 (clickhouse) query "SELECT country, total_views, total_duration, total_duration / total_views as avg_duration FROM country_stats ORDER BY total_views DESC"
+630 print "Country statistics from materialized view:"
+640 print query_result
+650 print ""
+
+# Optimize table (merge parts)
+660 print "Optimizing table..."
+670 (clickhouse) optimize table page_views final
+680 print "Table optimized"
+690 print ""
+
+# Export query results to DataFrame for further processing
+700 print "Exporting to DataFrame for analysis..."
+710 (clickhouse) query to dataframe "SELECT * FROM page_views WHERE duration > 60"
+720 (df) show info about dataframe
+730 (df) calculate statistics
+740 print "DataFrame statistics:"
+750 print dataframe_stats
+760 print ""
+
+# Clean up example
+770 print "Cleanup (commented out - remove comments to execute):"
+780 # (clickhouse) drop table page_views
+790 # (clickhouse) drop database analytics
+800 print "Example complete!"
+
+# Best practices demonstrated:
+# 1. Use partitioning for time-series data
+# 2. Choose appropriate ORDER BY for query patterns
+# 3. Use batch inserts for large datasets
+# 4. Create materialized views for frequently accessed aggregations
+# 5. Optimize tables periodically to merge parts
+# 6. Use compression for better performance
+# 7. Monitor table statistics

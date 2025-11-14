@@ -1,0 +1,116 @@
+# AIBasic Example - Microsoft Teams Integration
+# Demonstrates sending messages, alerts, and cards to Microsoft Teams
+
+# ==================== Simple Messages ====================
+
+10 print "Microsoft Teams Integration Example"
+20 print "====================================="
+30 print ""
+
+# Send a simple message
+40 (teams) send message to channel
+50 (teams) set title to "Pipeline Completed"
+60 (teams) set text to "The daily ETL pipeline has completed successfully"
+70 (teams) set color to "107C10"
+80 print "Simple message sent"
+
+90 print ""
+
+# ==================== Alert Messages ====================
+
+100 print "Sending alerts..."
+
+# Warning alert
+110 (teams) send alert with message "High CPU usage detected on server-01"
+120 (teams) set severity to "warning"
+130 (teams) set title to "System Alert"
+
+# Error alert
+140 (teams) send alert with message "Database connection failed"
+150 (teams) set severity to "error"
+
+# Success alert
+160 (teams) send alert with message "Backup completed successfully"
+170 (teams) set severity to "success"
+
+180 print "Alerts sent"
+190 print ""
+
+# ==================== Status Cards ====================
+
+200 print "Sending status card..."
+
+210 (teams) send status card
+220 (teams) set title to "Database Backup"
+230 (teams) set status to "Success"
+240 (teams) add detail "Database" with value "production_db"
+250 (teams) add detail "Size" with value "150 GB"
+260 (teams) add detail "Duration" with value "45 minutes"
+270 (teams) add detail "Location" with value "s3://backups/2025-01-20/"
+
+280 print "Status card sent"
+290 print ""
+
+# ==================== Notification with Facts ====================
+
+300 print "Sending notification with data..."
+
+310 (teams) send notification
+320 (teams) set title to "Sales Report"
+330 (teams) set text to "Daily sales summary for January 20, 2025"
+340 (teams) add fact "Total Sales" with value "$125,000"
+350 (teams) add fact "Orders" with value "342"
+360 (teams) add fact "Average Order" with value "$365"
+370 (teams) add fact "Top Product" with value "Laptop Pro"
+
+380 print "Notification sent"
+390 print ""
+
+# ==================== Data Table Card ====================
+
+400 print "Sending data table..."
+
+410 (teams) create data table card
+420 (teams) set title to "Top 5 Customers"
+430 (teams) set headers to list "Customer" "Revenue" "Orders"
+440 (teams) add row "Acme Corp" "$50,000" "45"
+450 (teams) add row "Global Tech" "$38,500" "32"
+460 (teams) add row "Pacific Trade" "$29,000" "28"
+470 (teams) add row "Euro Systems" "$22,500" "19"
+480 (teams) add row "Asia Imports" "$18,750" "15"
+490 (teams) send card
+
+500 print "Data table sent"
+510 print ""
+
+# ==================== Pipeline Status with Error Handling ====================
+
+520 print "Sending pipeline status..."
+
+530 on error goto 900
+
+540 set pipeline_name to "Daily ETL Pipeline"
+550 set pipeline_status to "Running"
+560 set records_processed to 125000
+570 set errors_found to 0
+
+580 (teams) send status card
+590 (teams) set title to pipeline_name
+600 (teams) set status to pipeline_status
+610 (teams) add detail "Records Processed" with value records_processed
+620 (teams) add detail "Errors" with value errors_found
+630 (teams) add detail "Start Time" with value "2025-01-20 02:00:00"
+640 (teams) add detail "Duration" with value "2 hours 15 minutes"
+
+650 goto 999
+
+# ==================== Error Handler ====================
+
+900 print "ERROR: Failed to send Teams notification"
+910 print "Error:" and _last_error
+920 print "At line:" and _last_error_line
+
+# ==================== End ====================
+
+999 print ""
+1000 print "Microsoft Teams example completed!"

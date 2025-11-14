@@ -10,6 +10,10 @@ This Docker setup includes:
 - **PostgreSQL 16** - Relational database
 - **MySQL 8.0** - Relational database
 - **MongoDB 7** - NoSQL document database
+- **ClickHouse 23.12** - High-performance analytics database (OLAP)
+- **Neo4j 5.15** - Native graph database
+- **Elasticsearch 8.11** - Distributed search and analytics engine
+- **TimescaleDB (PG 16)** - Time-series database (PostgreSQL extension)
 - **Redis 7** - In-memory cache
 - **RabbitMQ 3** - Message queue with management UI
 - **Apache Kafka** - Distributed streaming platform (with Zookeeper)
@@ -44,7 +48,7 @@ docker-compose up -d
 
 This will:
 - Build the AIbasic image
-- Start all 12 services
+- Start all 16 services
 - Initialize databases with sample data
 - Create necessary volumes and networks
 
@@ -82,6 +86,10 @@ python /app/output/program.py
 | RabbitMQ Management | http://localhost:15672 | aibasic / aibasic123 |
 | MinIO Console | http://localhost:9001 | aibasic / aibasic123 |
 | OpenSearch | https://localhost:9200 | admin / Aibasic123! |
+| Elasticsearch | http://localhost:9200 | - |
+| ClickHouse HTTP | http://localhost:8123 | aibasic / aibasic123 |
+| Neo4j Browser | http://localhost:7474 | neo4j / aibasic123 |
+| TimescaleDB | localhost:5433 | aibasic / aibasic123 |
 | MailHog Web UI | http://localhost:8025 | - |
 | PostgreSQL | localhost:5432 | aibasic / aibasic123 |
 | MySQL | localhost:3306 | aibasic / aibasic123 |
@@ -89,6 +97,7 @@ python /app/output/program.py
 | Redis | localhost:6379 | Password: aibasic123 |
 | Kafka | localhost:9092 | - |
 | Cassandra | localhost:9042 | - |
+| Neo4j Bolt | bolt://localhost:7687 | neo4j / aibasic123 |
 | Vault | http://localhost:8200 | Token: aibasic-root-token |
 
 ## 📁 Directory Structure
@@ -104,8 +113,14 @@ docker/
 │   │   └── 01-init.sql        # PostgreSQL sample data
 │   ├── mysql/
 │   │   └── 01-init.sql        # MySQL sample data
-│   └── mongodb/
-│       └── 01-init.js         # MongoDB sample data
+│   ├── mongodb/
+│   │   └── 01-init.js         # MongoDB sample data
+│   ├── clickhouse/
+│   │   └── 01-init.sql        # ClickHouse sample data
+│   ├── neo4j/
+│   │   └── 01-init.cypher     # Neo4j sample graph
+│   └── elasticsearch/
+│       └── init.sh            # Elasticsearch sample indexes
 └── data/                       # Shared data directory
 ```
 

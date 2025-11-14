@@ -1,0 +1,597 @@
+# =========================================
+# Elasticsearch Module Examples
+# =========================================
+# This example demonstrates the Elasticsearch module capabilities in AIbasic
+# including indexing, searching, aggregations, and analytics operations.
+
+# Initialize variables
+var host = "http://localhost:9200"
+var index_name = "products"
+var search_index = "logs"
+
+print "=== Elasticsearch Module Demo ==="
+print ""
+
+# =========================================
+# Example 1: Connection and Health Check
+# =========================================
+print "1. Connecting to Elasticsearch and checking health..."
+
+(elasticsearch) {
+    "action": "ping"
+}
+
+(elasticsearch) {
+    "action": "info"
+}
+
+(elasticsearch) {
+    "action": "cluster_health"
+}
+
+# =========================================
+# Example 2: Index Management
+# =========================================
+print ""
+print "2. Creating and managing indexes..."
+
+# Create an index with mappings
+(elasticsearch) {
+    "action": "create_index",
+    "index": "products",
+    "mappings": {
+        "properties": {
+            "name": {"type": "text"},
+            "description": {"type": "text"},
+            "category": {"type": "keyword"},
+            "price": {"type": "float"},
+            "stock": {"type": "integer"},
+            "tags": {"type": "keyword"},
+            "created_at": {"type": "date"}
+        }
+    },
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0
+    }
+}
+
+# Check if index exists
+(elasticsearch) {
+    "action": "index_exists",
+    "index": "products"
+}
+
+# =========================================
+# Example 3: Document Indexing
+# =========================================
+print ""
+print "3. Indexing documents..."
+
+# Index single document
+(elasticsearch) {
+    "action": "index_document",
+    "index": "products",
+    "document": {
+        "name": "Laptop Pro 15",
+        "description": "High-performance laptop for professionals",
+        "category": "Electronics",
+        "price": 1299.99,
+        "stock": 50,
+        "tags": ["laptop", "computer", "professional"],
+        "created_at": "2025-01-15T10:00:00Z"
+    },
+    "doc_id": "prod-001",
+    "refresh": true
+}
+
+# Bulk index multiple documents
+(elasticsearch) {
+    "action": "bulk_index",
+    "index": "products",
+    "documents": [
+        {
+            "id": "prod-002",
+            "name": "Wireless Mouse",
+            "description": "Ergonomic wireless mouse with precision tracking",
+            "category": "Electronics",
+            "price": 29.99,
+            "stock": 200,
+            "tags": ["mouse", "wireless", "ergonomic"],
+            "created_at": "2025-01-15T11:00:00Z"
+        },
+        {
+            "id": "prod-003",
+            "name": "Mechanical Keyboard",
+            "description": "RGB mechanical keyboard with blue switches",
+            "category": "Electronics",
+            "price": 89.99,
+            "stock": 150,
+            "tags": ["keyboard", "mechanical", "rgb"],
+            "created_at": "2025-01-15T12:00:00Z"
+        },
+        {
+            "id": "prod-004",
+            "name": "USB-C Hub",
+            "description": "7-in-1 USB-C hub with HDMI and ethernet",
+            "category": "Electronics",
+            "price": 49.99,
+            "stock": 100,
+            "tags": ["hub", "usb-c", "adapter"],
+            "created_at": "2025-01-15T13:00:00Z"
+        },
+        {
+            "id": "prod-005",
+            "name": "Webcam HD",
+            "description": "1080p HD webcam with autofocus",
+            "category": "Electronics",
+            "price": 79.99,
+            "stock": 75,
+            "tags": ["webcam", "camera", "hd"],
+            "created_at": "2025-01-15T14:00:00Z"
+        }
+    ],
+    "id_field": "id",
+    "refresh": true
+}
+
+# =========================================
+# Example 4: Document Retrieval
+# =========================================
+print ""
+print "4. Retrieving documents..."
+
+# Get document by ID
+(elasticsearch) {
+    "action": "get_document",
+    "index": "products",
+    "doc_id": "prod-001"
+}
+
+# Update document
+(elasticsearch) {
+    "action": "update_document",
+    "index": "products",
+    "doc_id": "prod-001",
+    "document": {
+        "stock": 45,
+        "price": 1199.99
+    },
+    "refresh": true
+}
+
+# =========================================
+# Example 5: Basic Search
+# =========================================
+print ""
+print "5. Performing searches..."
+
+# Search all documents
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "size": 10
+}
+
+# Search with match query
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "match": {
+            "description": "wireless"
+        }
+    },
+    "size": 10
+}
+
+# Search with term query (exact match on keyword field)
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "term": {
+            "category": "Electronics"
+        }
+    },
+    "size": 10
+}
+
+# Range query (price between 50 and 100)
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "range": {
+            "price": {
+                "gte": 50,
+                "lte": 100
+            }
+        }
+    },
+    "size": 10
+}
+
+# =========================================
+# Example 6: Advanced Search with Sorting
+# =========================================
+print ""
+print "6. Advanced search with sorting and pagination..."
+
+# Sort by price descending
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "match_all": {}
+    },
+    "sort": [{"price": "desc"}],
+    "size": 5
+}
+
+# Pagination with from parameter
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "match_all": {}
+    },
+    "from": 2,
+    "size": 2
+}
+
+# =========================================
+# Example 7: Bool Query (Complex Queries)
+# =========================================
+print ""
+print "7. Complex boolean queries..."
+
+# Bool query: must match "keyboard" AND price < 100
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "bool": {
+            "must": [
+                {"match": {"description": "keyboard"}}
+            ],
+            "filter": [
+                {"range": {"price": {"lt": 100}}}
+            ]
+        }
+    }
+}
+
+# Bool query: should match either tag
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "bool": {
+            "should": [
+                {"term": {"tags": "wireless"}},
+                {"term": {"tags": "ergonomic"}}
+            ],
+            "minimum_should_match": 1
+        }
+    }
+}
+
+# =========================================
+# Example 8: Aggregations
+# =========================================
+print ""
+print "8. Performing aggregations..."
+
+# Aggregation: average price by category
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "match_all": {}
+    },
+    "size": 0,
+    "aggs": {
+        "avg_price": {
+            "avg": {"field": "price"}
+        },
+        "total_stock": {
+            "sum": {"field": "stock"}
+        },
+        "price_stats": {
+            "stats": {"field": "price"}
+        }
+    }
+}
+
+# Terms aggregation: count by category
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "match_all": {}
+    },
+    "size": 0,
+    "aggs": {
+        "categories": {
+            "terms": {"field": "category"}
+        }
+    }
+}
+
+# Histogram aggregation: price distribution
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "match_all": {}
+    },
+    "size": 0,
+    "aggs": {
+        "price_histogram": {
+            "histogram": {
+                "field": "price",
+                "interval": 50
+            }
+        }
+    }
+}
+
+# =========================================
+# Example 9: Count and Statistics
+# =========================================
+print ""
+print "9. Counting and statistics..."
+
+# Count all documents
+(elasticsearch) {
+    "action": "count",
+    "index": "products"
+}
+
+# Count with query
+(elasticsearch) {
+    "action": "count",
+    "index": "products",
+    "query": {
+        "range": {
+            "price": {"gte": 50}
+        }
+    }
+}
+
+# Get index statistics
+(elasticsearch) {
+    "action": "index_stats",
+    "index": "products"
+}
+
+# =========================================
+# Example 10: Update and Delete Operations
+# =========================================
+print ""
+print "10. Update and delete operations..."
+
+# Update by query (increase all prices by 10%)
+(elasticsearch) {
+    "action": "update_by_query",
+    "index": "products",
+    "query": {
+        "match_all": {}
+    },
+    "script": {
+        "source": "ctx._source.price *= 1.10",
+        "lang": "painless"
+    },
+    "refresh": true
+}
+
+# Delete specific document
+(elasticsearch) {
+    "action": "delete_document",
+    "index": "products",
+    "doc_id": "prod-005",
+    "refresh": true
+}
+
+# Delete by query (remove out-of-stock items)
+(elasticsearch) {
+    "action": "delete_by_query",
+    "index": "products",
+    "query": {
+        "term": {
+            "stock": 0
+        }
+    },
+    "refresh": true
+}
+
+# =========================================
+# Example 11: DataFrame Integration
+# =========================================
+print ""
+print "11. DataFrame integration for analytics..."
+
+# Search and return as DataFrame
+(elasticsearch) {
+    "action": "search_df",
+    "index": "products",
+    "query": {
+        "match_all": {}
+    },
+    "size": 100
+}
+
+# =========================================
+# Example 12: Logs Analysis Use Case
+# =========================================
+print ""
+print "12. Log analysis example..."
+
+# Create logs index
+(elasticsearch) {
+    "action": "create_index",
+    "index": "logs",
+    "mappings": {
+        "properties": {
+            "timestamp": {"type": "date"},
+            "level": {"type": "keyword"},
+            "message": {"type": "text"},
+            "service": {"type": "keyword"},
+            "host": {"type": "keyword"},
+            "response_time": {"type": "integer"}
+        }
+    }
+}
+
+# Index sample logs
+(elasticsearch) {
+    "action": "bulk_index",
+    "index": "logs",
+    "documents": [
+        {"timestamp": "2025-01-15T10:00:00Z", "level": "INFO", "message": "Service started", "service": "api", "host": "server1", "response_time": 150},
+        {"timestamp": "2025-01-15T10:01:00Z", "level": "ERROR", "message": "Connection timeout", "service": "api", "host": "server1", "response_time": 5000},
+        {"timestamp": "2025-01-15T10:02:00Z", "level": "INFO", "message": "Request processed", "service": "web", "host": "server2", "response_time": 200},
+        {"timestamp": "2025-01-15T10:03:00Z", "level": "WARN", "message": "High memory usage", "service": "api", "host": "server1", "response_time": 300}
+    ],
+    "refresh": true
+}
+
+# Search errors only
+(elasticsearch) {
+    "action": "search",
+    "index": "logs",
+    "query": {
+        "term": {
+            "level": "ERROR"
+        }
+    },
+    "sort": [{"timestamp": "desc"}]
+}
+
+# Aggregation: error count by service
+(elasticsearch) {
+    "action": "search",
+    "index": "logs",
+    "size": 0,
+    "aggs": {
+        "errors_by_service": {
+            "terms": {"field": "service"},
+            "aggs": {
+                "avg_response_time": {
+                    "avg": {"field": "response_time"}
+                }
+            }
+        }
+    }
+}
+
+# Date histogram: logs over time
+(elasticsearch) {
+    "action": "search",
+    "index": "logs",
+    "size": 0,
+    "aggs": {
+        "logs_over_time": {
+            "date_histogram": {
+                "field": "timestamp",
+                "fixed_interval": "1h"
+            }
+        }
+    }
+}
+
+# =========================================
+# Example 13: Mapping and Alias Management
+# =========================================
+print ""
+print "13. Mapping and alias management..."
+
+# Add new field to mapping
+(elasticsearch) {
+    "action": "put_mapping",
+    "index": "products",
+    "properties": {
+        "rating": {"type": "float"},
+        "reviews_count": {"type": "integer"}
+    }
+}
+
+# Create alias
+(elasticsearch) {
+    "action": "create_alias",
+    "index": "products",
+    "alias": "active_products"
+}
+
+# Refresh index
+(elasticsearch) {
+    "action": "refresh_index",
+    "index": "products"
+}
+
+# =========================================
+# Example 14: Full-Text Search Features
+# =========================================
+print ""
+print "14. Full-text search features..."
+
+# Multi-match query (search across multiple fields)
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "multi_match": {
+            "query": "wireless keyboard",
+            "fields": ["name", "description"],
+            "type": "best_fields"
+        }
+    }
+}
+
+# Fuzzy search (typo-tolerant)
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "fuzzy": {
+            "name": {
+                "value": "keybord",
+                "fuzziness": "AUTO"
+            }
+        }
+    }
+}
+
+# Wildcard search
+(elasticsearch) {
+    "action": "search",
+    "index": "products",
+    "query": {
+        "wildcard": {
+            "name": {
+                "value": "*mouse*"
+            }
+        }
+    }
+}
+
+# =========================================
+# Cleanup
+# =========================================
+print ""
+print "15. Cleanup..."
+
+# Delete test indexes
+(elasticsearch) {
+    "action": "delete_index",
+    "index": "products"
+}
+
+(elasticsearch) {
+    "action": "delete_index",
+    "index": "logs"
+}
+
+print ""
+print "=== Elasticsearch Demo Complete ==="

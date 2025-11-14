@@ -390,3 +390,205 @@ MODEL = gpt-4o-mini
 
 # SFTP Settings
 # SFTP_TIMEOUT = 60  # SFTP operation timeout
+
+[teams]
+# Microsoft Teams integration settings
+# Uncomment and configure these settings to use the teams module
+
+# Option 1: Incoming Webhook (Simple method - recommended for getting started)
+# Create an incoming webhook in your Teams channel:
+# 1. Go to your Teams channel
+# 2. Click "..." > Connectors
+# 3. Search for "Incoming Webhook" and configure
+# 4. Copy the webhook URL
+
+# WEBHOOK_URL = https://your-org.webhook.office.com/webhookb2/xxx-xxx-xxx/IncomingWebhook/xxx/xxx
+
+# Option 2: App-Based Authentication (Advanced - full API access)
+# Register an Azure AD app and grant permissions:
+# 1. Register app in Azure Portal
+# 2. Grant "ChannelMessage.Send" permission
+# 3. Create client secret
+# 4. Note the tenant, client ID, and secret
+
+# TENANT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# CLIENT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# CLIENT_SECRET = your-client-secret-here
+# TEAM_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# CHANNEL_ID = 19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@thread.tacv2
+
+# Connection Settings
+# TIMEOUT = 30  # Request timeout in seconds
+# MAX_RETRIES = 3  # Maximum number of retry attempts
+# RETRY_BACKOFF = 1.0  # Backoff factor for retries
+
+# Proxy Settings (optional)
+# PROXY = http://proxy.example.com:8080
+
+# Notes:
+# - Webhook method is simpler but has limited features
+# - App-based auth allows full control and additional features
+# - Use webhook for basic notifications, app auth for complex integrations
+# - Team ID and Channel ID can be found in Teams URL when you navigate to the channel
+
+[slack]
+# Slack integration settings
+# Uncomment and configure these settings to use the slack module
+
+# Option 1: Incoming Webhook (Simple method - recommended for getting started)
+# Create an incoming webhook in your Slack workspace:
+# 1. Go to https://api.slack.com/messaging/webhooks
+# 2. Click "Create your Slack app"
+# 3. Choose "From scratch", name your app, select workspace
+# 4. Go to "Incoming Webhooks" and activate it
+# 5. Click "Add New Webhook to Workspace"
+# 6. Select a channel and authorize
+# 7. Copy the webhook URL
+
+# WEBHOOK_URL = https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
+
+# Option 2: Bot Token (Advanced - full API access)
+# Create a Slack app with bot token:
+# 1. Go to https://api.slack.com/apps
+# 2. Create new app or select existing
+# 3. Go to "OAuth & Permissions"
+# 4. Add bot token scopes: chat:write, files:write, reactions:write, etc.
+# 5. Install app to workspace
+# 6. Copy Bot User OAuth Token (starts with xoxb-)
+
+# BOT_TOKEN = xoxb-your-bot-token-here
+# DEFAULT_CHANNEL = #general
+
+# Connection Settings
+# TIMEOUT = 30  # Request timeout in seconds
+# MAX_RETRIES = 3  # Maximum number of retry attempts
+# RETRY_BACKOFF = 1.0  # Backoff factor for retries
+
+# Proxy Settings (optional)
+# PROXY = http://proxy.example.com:8080
+
+# Notes:
+# - Webhook method is simpler but has limited features (no file uploads, reactions, etc.)
+# - Bot token allows full control: upload files, update/delete messages, add reactions
+# - Use webhook for basic notifications, bot token for complex integrations
+# - Bot token requires OAuth scopes based on features used
+# - Channel names should include # for public channels (e.g., #general)
+# - For direct messages, use @username or user ID
+
+[clickhouse]
+# ClickHouse high-performance analytics database settings
+# Uncomment and configure these settings to use the clickhouse module
+
+# Connection Settings
+# HOST = localhost
+# PORT = 8123  # HTTP interface port (default)
+# DATABASE = default
+
+# Authentication
+# USERNAME = default
+# PASSWORD =
+
+# SSL/TLS Settings (optional)
+# USE_SSL = false  # Use HTTPS instead of HTTP
+# VERIFY_SSL = true  # Verify SSL certificates
+
+# Performance Settings
+# TIMEOUT = 30  # Request timeout in seconds
+# COMPRESSION = lz4  # Enable compression: lz4, zstd, or leave empty for none
+
+# Notes:
+# - ClickHouse is a column-oriented database for OLAP (Online Analytical Processing)
+# - Best for: Analytics, time-series data, log aggregation, data warehousing
+# - Supports: Distributed queries, materialized views, partitioning, real-time ingestion
+# - Use compression (lz4 or zstd) for better network performance
+# - Default HTTP port is 8123, native protocol port is 9000
+# - For production, always use authentication and SSL/TLS
+
+[neo4j]
+# Neo4j graph database settings
+# Uncomment and configure these settings to use the neo4j module
+
+# Connection Settings
+# URI = bolt://localhost:7687  # Bolt protocol (default)
+# URI = neo4j://localhost:7687  # Neo4j protocol (with routing)
+# DATABASE = neo4j
+
+# Authentication
+# USERNAME = neo4j
+# PASSWORD = password
+
+# SSL/TLS Settings (optional)
+# ENCRYPTED = false  # Use encrypted connection
+# TRUST = TRUST_ALL_CERTIFICATES  # Certificate trust strategy
+
+# Connection Pool Settings
+# MAX_CONNECTION_LIFETIME = 3600  # Max connection lifetime in seconds
+# MAX_CONNECTION_POOL_SIZE = 50   # Maximum connections in pool
+# CONNECTION_ACQUISITION_TIMEOUT = 60  # Timeout for acquiring connection
+
+# Notes:
+# - Neo4j is a native graph database for highly connected data
+# - Best for: Social networks, recommendation engines, fraud detection, knowledge graphs
+# - Uses Cypher query language (similar to SQL but for graphs)
+# - Supports ACID transactions and complex relationship queries
+# - Default bolt port is 7687, HTTP port is 7474 (browser interface)
+# - For production, always use authentication and consider encryption
+
+[elasticsearch]
+# Elasticsearch distributed search and analytics engine settings
+# Uncomment and configure these settings to use the elasticsearch module
+
+# Connection Settings
+# HOSTS = http://localhost:9200  # Single host
+# HOSTS = http://host1:9200,http://host2:9200  # Multiple hosts (comma-separated)
+
+# Authentication (choose one method)
+# Option 1: Username/Password
+# USERNAME = elastic
+# PASSWORD = changeme
+
+# Option 2: API Key (recommended for production)
+# API_KEY = base64_encoded_api_key
+
+# SSL/TLS Settings (optional)
+# VERIFY_CERTS = true  # Verify SSL certificates
+# CA_CERTS = /path/to/ca.pem  # Path to CA certificate bundle
+
+# Connection Settings
+# TIMEOUT = 30  # Request timeout in seconds
+# MAX_RETRIES = 3  # Maximum number of retry attempts
+# RETRY_ON_TIMEOUT = true  # Retry on timeout errors
+
+# Notes:
+# - Elasticsearch is a distributed search and analytics engine
+# - Best for: Full-text search, log analytics, real-time data, application search
+# - Supports: Query DSL, aggregations, full-text search, geospatial queries
+# - Can store and analyze massive amounts of data in near real-time
+# - Default HTTP port is 9200, transport port is 9300
+# - For production, use API keys instead of username/password
+# - Always use SSL/TLS in production environments
+
+[timescaledb]
+# TimescaleDB time-series database settings (PostgreSQL extension)
+# Uncomment and configure these settings to use the timescaledb module
+
+# Connection Settings
+# HOST = localhost
+# PORT = 5432
+# DATABASE = tsdb
+# USERNAME = postgres
+# PASSWORD = password
+
+# Connection Pool Settings
+# POOL_SIZE = 5
+# MAX_OVERFLOW = 10
+
+# Notes:
+# - TimescaleDB is a PostgreSQL extension optimized for time-series data
+# - Best for: IoT data, monitoring metrics, financial data, sensor data, logs
+# - Features: Hypertables (automatic partitioning), continuous aggregates, compression
+# - Supports: Data retention policies, gap filling, time-bucket queries
+# - 100% PostgreSQL compatible - all PostgreSQL features work
+# - Automatic chunk management for efficient time-series storage
+# - Compression can reduce storage by 90%+
+# - Perfect for: High-ingest rates (millions of rows/sec), complex queries on time-series data

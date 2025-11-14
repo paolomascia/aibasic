@@ -26,6 +26,10 @@ services:
       - opensearch
       - vault
       - minio
+      - clickhouse
+      - neo4j
+      - elasticsearch
+      - timescaledb
     networks:
       - aibasic-network
     stdin_open: true
@@ -290,6 +294,113 @@ services:
     networks:
       - aibasic-network
 
+  # ClickHouse (Analytics database)
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.12-alpine
+    container_name: aibasic-clickhouse
+    environment:
+      CLICKHOUSE_DB: aibasic_db
+      CLICKHOUSE_USER: aibasic
+      CLICKHOUSE_PASSWORD: aibasic123
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+      - ./init-scripts/clickhouse:/docker-entrypoint-initdb.d
+    ports:
+      - "8123:8123"  # HTTP interface
+      - "9000:9000"  # Native protocol
+    networks:
+      - aibasic-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  # Neo4j (Graph database)
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: aibasic-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/aibasic123
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*,gds.*
+      NEO4J_dbms_memory_heap_initial__size: 512m
+      NEO4J_dbms_memory_heap_max__size: 2G
+      NEO4J_dbms_memory_pagecache_size: 1G
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - ./init-scripts/neo4j:/docker-entrypoint-initdb.d
+    ports:
+      - "7474:7474"  # HTTP (Browser)
+      - "7687:7687"  # Bolt protocol
+    networks:
+      - aibasic-network
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p aibasic123 'RETURN 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Elasticsearch (Search and analytics engine)
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: aibasic-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./init-scripts/elasticsearch:/docker-entrypoint-initdb.d
+    ports:
+      - "9200:9200"  # HTTP API
+      - "9300:9300"  # Transport protocol
+    networks:
+      - aibasic-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # TimescaleDB (Time-series database - PostgreSQL extension)
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: aibasic-timescaledb
+    environment:
+      POSTGRES_USER: aibasic
+      POSTGRES_PASSWORD: aibasic123
+      POSTGRES_DB: tsdb
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+      - ./init-scripts/timescaledb:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"  # Use 5433 to avoid conflict with regular PostgreSQL
+    networks:
+      - aibasic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aibasic -d tsdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
   mysql_data:
@@ -303,6 +414,13 @@ volumes:
   opensearch_data:
   vault_data:
   minio_data:
+  clickhouse_data:
+  clickhouse_logs:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  elasticsearch_data:
+  timescaledb_data:
   aibasic_output:
   aibasic_logs:
 
