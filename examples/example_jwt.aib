@@ -1,0 +1,450 @@
+REM ============================================================================
+REM AIBASIC - JWT (JSON Web Token) Module Examples
+REM ============================================================================
+REM This file demonstrates how to use the JWT module for token-based
+REM authentication including token creation, verification, refresh tokens,
+REM and various security scenarios.
+REM
+REM The JWT module provides comprehensive support for:
+REM - Token Creation: Generate JWT tokens with custom claims
+REM - Token Verification: Validate and verify JWT signatures
+REM - Token Decoding: Decode token payloads
+REM - Refresh Tokens: Long-lived tokens for getting new access tokens
+REM - Algorithm Support: HS256, HS384, HS512, RS256, RS384, RS512, ES256, etc.
+REM - Claims Validation: Expiration, issuer, audience checks
+REM
+REM Configuration:
+REM Configure JWT in aibasic.conf:
+REM [jwt]
+REM SECRET_KEY = your-secret-key-here
+REM ALGORITHM = HS256
+REM ISSUER = your-app-name
+REM AUDIENCE = your-audience
+REM ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REM REFRESH_TOKEN_EXPIRE_DAYS = 7
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Token Creation and Verification
+REM ============================================================================
+
+10 (print) "=== Example 1: Basic Token Creation ==="
+
+REM Create a simple access token
+20 (jwt) create access token for user "user123"
+30 (print) "Access token created"
+
+REM Verify the token
+40 (jwt) verify token from previous operation
+50 (print) "Token verified successfully"
+
+REM ============================================================================
+REM Example 2: Token with Custom Claims
+REM ============================================================================
+
+100 (print) "=== Example 2: Custom Claims ==="
+
+REM Create token with additional claims
+110 (jwt) create access token for user "john.doe" with claims {"role": "admin", "email": "john@example.com", "permissions": ["read", "write", "delete"]}
+120 (print) "Token with custom claims created"
+
+REM Verify and decode token
+130 (jwt) verify token from previous operation
+140 (print) "Token verified with custom claims"
+
+REM ============================================================================
+REM Example 3: Refresh Token Flow
+REM ============================================================================
+
+200 (print) "=== Example 3: Refresh Token Flow ==="
+
+REM Create token pair (access + refresh)
+210 (jwt) create token pair for user "user123" with claims {"role": "user"}
+220 (print) "Access and refresh tokens created"
+
+REM Use refresh token to get new access token
+230 (jwt) refresh access token using refresh token from previous operation
+240 (print) "New access token created from refresh token"
+
+REM ============================================================================
+REM Example 4: Token Decoding (Inspect Payload)
+REM ============================================================================
+
+300 (print) "=== Example 4: Token Decoding ==="
+
+REM Create a token
+310 (jwt) create access token for user "alice" with claims {"department": "engineering", "level": 5}
+
+REM Decode without verification (inspect only)
+320 (jwt) decode token without verification
+330 (print) "Token payload decoded (unverified)"
+
+REM Get specific claims
+340 (jwt) get claims from token
+350 (print) "All claims extracted"
+
+REM ============================================================================
+REM Example 5: Token Expiration Check
+REM ============================================================================
+
+400 (print) "=== Example 5: Token Expiration ==="
+
+REM Create token
+410 (jwt) create access token for user "user456"
+
+REM Check if token is expired
+420 (jwt) check if token is expired
+430 (print) "Token expiration checked"
+
+REM Get expiration time
+440 (jwt) get token expiration time
+450 (print) "Token expiration time retrieved"
+
+REM ============================================================================
+REM Example 6: Token Header Inspection
+REM ============================================================================
+
+500 (print) "=== Example 6: Token Header ==="
+
+REM Create token
+510 (jwt) create access token for user "user789"
+
+REM Get token header (algorithm, type, etc.)
+520 (jwt) get token header
+530 (print) "Token header retrieved"
+
+REM ============================================================================
+REM Example 7: Custom Expiration Time
+REM ============================================================================
+
+600 (print) "=== Example 7: Custom Expiration ==="
+
+REM Create token with custom expiration (30 minutes)
+610 (jwt) create token for user "user123" with payload {"role": "user"} and expires in 30 minutes
+620 (print) "Token with 30-minute expiration created"
+
+REM Create token with 1-hour expiration
+630 (jwt) create token for user "admin" with payload {"role": "admin"} and expires in 60 minutes
+640 (print) "Token with 1-hour expiration created"
+
+REM ============================================================================
+REM Example 8: Authentication Flow - User Login
+REM ============================================================================
+
+700 (print) "=== Example 8: User Login Flow ==="
+
+REM Simulate user login
+710 (print) "User 'john.doe' attempting login..."
+
+REM Create token pair for authenticated user
+720 (jwt) create token pair for user "john.doe" with claims {"email": "john@example.com", "role": "admin", "name": "John Doe"}
+730 (print) "Login successful - tokens issued"
+
+REM Store tokens (in real app, send to client)
+740 (print) "Tokens stored for user session"
+
+REM ============================================================================
+REM Example 9: API Request Authentication
+REM ============================================================================
+
+800 (print) "=== Example 9: API Request Authentication ==="
+
+REM Client sends token with API request
+810 (print) "Incoming API request with token..."
+
+REM Create token for testing
+820 (jwt) create access token for user "api_user" with claims {"api_key": "ABC123"}
+
+REM Verify token from request
+830 (jwt) verify token from previous operation
+840 (print) "API request authenticated successfully"
+
+REM Extract user info from token
+850 (jwt) get claims from token
+860 (print) "User identified from token"
+
+REM ============================================================================
+REM Example 10: Token Validation Structure
+REM ============================================================================
+
+900 (print) "=== Example 10: Token Structure Validation ==="
+
+REM Create valid token
+910 (jwt) create access token for user "test_user"
+
+REM Validate token structure (3 parts: header.payload.signature)
+920 (jwt) validate token structure
+930 (print) "Token structure is valid"
+
+REM ============================================================================
+REM Example 11: Multi-User Token Management
+REM ============================================================================
+
+1000 (print) "=== Example 11: Multi-User Tokens ==="
+
+REM Create tokens for different users
+1010 (jwt) create access token for user "alice" with claims {"role": "admin"}
+1020 (jwt) create access token for user "bob" with claims {"role": "user"}
+1030 (jwt) create access token for user "charlie" with claims {"role": "guest"}
+
+1040 (print) "Tokens created for multiple users"
+
+REM ============================================================================
+REM Example 12: Role-Based Access Control (RBAC)
+REM ============================================================================
+
+1100 (print) "=== Example 12: Role-Based Access Control ==="
+
+REM Create token with role information
+1110 (jwt) create access token for user "admin_user" with claims {"role": "admin", "permissions": ["read", "write", "delete", "manage_users"]}
+1120 (print) "Admin token created with permissions"
+
+REM Create user token with limited permissions
+1130 (jwt) create access token for user "regular_user" with claims {"role": "user", "permissions": ["read", "write"]}
+1140 (print) "User token created with limited permissions"
+
+REM Create guest token with read-only
+1150 (jwt) create access token for user "guest_user" with claims {"role": "guest", "permissions": ["read"]}
+1160 (print) "Guest token created with read-only access"
+
+REM ============================================================================
+REM Example 13: Session Management
+REM ============================================================================
+
+1200 (print) "=== Example 13: Session Management ==="
+
+REM Create session token
+1210 (jwt) create access token for user "session_user" with claims {"session_id": "sess_abc123", "ip": "192.168.1.100", "device": "Chrome/Windows"}
+1220 (print) "Session token created"
+
+REM Verify session token
+1230 (jwt) verify token from previous operation
+1240 (print) "Session validated"
+
+REM ============================================================================
+REM Example 14: Microservices Authentication
+REM ============================================================================
+
+1300 (print) "=== Example 14: Microservices Auth ==="
+
+REM Create service-to-service token
+1310 (jwt) create access token for user "service_api" with claims {"service": "payment-service", "environment": "production", "version": "1.0"}
+1320 (print) "Service authentication token created"
+
+REM Create another service token
+1330 (jwt) create access token for user "service_notifications" with claims {"service": "notification-service", "environment": "production"}
+1340 (print) "Notification service token created"
+
+REM ============================================================================
+REM Example 15: Mobile App Authentication
+REM ============================================================================
+
+1400 (print) "=== Example 15: Mobile App Authentication ==="
+
+REM Create token pair for mobile app
+1410 (jwt) create token pair for user "mobile_user_001" with claims {"device_id": "DEVICE123", "app_version": "2.1.0", "platform": "iOS"}
+1420 (print) "Mobile app tokens created"
+
+REM Simulate token refresh after expiration
+1430 (jwt) refresh access token using refresh token from previous operation
+1440 (print) "Mobile app token refreshed"
+
+REM ============================================================================
+REM Example 16: Single Sign-On (SSO) Token
+REM ============================================================================
+
+1500 (print) "=== Example 16: SSO Token ==="
+
+REM Create SSO token valid across multiple applications
+1510 (jwt) create access token for user "sso_user@company.com" with claims {"sso_session": "SSO_ABC123", "applications": ["app1", "app2", "app3"], "identity_provider": "corporate_idp"}
+1520 (print) "SSO token created for multi-app access"
+
+REM ============================================================================
+REM Example 17: OAuth2 Integration
+REM ============================================================================
+
+1600 (print) "=== Example 17: OAuth2 Integration ==="
+
+REM Create OAuth2 access token
+1610 (jwt) create access token for user "oauth_user" with claims {"scope": "read write", "client_id": "app_client_123", "grant_type": "authorization_code"}
+1620 (print) "OAuth2 access token created"
+
+REM Create OAuth2 refresh token
+1630 (jwt) create refresh token for user "oauth_user" with claims {"scope": "refresh_token", "client_id": "app_client_123"}
+1640 (print) "OAuth2 refresh token created"
+
+REM ============================================================================
+REM Example 18: API Gateway Token
+REM ============================================================================
+
+1700 (print) "=== Example 18: API Gateway Token ==="
+
+REM Create token for API gateway routing
+1710 (jwt) create access token for user "gateway_user" with claims {"tenant_id": "tenant_123", "rate_limit": 1000, "allowed_endpoints": ["/api/v1/*", "/api/v2/users"]}
+1720 (print) "API gateway token created"
+
+REM ============================================================================
+REM Example 19: E-commerce Platform Tokens
+REM ============================================================================
+
+1800 (print) "=== Example 19: E-commerce Platform ==="
+
+REM Create customer token
+1810 (jwt) create access token for user "customer_123" with claims {"customer_id": "CUST123", "email": "customer@email.com", "cart_id": "CART789", "loyalty_points": 1500}
+1820 (print) "Customer token created"
+
+REM Create vendor token
+1830 (jwt) create access token for user "vendor_456" with claims {"vendor_id": "VEND456", "store_name": "Tech Store", "commission_rate": 0.15}
+1840 (print) "Vendor token created"
+
+REM ============================================================================
+REM Example 20: Multi-Tenant SaaS Application
+REM ============================================================================
+
+1900 (print) "=== Example 20: Multi-Tenant SaaS ==="
+
+REM Create token for Tenant A
+1910 (jwt) create access token for user "user_tenantA" with claims {"tenant_id": "tenant_a_001", "tenant_name": "Acme Corp", "plan": "enterprise", "features": ["feature1", "feature2", "feature3"]}
+1920 (print) "Tenant A user token created"
+
+REM Create token for Tenant B
+1930 (jwt) create access token for user "user_tenantB" with claims {"tenant_id": "tenant_b_002", "tenant_name": "StartupXYZ", "plan": "startup", "features": ["feature1"]}
+1940 (print) "Tenant B user token created"
+
+REM ============================================================================
+REM Example 21: Healthcare Application (HIPAA Compliance)
+REM ============================================================================
+
+2000 (print) "=== Example 21: Healthcare Application ==="
+
+REM Create physician token
+2010 (jwt) create access token for user "dr.smith" with claims {"role": "physician", "department": "cardiology", "license": "MED123456", "access_level": "full"}
+2020 (print) "Physician token created"
+
+REM Create patient token
+2030 (jwt) create access token for user "patient_001" with claims {"role": "patient", "patient_id": "PAT001", "access_level": "self"}
+2040 (print) "Patient token created"
+
+REM ============================================================================
+REM Example 22: Financial Services Token
+REM ============================================================================
+
+2100 (print) "=== Example 22: Financial Services ==="
+
+REM Create banking token with high security
+2110 (jwt) create access token for user "bank_user_123" with claims {"account_number": "ACCT123456", "account_type": "checking", "mfa_verified": true, "transaction_limit": 10000}
+2120 (print) "Banking token created with security claims"
+
+REM ============================================================================
+REM Example 23: IoT Device Authentication
+REM ============================================================================
+
+2200 (print) "=== Example 23: IoT Device Authentication ==="
+
+REM Create token for IoT device
+2210 (jwt) create access token for user "device_sensor_001" with claims {"device_id": "SENSOR001", "device_type": "temperature_sensor", "location": "warehouse_a", "firmware_version": "1.2.3"}
+2220 (print) "IoT device token created"
+
+REM ============================================================================
+REM Example 24: Educational Platform
+REM ============================================================================
+
+2300 (print) "=== Example 24: Educational Platform ==="
+
+REM Create student token
+2310 (jwt) create access token for user "student_001" with claims {"role": "student", "student_id": "STU001", "grade": "10", "courses": ["math", "science", "history"]}
+2320 (print) "Student token created"
+
+REM Create teacher token
+2330 (jwt) create access token for user "teacher_smith" with claims {"role": "teacher", "teacher_id": "TCH001", "subjects": ["mathematics"], "classes": ["10A", "10B", "11A"]}
+2340 (print) "Teacher token created"
+
+REM ============================================================================
+REM Example 25: Time-Limited Access Token
+REM ============================================================================
+
+2400 (print) "=== Example 25: Time-Limited Access ==="
+
+REM Create short-lived token for temporary access (5 minutes)
+2410 (jwt) create token for user "temp_user" with payload {"access_type": "temporary", "resource": "/downloads/report.pdf"} and expires in 5 minutes
+2420 (print) "5-minute temporary access token created"
+
+REM ============================================================================
+REM Example 26: Webhook Verification Token
+REM ============================================================================
+
+2500 (print) "=== Example 26: Webhook Verification ==="
+
+REM Create webhook token for third-party integration
+2510 (jwt) create access token for user "webhook_service" with claims {"webhook_id": "HOOK123", "events": ["user.created", "user.updated"], "callback_url": "https://api.partner.com/webhook"}
+2520 (print) "Webhook verification token created"
+
+REM ============================================================================
+REM Example 27: Admin Panel Access
+REM ============================================================================
+
+2600 (print) "=== Example 27: Admin Panel Access ==="
+
+REM Create super admin token
+2610 (jwt) create access token for user "superadmin" with claims {"role": "super_admin", "permissions": ["*"], "mfa_verified": true, "last_login": "2025-01-15T10:30:00Z"}
+2620 (print) "Super admin token created"
+
+REM ============================================================================
+REM Example 28: Token Blacklist Check
+REM ============================================================================
+
+2700 (print) "=== Example 28: Token Blacklist ==="
+
+REM Create token with JTI (JWT ID) for tracking
+2710 (jwt) create access token for user "user_check" with claims {"jti": "token_id_12345"}
+2720 (print) "Token with JTI created"
+
+REM Check if token is blacklisted
+2730 (jwt) check if token is blacklisted against list ["revoked_token_1", "revoked_token_2"]
+2740 (print) "Token blacklist check completed"
+
+REM ============================================================================
+REM Example 29: Password Reset Token
+REM ============================================================================
+
+2800 (print) "=== Example 29: Password Reset Token ==="
+
+REM Create password reset token (short-lived, 15 minutes)
+2810 (jwt) create token for user "reset_user@email.com" with payload {"action": "password_reset", "email": "reset_user@email.com"} and expires in 15 minutes
+2820 (print) "Password reset token created (15-minute expiration)"
+
+REM ============================================================================
+REM Example 30: Email Verification Token
+REM ============================================================================
+
+2900 (print) "=== Example 30: Email Verification Token ==="
+
+REM Create email verification token
+2910 (jwt) create token for user "new_user@email.com" with payload {"action": "email_verification", "email": "new_user@email.com"} and expires in 1440 minutes
+2920 (print) "Email verification token created (24-hour expiration)"
+
+REM ============================================================================
+REM End of JWT Module Examples
+REM ============================================================================
+
+REM Note: For production deployments:
+REM 1. Use strong, randomly generated secret keys (min 256 bits for HS256)
+REM 2. Store secret keys securely (environment variables, key vaults)
+REM 3. Use HTTPS for all token transmission
+REM 4. Implement token rotation policies
+REM 5. Use short expiration times for access tokens (5-15 minutes)
+REM 6. Use longer expiration for refresh tokens (7-30 days)
+REM 7. Implement token blacklisting for logout and revocation
+REM 8. Consider using asymmetric algorithms (RS256) for microservices
+REM 9. Validate all claims (exp, nbf, iss, aud) on every request
+REM 10. Implement rate limiting on token endpoints
+REM 11. Log all token creation and verification events
+REM 12. Use JTI (JWT ID) claim for tracking and revocation
+REM 13. Implement MFA before issuing sensitive tokens
+REM 14. Never include sensitive data in token payload
+REM 15. Use separate secrets for different environments
+REM 16. Rotate secrets regularly (every 90 days recommended)
+REM 17. Implement token refresh before expiration (sliding sessions)
+REM 18. Use audience (aud) claim to restrict token usage
+REM 19. Monitor for token abuse and suspicious patterns
+REM 20. Consider using JWT encryption (JWE) for sensitive claims

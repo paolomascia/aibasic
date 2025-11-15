@@ -31,5 +31,10 @@ from .terraform_module import TerraformModule
 from .docker_module import DockerModule
 from .kubernetes_module import KubernetesModule
 from .azure_module import AzureModule
+from .gcp_module import GCPModule
+from .ldap_module import LDAPModule
+from .keycloak_module import KeycloakModule
+from .jwt_module import JWTModule
+from .mqtt_module import MQTTModule
 
-__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule', 'EmailModule', 'MongoDBModule', 'S3Module', 'RestAPIModule', 'SSHModule', 'TeamsModule', 'SlackModule', 'ClickHouseModule', 'Neo4jModule', 'ElasticsearchModule', 'TimescaleDBModule', 'AWSModule', 'TerraformModule', 'DockerModule', 'KubernetesModule', 'AzureModule']
+__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule', 'EmailModule', 'MongoDBModule', 'S3Module', 'RestAPIModule', 'SSHModule', 'TeamsModule', 'SlackModule', 'ClickHouseModule', 'Neo4jModule', 'ElasticsearchModule', 'TimescaleDBModule', 'AWSModule', 'TerraformModule', 'DockerModule', 'KubernetesModule', 'AzureModule', 'GCPModule', 'LDAPModule', 'KeycloakModule', 'JWTModule', 'MQTTModule']

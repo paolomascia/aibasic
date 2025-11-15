@@ -36,7 +36,7 @@
 
 <div class="container grid">
   <aside class="sidebar">
-    <strong>Modules (24)</strong>
+    <strong>Modules (30)</strong>
     <a href="#postgres">PostgreSQL</a>
     <a href="#mysql">MySQL</a>
     <a href="#mongodb">MongoDB</a>
@@ -61,10 +61,16 @@
     <a href="#terraform">Terraform</a>
     <a href="#docker">Docker</a>
     <a href="#kubernetes">Kubernetes</a>
+    <a href="#azure">Azure</a>
+    <a href="#gcp">GCP</a>
+    <a href="#ldap">LDAP</a>
+    <a href="#keycloak">Keycloak</a>
+    <a href="#jwt">JWT</a>
+    <a href="#mqtt">MQTT</a>
   </aside>
   <main>
     <h1>Modules Reference</h1>
-    <p class="muted">AIbasic includes 24 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, cloud, IaC, containers, orchestration, and security.</p>
+    <p class="muted">AIbasic includes 30 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, cloud, IaC, containers, orchestration, security, identity management, token authentication, and IoT messaging.</p>
 
     <h2 id="postgres">1. PostgreSQL Module</h2>
     <div class="panel">
@@ -977,11 +983,339 @@ VERIFY_SSL = true</code></pre>
       </ul>
     </div>
 
+    <h2 id="azure">25. Azure Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(azure)</code></p>
+      <p><strong>Purpose:</strong> Manage Microsoft Azure cloud resources (VMs, Storage, SQL, Cosmos DB, etc.)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[azure]
+SUBSCRIPTION_ID = your-subscription-id
+TENANT_ID = your-tenant-id
+CLIENT_ID = your-client-id
+CLIENT_SECRET = your-client-secret
+LOCATION = eastus
+DEFAULT_RESOURCE_GROUP = aibasic-rg</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (azure) create resource group "app-rg" in location "eastus"
+20 (azure) list all resource groups
+30 (azure) get subscription information
+
+40 (azure) create virtual machine "web-vm" in resource group "app-rg" with vm_size "Standard_B2s"
+50 (azure) list virtual machines in resource group "app-rg"
+60 (azure) start virtual machine "web-vm" in resource group "app-rg"
+70 (azure) stop virtual machine "web-vm" in resource group "app-rg"
+
+80 (azure) create storage account "mystorage001" in resource group "app-rg" with sku Standard_LRS
+90 (azure) upload file "data.txt" to blob storage "mystorage001" in container "data"
+100 (azure) list blobs in storage account "mystorage001" container "data"
+110 (azure) download blob "data.txt" from storage account "mystorage001" container "data"
+
+120 (azure) create sql server "myserver" in resource group "app-rg" with admin_login "admin"
+130 (azure) create sql database "mydb" on server "myserver" in resource group "app-rg"
+
+140 (azure) create virtual network "app-vnet" in resource group "app-rg" with address space "10.0.0.0/16"
+150 (azure) create web app "mywebapp" in resource group "app-rg" with runtime stack python 3.11
+160 (azure) create container instance "mycontainer" in resource group "app-rg" from image "nginx:latest"
+
+170 (azure) create key vault "myvault" in resource group "app-rg"
+180 (azure) set key vault secret "db-password" in vault "myvault" with value "SecurePass123!"
+190 (azure) get key vault secret "db-password" from vault "myvault"
+
+200 (azure) delete resource group "app-rg" with force True</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Resource Group management</li>
+        <li>Virtual Machine operations (create, start, stop, restart, delete)</li>
+        <li>Storage Account and Blob Storage</li>
+        <li>SQL Database and SQL Server management</li>
+        <li>Virtual Network and subnet configuration</li>
+        <li>App Service web application deployment</li>
+        <li>Container Instances for containerized workloads</li>
+        <li>Key Vault for secrets management</li>
+        <li>Cosmos DB for globally distributed NoSQL databases</li>
+        <li>Azure Functions for serverless compute</li>
+        <li>Load Balancer and public IP management</li>
+        <li>Service Principal and Managed Identity authentication</li>
+        <li>Azure Monitor and Log Analytics integration</li>
+      </ul>
+    </div>
+
+    <h2 id="gcp">26. GCP (Google Cloud Platform) Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(gcp)</code></p>
+      <p><strong>Purpose:</strong> Manage Google Cloud Platform resources (Compute Engine, Cloud Storage, Cloud SQL, BigQuery, etc.)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[gcp]
+PROJECT_ID = your-project-id
+CREDENTIALS_PATH = /path/to/service-account-key.json
+REGION = us-central1
+ZONE = us-central1-a</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (gcp) get project information
+
+20 (gcp) create compute instance "web-server" in zone "us-central1-a" with machine_type "e2-medium"
+30 (gcp) list compute instances in zone "us-central1-a"
+40 (gcp) start compute instance "web-server"
+50 (gcp) stop compute instance "web-server"
+
+60 (gcp) create storage bucket "my-bucket" in location "us-central1"
+70 (gcp) upload file "data.txt" to bucket "my-bucket" as "uploads/data.txt"
+80 (gcp) list blobs in bucket "my-bucket"
+90 (gcp) download file "uploads/data.txt" from bucket "my-bucket" to "local-data.txt"
+
+100 (gcp) create cloudsql instance "my-db" with database_version "POSTGRES_14" and tier "db-f1-micro"
+110 (gcp) list cloudsql instances
+
+120 (gcp) create bigquery dataset "analytics" in location "us-central1"
+130 (gcp) run bigquery query "SELECT * FROM dataset.table LIMIT 10"
+
+140 (gcp) create pubsub topic "events"
+150 (gcp) publish message "Hello GCP!" to topic "events"
+160 (gcp) create pubsub subscription "events-sub" for topic "events"
+
+170 (gcp) create secret "api-key" with value "secret-value-123"
+180 (gcp) get secret "api-key"
+
+190 (gcp) delete compute instance "web-server" in zone "us-central1-a"
+200 (gcp) delete storage bucket "my-bucket" with force True</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Compute Engine: VM instance management (create, start, stop, delete)</li>
+        <li>Cloud Storage: Bucket and blob operations</li>
+        <li>Cloud SQL: Database instance management (MySQL, PostgreSQL, SQL Server)</li>
+        <li>BigQuery: Dataset creation and SQL queries for analytics</li>
+        <li>Cloud Functions: Serverless function deployment</li>
+        <li>Cloud Run: Container deployment and management</li>
+        <li>Pub/Sub: Message publishing and subscription</li>
+        <li>Secret Manager: Secure secrets storage and retrieval</li>
+        <li>Service Account and Application Default Credentials authentication</li>
+        <li>Multi-region deployment support</li>
+      </ul>
+    </div>
+
+    <h2 id="ldap">27. LDAP/Active Directory Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(ldap)</code></p>
+      <p><strong>Purpose:</strong> Manage LDAP/Active Directory users, groups, organizational units, and authentication</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[ldap]
+SERVER = ldap.example.com
+PORT = 389
+BASE_DN = dc=example,dc=com
+BIND_DN = cn=admin,dc=example,dc=com
+BIND_PASSWORD = admin_password
+USE_SSL = false
+USER_OU = ou=users
+GROUP_OU = ou=groups</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (ldap) get server information
+
+20 (ldap) create user "john.doe" with email "john.doe@example.com" and firstName "John" and lastName "Doe"
+30 (ldap) get user "john.doe"
+40 (ldap) modify user "john.doe" with phone "+1-555-0123"
+50 (ldap) set password for user "john.doe" to "SecurePass123!"
+
+60 (ldap) create group "developers" with description "Development Team"
+70 (ldap) add user "john.doe" to group "developers"
+80 (ldap) get members of group "developers"
+90 (ldap) remove user "john.doe" from group "developers"
+
+100 (ldap) create organizational unit "engineering"
+
+110 (ldap) authenticate user "john.doe" with password "SecurePass123!"
+
+120 (ldap) search for users with filter "john*"
+130 (ldap) search all users
+
+140 (ldap) delete user "john.doe"
+150 (ldap) delete group "developers"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>User Management: Create, modify, delete, search users</li>
+        <li>Group Management: Create groups, manage memberships</li>
+        <li>Organizational Units: Create and manage OUs</li>
+        <li>Authentication: Verify user credentials</li>
+        <li>Search Operations: Flexible LDAP search with filters</li>
+        <li>Active Directory Support: Full AD compatibility</li>
+        <li>Connection Pooling: Efficient resource management</li>
+        <li>SSL/TLS Support: Secure LDAP connections</li>
+      </ul>
+    </div>
+
+    <h2 id="keycloak">28. Keycloak IAM Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(keycloak)</code></p>
+      <p><strong>Purpose:</strong> Identity and Access Management with Keycloak (realms, users, roles, groups, clients, OAuth2/OIDC)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[keycloak]
+SERVER_URL = http://localhost:8080
+REALM_NAME = master
+ADMIN_USERNAME = admin
+ADMIN_PASSWORD = admin
+CLIENT_ID = admin-cli
+VERIFY_SSL = true
+TIMEOUT = 30</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (keycloak) create realm "my-app" with displayName "My Application" and enabled true
+20 (keycloak) switch to realm "my-app"
+
+30 (keycloak) create user "john.doe" with email "john.doe@example.com" and firstName "John" and lastName "Doe"
+40 (keycloak) set password for user "john.doe" to "SecurePass123!" with temporary false
+50 (keycloak) get user "john.doe"
+60 (keycloak) update user "john.doe" with email "john@example.com"
+70 (keycloak) list all users
+
+80 (keycloak) create role "admin" with description "Administrator role"
+90 (keycloak) assign role "admin" to user "john.doe"
+100 (keycloak) get roles for user "john.doe"
+110 (keycloak) remove role "admin" from user "john.doe"
+
+120 (keycloak) create group "Engineering" with attributes {"department": "engineering"}
+130 (keycloak) add user "john.doe" to group "Engineering"
+140 (keycloak) remove user "john.doe" from group "Engineering"
+
+150 (keycloak) create client "web-app" with clientId "web-app-client" and publicClient true
+160 (keycloak) get client "web-app"
+
+170 (keycloak) authenticate user "john.doe" with password "SecurePass123!" in realm "my-app"
+
+180 (keycloak) delete user "john.doe"
+190 (keycloak) delete role "admin"
+200 (keycloak) delete group "Engineering"
+210 (keycloak) delete client "web-app"
+220 (keycloak) delete realm "my-app"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Realm Management: Create, configure, delete realms</li>
+        <li>User Management: Full user lifecycle management</li>
+        <li>Role Management: Create roles, assign to users</li>
+        <li>Group Management: Hierarchical groups and memberships</li>
+        <li>Client Management: Register OAuth2/OIDC clients</li>
+        <li>Authentication: User login and token management</li>
+        <li>Token Operations: Access, refresh, and ID tokens</li>
+        <li>Multi-Realm Support: Switch between realms</li>
+        <li>SSO/Federation: Single Sign-On capabilities</li>
+      </ul>
+    </div>
+
+    <h2 id="jwt">29. JWT (JSON Web Token) Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(jwt)</code></p>
+      <p><strong>Purpose:</strong> Token-based authentication with JWT (create, verify, refresh tokens)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[jwt]
+SECRET_KEY = your-secret-key-here
+ALGORITHM = HS256
+ISSUER = aibasic
+AUDIENCE = your-api
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (jwt) create access token for user "user123"
+20 (jwt) verify token from previous operation
+
+30 (jwt) create access token for user "john.doe" with claims {"role": "admin", "email": "john@example.com"}
+40 (jwt) create token pair for user "user456"
+50 (jwt) refresh access token using refresh token from previous operation
+
+60 (jwt) decode token without verification
+70 (jwt) get claims from token
+80 (jwt) get token header
+
+90 (jwt) check if token is expired
+100 (jwt) get token expiration time
+
+110 (jwt) create token for user "temp_user" with payload {"access": "temporary"} and expires in 30 minutes
+
+120 (jwt) validate token structure
+130 (jwt) check if token is blacklisted against list ["revoked1", "revoked2"]</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Token Creation: Generate JWT tokens with custom claims</li>
+        <li>Token Verification: Validate signatures and claims</li>
+        <li>Refresh Tokens: Long-lived tokens for session renewal</li>
+        <li>Token Decoding: Inspect payloads without verification</li>
+        <li>Claims Validation: Expiration, issuer, audience checks</li>
+        <li>Algorithm Support: HS256, HS384, HS512, RS256, RS384, RS512, ES256, ES384, ES512</li>
+        <li>Symmetric (HMAC) and Asymmetric (RSA/ECDSA) algorithms</li>
+        <li>Token Blacklisting: Revocation support</li>
+        <li>Custom Expiration: Flexible token lifetimes</li>
+      </ul>
+    </div>
+
+    <h2 id="mqtt">30. MQTT (Message Queuing Telemetry Transport) Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(mqtt)</code></p>
+      <p><strong>Purpose:</strong> IoT messaging and pub/sub communication (lightweight message protocol for sensors and devices)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[mqtt]
+BROKER = mqtt.example.com
+PORT = 1883
+USERNAME = mqtt_user
+PASSWORD = mqtt_password
+CLIENT_ID = aibasic_client
+KEEPALIVE = 60
+QOS = 1
+USE_TLS = false</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (mqtt) connect to broker
+20 (mqtt) publish "Hello IoT!" to topic "sensors/temperature"
+
+30 (mqtt) subscribe to topic "sensors/#"
+40 (mqtt) wait for messages for 10 seconds
+
+50 (mqtt) publish json {"temperature": 25.5, "humidity": 60} to topic "sensors/room1"
+
+60 (mqtt) publish "Device Online" to topic "device/status" with retain true
+70 (mqtt) publish "Alert" to topic "alerts/critical" with qos 2
+
+80 (mqtt) set last will topic "device/status" message "offline" with qos 1
+
+90 (mqtt) subscribe to topic "home/+/temperature"
+100 (mqtt) subscribe to topic "sensors/#"
+
+110 (mqtt) unsubscribe from topic "sensors/temperature"
+120 (mqtt) check if connected
+
+130 (mqtt) clear retained message on topic "device/status"
+140 (mqtt) disconnect</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Publish/Subscribe Messaging: Send and receive messages via topics</li>
+        <li>Quality of Service: QoS 0 (at most once), 1 (at least once), 2 (exactly once)</li>
+        <li>Retained Messages: Store last message on broker for new subscribers</li>
+        <li>Topic Wildcards: + (single level), # (multi-level)</li>
+        <li>Last Will and Testament: Automatic disconnect notifications</li>
+        <li>TLS/SSL Support: Encrypted connections for security</li>
+        <li>Lightweight Protocol: Optimized for IoT and constrained networks</li>
+        <li>JSON Support: Easy publishing of structured data</li>
+        <li>Auto-Reconnection: Automatic resubscription after reconnection</li>
+      </ul>
+    </div>
+
     <div class="panel">
       <h3>Module Usage Tips</h3>
       <ul>
         <li>Configure modules in <code>aibasic.conf</code> before use</li>
-        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(s3)</code>, <code>(terraform)</code>, <code>(docker)</code>, <code>(kubernetes)</code></li>
+        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(s3)</code>, <code>(terraform)</code>, <code>(docker)</code>, <code>(kubernetes)</code>, <code>(azure)</code>, <code>(gcp)</code>, <code>(ldap)</code>, <code>(keycloak)</code>, <code>(jwt)</code>, <code>(mqtt)</code></li>
         <li>Combine modules for powerful workflows (e.g., Postgres → DataFrame → S3)</li>
         <li>Use error handling (<code>ON ERROR GOTO</code>) with I/O operations</li>
         <li>Close connections explicitly or rely on automatic cleanup</li>
@@ -991,7 +1325,7 @@ VERIFY_SSL = true</code></pre>
 </div>
 
 <div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
-  © 2025 AIbasic v1.0 — Complete documentation with 24 integrated modules
+  © 2025 AIbasic v1.0 — Complete documentation with 30 integrated modules
 </div>
 <script src="script.js"></script>
 </body></html>

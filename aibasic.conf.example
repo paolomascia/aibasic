@@ -799,3 +799,220 @@ MODEL = gpt-4o-mini
 # - Implement Azure Policy for compliance and governance
 # - Use resource locks to prevent accidental deletion
 # - Consider using Azure Resource Manager (ARM) templates for complex deployments
+
+[gcp]
+# Google Cloud Platform settings
+# Uncomment and configure these settings to use the gcp module
+
+# Project Configuration
+# PROJECT_ID = your-project-id  # GCP Project ID (required)
+
+# Authentication
+# CREDENTIALS_PATH = /path/to/service-account-key.json  # Path to service account key JSON
+# Or use Application Default Credentials (gcloud auth application-default login)
+
+# Default Region and Zone
+# REGION = us-central1  # Default region for resources
+# ZONE = us-central1-a  # Default zone for Compute Engine instances
+
+# Compute Engine Settings
+# DEFAULT_MACHINE_TYPE = e2-medium  # Default machine type for VMs
+# DEFAULT_DISK_SIZE = 10  # Default boot disk size in GB
+# DEFAULT_NETWORK = default  # Default VPC network
+
+# Cloud Storage Settings
+# DEFAULT_STORAGE_CLASS = STANDARD  # STANDARD, NEARLINE, COLDLINE, ARCHIVE
+
+# Cloud SQL Settings
+# DEFAULT_DATABASE_VERSION = POSTGRES_14  # MYSQL_8_0, POSTGRES_14, SQLSERVER_2019
+# DEFAULT_TIER = db-f1-micro  # Database instance tier
+
+# BigQuery Settings
+# DEFAULT_DATASET_LOCATION = us-central1  # BigQuery dataset location
+
+# Resource Labeling
+# DEFAULT_LABELS = {"environment": "dev", "managed_by": "aibasic", "project": "automation"}
+
+# Notes:
+# - GCP module supports: Compute Engine, Cloud Storage, Cloud SQL, BigQuery, Pub/Sub, Secret Manager
+# - Authentication methods: Service Account (recommended), Application Default Credentials (ADC)
+# - Use ADC for local development: gcloud auth application-default login
+# - For production, use Service Account with minimal required permissions
+# - Always use labels for resource organization and cost tracking
+# - Enable Cloud Monitoring and Cloud Logging for observability
+# - Use Secret Manager for sensitive data and credentials
+# - Implement IAM policies following principle of least privilege
+# - Consider using Cloud KMS for encryption key management
+# - Use VPC Service Controls for enterprise security
+# - Enable Cloud Armor for DDoS protection and WAF
+# - Use Cloud CDN for content delivery and caching
+
+[ldap]
+# LDAP/Active Directory settings
+# Uncomment and configure these settings to use the ldap module
+
+# Server Configuration
+# SERVER = ldap.example.com  # LDAP server hostname
+# PORT = 389  # 389 for LDAP, 636 for LDAPS
+# BASE_DN = dc=example,dc=com  # Base Distinguished Name
+
+# Bind Credentials (for administrative operations)
+# BIND_DN = cn=admin,dc=example,dc=com  # Admin bind DN
+# BIND_PASSWORD = admin_password  # Admin password
+
+# SSL/TLS Settings
+# USE_SSL = false  # Use LDAPS (port 636)
+# USE_TLS = false  # Use STARTTLS (port 389)
+# VERIFY_CERT = true  # Verify SSL certificates
+
+# Default Organizational Units
+# USER_OU = ou=users  # Default OU for users
+# GROUP_OU = ou=groups  # Default OU for groups
+
+# Object Classes
+# USER_OBJECT_CLASS = inetOrgPerson  # User object class
+# GROUP_OBJECT_CLASS = groupOfNames  # Group object class
+
+# Active Directory
+# IS_AD = false  # Set to true for Active Directory
+
+# Connection Pooling
+# POOL_SIZE = 5  # Connection pool size
+# POOL_KEEPALIVE = 300  # Keepalive interval in seconds
+
+# Notes:
+# - LDAP module supports: Users, Groups, OUs, authentication, search operations
+# - Compatible with OpenLDAP, Active Directory, and other LDAP v3 servers
+# - Use SSL/TLS for all production connections
+# - Implement strong password policies and account lockout
+# - Use service accounts with minimal required permissions
+# - Enable LDAP audit logging for security
+# - Regular backups of LDAP directory data
+# - For Active Directory, set IS_AD=true and use appropriate object classes
+
+[keycloak]
+# Keycloak Identity and Access Management settings
+# Uncomment and configure these settings to use the keycloak module
+
+# Server Configuration
+# SERVER_URL = http://localhost:8080  # Keycloak server URL
+# REALM_NAME = master  # Default realm (can be changed per operation)
+
+# Admin Authentication
+# ADMIN_USERNAME = admin  # Keycloak admin username
+# ADMIN_PASSWORD = admin  # Keycloak admin password
+
+# Client Credentials (optional - for service accounts)
+# CLIENT_ID = admin-cli  # Default admin client
+# CLIENT_SECRET =  # Client secret (if required)
+
+# SSL/TLS Settings
+# VERIFY_SSL = true  # Verify SSL certificates
+# CA_CERT = /path/to/ca.pem  # Custom CA certificate
+
+# Connection Settings
+# TIMEOUT = 30  # Request timeout in seconds
+# POOL_SIZE = 10  # Connection pool size
+# MAX_RETRIES = 3  # Maximum retry attempts
+
+# Notes:
+# - Keycloak module supports: Realms, Users, Roles, Groups, Clients, Authentication
+# - Best for: Identity and Access Management, SSO, OAuth2/OIDC, user federation
+# - Use HTTPS (SSL/TLS) for all production connections
+# - Implement strong password policies and MFA (Multi-Factor Authentication)
+# - Use client credentials flow for service-to-service authentication
+# - Enable audit logging and event listeners for security monitoring
+# - Regular backups of Keycloak database
+# - Use dedicated service accounts with minimal permissions
+# - Consider using realm-specific admin accounts instead of master realm admin
+# - Implement rate limiting and brute force detection
+# - Use groups and roles for fine-grained access control
+# - Regular security updates and patching of Keycloak server
+
+[jwt]
+# JWT (JSON Web Token) Authentication settings
+# Uncomment and configure these settings to use the jwt module
+
+# Secret Key (for symmetric algorithms: HS256, HS384, HS512)
+# SECRET_KEY = your-secret-key-change-in-production  # Min 256 bits for HS256
+# IMPORTANT: Use strong, randomly generated secret. Store in environment variable for production
+
+# Algorithm
+# ALGORITHM = HS256  # Options: HS256, HS384, HS512, RS256, RS384, RS512, ES256, ES384, ES512
+
+# Token Issuer and Audience
+# ISSUER = aibasic  # Your application or organization name
+# AUDIENCE = your-api-audience  # Intended recipient(s) of the token
+
+# Token Expiration Settings
+# ACCESS_TOKEN_EXPIRE_MINUTES = 15  # Access token lifetime (5-15 minutes recommended)
+# REFRESH_TOKEN_EXPIRE_DAYS = 7  # Refresh token lifetime (7-30 days)
+
+# Asymmetric Key Paths (for RS256, RS384, RS512, ES256, ES384, ES512)
+# PRIVATE_KEY_PATH = /path/to/private-key.pem  # Private key for signing
+# PUBLIC_KEY_PATH = /path/to/public-key.pem  # Public key for verification
+
+# Notes:
+# - JWT module supports: Token creation, verification, refresh, claims validation
+# - Best for: API authentication, microservices, mobile apps, OAuth2/OIDC
+# - Use HS256 for single-server applications (symmetric)
+# - Use RS256 for distributed systems/microservices (asymmetric)
+# - Store secret keys in environment variables, never in code
+# - Use short expiration for access tokens (5-15 minutes)
+# - Implement token blacklisting for logout and revocation
+# - Validate all claims (exp, nbf, iss, aud) on every request
+# - Use HTTPS for all token transmission
+# - Never include sensitive data in token payload
+# - Rotate secrets regularly (every 90 days recommended)
+# - Consider using JWE (JWT Encryption) for sensitive claims
+# - Implement rate limiting on token endpoints
+# - Use JTI (JWT ID) claim for token tracking and revocation
+
+[mqtt]
+# MQTT (Message Queuing Telemetry Transport) IoT Messaging settings
+# Uncomment and configure these settings to use the mqtt module
+
+# Broker Configuration
+# BROKER = mqtt.example.com  # MQTT broker hostname
+# PORT = 1883  # MQTT port (1883 for plain, 8883 for TLS)
+
+# Authentication
+# USERNAME = mqtt_user  # MQTT username
+# PASSWORD = mqtt_password  # MQTT password
+
+# Client Settings
+# CLIENT_ID = aibasic_mqtt_client  # Unique client ID (auto-generated if not set)
+# KEEPALIVE = 60  # Keepalive interval in seconds
+# CLEAN_SESSION = true  # Start with clean session
+
+# Quality of Service
+# QOS = 1  # Default QoS level (0, 1, or 2)
+
+# TLS/SSL Settings
+# USE_TLS = false  # Enable TLS/SSL encryption
+# CA_CERTS = /path/to/ca.pem  # CA certificate file
+# CERTFILE = /path/to/client-cert.pem  # Client certificate file
+# KEYFILE = /path/to/client-key.pem  # Client private key file
+
+# Last Will and Testament (LWT)
+# LWT_TOPIC = devices/status  # Topic for last will message
+# LWT_PAYLOAD = offline  # Last will message payload
+# LWT_QOS = 1  # Last will QoS
+# LWT_RETAIN = true  # Retain last will message
+
+# Notes:
+# - MQTT module supports: Pub/sub messaging, QoS 0/1/2, retained messages, LWT
+# - Best for: IoT devices, sensor networks, real-time messaging, home automation
+# - Use QoS 0 for high-frequency telemetry (at most once)
+# - Use QoS 1 for important messages (at least once, acknowledged)
+# - Use QoS 2 for critical messages (exactly once, guaranteed)
+# - Always use TLS/SSL in production (port 8883)
+# - Implement Last Will and Testament for device offline detection
+# - Use retained messages for device status and configuration
+# - Design hierarchical topic structure (e.g., site/building/floor/device)
+# - Use wildcards for subscriptions: + (single level), # (multi-level)
+# - Set unique client IDs to avoid connection conflicts
+# - Implement reconnection logic with exponential backoff
+# - Use persistent sessions (clean_session=false) for reliable delivery
+# - Monitor broker performance and message throughput
+# - Popular brokers: Mosquitto, HiveMQ, AWS IoT Core, Azure IoT Hub

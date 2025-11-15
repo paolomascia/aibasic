@@ -1,0 +1,612 @@
+REM ============================================================================
+REM AIBASIC - Keycloak Identity and Access Management (IAM) Module Examples
+REM ============================================================================
+REM This file demonstrates how to use the Keycloak module for comprehensive
+REM Identity and Access Management including users, roles, groups, clients,
+REM and authentication workflows.
+REM
+REM The Keycloak module provides comprehensive support for:
+REM - Realm Management: Create and configure realms
+REM - User Management: Create, modify, delete, search users
+REM - Role Management: Create roles, assign to users
+REM - Group Management: Create groups, manage hierarchies and memberships
+REM - Client Management: Register OAuth2/OIDC clients
+REM - Authentication: User authentication and token management
+REM
+REM Configuration:
+REM Configure Keycloak in aibasic.conf:
+REM [keycloak]
+REM SERVER_URL = http://localhost:8080
+REM REALM_NAME = master
+REM ADMIN_USERNAME = admin
+REM ADMIN_PASSWORD = admin
+REM CLIENT_ID = admin-cli
+REM VERIFY_SSL = true
+REM TIMEOUT = 30
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Realm Management
+REM ============================================================================
+
+10 (print) "=== Example 1: Realm Management ==="
+
+REM Create a new realm for the application
+20 (keycloak) create realm "my-app-realm" with displayName "My Application Realm" and enabled true
+30 (keycloak) get realm "my-app-realm"
+40 (print) "Realm created and retrieved successfully"
+
+REM ============================================================================
+REM Example 2: User Creation and Management
+REM ============================================================================
+
+100 (print) "=== Example 2: User Creation and Management ==="
+
+REM Switch to the application realm
+110 (keycloak) switch to realm "my-app-realm"
+
+REM Create users with various attributes
+120 (keycloak) create user "john.doe" with email "john.doe@example.com" and firstName "John" and lastName "Doe" and enabled true
+130 (keycloak) create user "jane.smith" with email "jane.smith@example.com" and firstName "Jane" and lastName "Smith" and enabled true
+140 (keycloak) create user "bob.wilson" with email "bob.wilson@example.com" and firstName "Bob" and lastName "Wilson" and enabled true
+
+REM Set user passwords
+150 (keycloak) set password for user "john.doe" to "SecurePass123!" with temporary false
+160 (keycloak) set password for user "jane.smith" to "SecurePass456!" with temporary false
+170 (keycloak) set password for user "bob.wilson" to "TempPass789!" with temporary true
+
+REM Get user details
+180 (keycloak) get user "john.doe"
+190 (print) "Users created and configured successfully"
+
+REM ============================================================================
+REM Example 3: User Search and List
+REM ============================================================================
+
+200 (print) "=== Example 3: User Search and List ==="
+
+REM List all users
+210 (keycloak) list all users
+220 (keycloak) search users with username "john*"
+230 (keycloak) search users with email "*@example.com"
+240 (print) "User search completed"
+
+REM ============================================================================
+REM Example 4: User Modification
+REM ============================================================================
+
+300 (print) "=== Example 4: User Modification ==="
+
+REM Update user attributes
+310 (keycloak) update user "john.doe" with email "john.doe@newdomain.com" and enabled true
+320 (keycloak) update user "jane.smith" with firstName "Jane Elizabeth" and lastName "Smith-Johnson"
+330 (keycloak) get user "john.doe"
+340 (print) "User information updated successfully"
+
+REM ============================================================================
+REM Example 5: Role Management
+REM ============================================================================
+
+400 (print) "=== Example 5: Role Management ==="
+
+REM Create realm roles
+410 (keycloak) create role "admin" with description "Administrator role with full access"
+420 (keycloak) create role "developer" with description "Developer role with development access"
+430 (keycloak) create role "viewer" with description "Viewer role with read-only access"
+440 (keycloak) create role "manager" with description "Manager role with management access"
+
+REM List all roles
+450 (keycloak) list all roles
+460 (keycloak) get role "admin"
+470 (print) "Roles created successfully"
+
+REM ============================================================================
+REM Example 6: User Role Assignment
+REM ============================================================================
+
+500 (print) "=== Example 6: User Role Assignment ==="
+
+REM Assign roles to users
+510 (keycloak) assign role "admin" to user "john.doe"
+520 (keycloak) assign role "developer" to user "jane.smith"
+530 (keycloak) assign role "viewer" to user "bob.wilson"
+
+REM Get user roles
+540 (keycloak) get roles for user "john.doe"
+550 (keycloak) get roles for user "jane.smith"
+560 (print) "Roles assigned to users successfully"
+
+REM ============================================================================
+REM Example 7: Group Management
+REM ============================================================================
+
+600 (print) "=== Example 7: Group Management ==="
+
+REM Create groups
+610 (keycloak) create group "Engineering" with attributes {"department": "engineering", "location": "HQ"}
+620 (keycloak) create group "Frontend-Team" with parent "Engineering"
+630 (keycloak) create group "Backend-Team" with parent "Engineering"
+640 (keycloak) create group "Marketing" with attributes {"department": "marketing"}
+650 (keycloak) create group "Sales" with attributes {"department": "sales"}
+
+REM Get group details
+660 (keycloak) get group "Engineering"
+670 (print) "Groups created successfully"
+
+REM ============================================================================
+REM Example 8: Group Membership
+REM ============================================================================
+
+700 (print) "=== Example 8: Group Membership ==="
+
+REM Add users to groups
+710 (keycloak) add user "john.doe" to group "Engineering"
+720 (keycloak) add user "jane.smith" to group "Frontend-Team"
+730 (keycloak) add user "bob.wilson" to group "Backend-Team"
+
+REM Remove user from group
+740 (keycloak) remove user "bob.wilson" from group "Backend-Team"
+750 (print) "Group membership operations completed"
+
+REM ============================================================================
+REM Example 9: Client Registration (OAuth2/OIDC)
+REM ============================================================================
+
+800 (print) "=== Example 9: Client Registration ==="
+
+REM Create OAuth2/OIDC clients
+810 (keycloak) create client "web-app" with clientId "web-app-client" and publicClient true and redirectUris ["http://localhost:3000/*"]
+820 (keycloak) create client "mobile-app" with clientId "mobile-app-client" and publicClient true and redirectUris ["myapp://callback"]
+830 (keycloak) create client "api-service" with clientId "api-service-client" and publicClient false and serviceAccountsEnabled true
+
+REM Get client details
+840 (keycloak) get client "web-app"
+850 (print) "OAuth2/OIDC clients registered successfully"
+
+REM ============================================================================
+REM Example 10: User Authentication
+REM ============================================================================
+
+900 (print) "=== Example 10: User Authentication ==="
+
+REM Authenticate user and get tokens
+910 (keycloak) authenticate user "john.doe" with password "SecurePass123!" in realm "my-app-realm"
+920 (print) "User authenticated successfully, tokens retrieved"
+
+REM ============================================================================
+REM Example 11: Complete User Onboarding
+REM ============================================================================
+
+1000 (print) "=== Example 11: Complete User Onboarding ==="
+
+REM Create new employee
+1010 (keycloak) create user "alice.johnson" with email "alice.johnson@example.com" and firstName "Alice" and lastName "Johnson" and enabled true
+
+REM Set initial password (temporary)
+1020 (keycloak) set password for user "alice.johnson" to "Welcome123!" with temporary true
+
+REM Assign roles
+1030 (keycloak) assign role "developer" to user "alice.johnson"
+1040 (keycloak) assign role "viewer" to user "alice.johnson"
+
+REM Add to groups
+1050 (keycloak) add user "alice.johnson" to group "Engineering"
+1060 (keycloak) add user "alice.johnson" to group "Frontend-Team"
+
+1070 (print) "User onboarding completed successfully"
+
+REM ============================================================================
+REM Example 12: Bulk User Creation
+REM ============================================================================
+
+1100 (print) "=== Example 12: Bulk User Creation ==="
+
+REM Create multiple users for a team
+1110 (keycloak) create user "dev1" with email "dev1@example.com" and firstName "Developer" and lastName "One" and enabled true
+1120 (keycloak) create user "dev2" with email "dev2@example.com" and firstName "Developer" and lastName "Two" and enabled true
+1130 (keycloak) create user "dev3" with email "dev3@example.com" and firstName "Developer" and lastName "Three" and enabled true
+
+REM Set passwords for all
+1140 (keycloak) set password for user "dev1" to "DevPass123!" with temporary true
+1150 (keycloak) set password for user "dev2" to "DevPass123!" with temporary true
+1160 (keycloak) set password for user "dev3" to "DevPass123!" with temporary true
+
+REM Assign developer role to all
+1170 (keycloak) assign role "developer" to user "dev1"
+1180 (keycloak) assign role "developer" to user "dev2"
+1190 (keycloak) assign role "developer" to user "dev3"
+
+REM Add all to Backend-Team
+1200 (keycloak) add user "dev1" to group "Backend-Team"
+1210 (keycloak) add user "dev2" to group "Backend-Team"
+1220 (keycloak) add user "dev3" to group "Backend-Team"
+
+1230 (print) "Bulk user creation and setup completed"
+
+REM ============================================================================
+REM Example 13: Role Hierarchy with Composite Roles
+REM ============================================================================
+
+1300 (print) "=== Example 13: Role Hierarchy ==="
+
+REM Create specialized roles
+1310 (keycloak) create role "user-read" with description "Can read user data"
+1320 (keycloak) create role "user-write" with description "Can write user data"
+1330 (keycloak) create role "user-delete" with description "Can delete user data"
+
+REM Create composite admin role (includes all permissions)
+1340 (keycloak) create role "super-admin" with description "Super administrator with all permissions"
+
+1350 (print) "Role hierarchy created"
+
+REM ============================================================================
+REM Example 14: Token Management
+REM ============================================================================
+
+1400 (print) "=== Example 14: Token Management ==="
+
+REM Authenticate and get tokens
+1410 (keycloak) authenticate user "jane.smith" with password "SecurePass456!" in realm "my-app-realm"
+
+REM Tokens are automatically managed by the module
+REM Access token, refresh token, and ID token are available after authentication
+
+1420 (print) "Token management operations completed"
+
+REM ============================================================================
+REM Example 15: Multi-Realm Management
+REM ============================================================================
+
+1500 (print) "=== Example 15: Multi-Realm Management ==="
+
+REM Create separate realms for different environments
+1510 (keycloak) switch to realm "master"
+1520 (keycloak) create realm "dev-realm" with displayName "Development Realm" and enabled true
+1530 (keycloak) create realm "staging-realm" with displayName "Staging Realm" and enabled true
+1540 (keycloak) create realm "prod-realm" with displayName "Production Realm" and enabled true
+
+REM Configure each realm
+1550 (keycloak) switch to realm "dev-realm"
+1560 (keycloak) create user "dev-admin" with email "admin@dev.example.com" and firstName "Dev" and lastName "Admin" and enabled true
+1570 (keycloak) set password for user "dev-admin" to "DevAdmin123!" with temporary false
+
+1580 (keycloak) switch to realm "prod-realm"
+1590 (keycloak) create user "prod-admin" with email "admin@prod.example.com" and firstName "Prod" and lastName "Admin" and enabled true
+1600 (keycloak) set password for user "prod-admin" to "ProdAdmin123!" with temporary false
+
+1610 (print) "Multi-realm setup completed"
+
+REM ============================================================================
+REM Example 16: E-commerce Platform IAM Setup
+REM ============================================================================
+
+1700 (print) "=== Example 16: E-commerce Platform IAM ==="
+
+REM Create e-commerce realm
+1710 (keycloak) switch to realm "master"
+1720 (keycloak) create realm "ecommerce" with displayName "E-Commerce Platform" and enabled true
+1730 (keycloak) switch to realm "ecommerce"
+
+REM Create e-commerce roles
+1740 (keycloak) create role "customer" with description "Regular customer account"
+1750 (keycloak) create role "vendor" with description "Product vendor account"
+1760 (keycloak) create role "support" with description "Customer support staff"
+1770 (keycloak) create role "admin" with description "Platform administrator"
+
+REM Create e-commerce groups
+1780 (keycloak) create group "Customers"
+1790 (keycloak) create group "Vendors"
+1800 (keycloak) create group "Premium-Customers" with parent "Customers"
+1810 (keycloak) create group "Support-Team"
+
+REM Create sample customers
+1820 (keycloak) create user "customer1" with email "customer1@email.com" and firstName "John" and lastName "Customer" and enabled true
+1830 (keycloak) set password for user "customer1" to "Customer123!" with temporary false
+1840 (keycloak) assign role "customer" to user "customer1"
+1850 (keycloak) add user "customer1" to group "Customers"
+
+REM Create sample vendor
+1860 (keycloak) create user "vendor1" with email "vendor@store.com" and firstName "Store" and lastName "Owner" and enabled true
+1870 (keycloak) set password for user "vendor1" to "Vendor123!" with temporary false
+1880 (keycloak) assign role "vendor" to user "vendor1"
+1890 (keycloak) add user "vendor1" to group "Vendors"
+
+REM Register e-commerce clients
+1900 (keycloak) create client "storefront" with clientId "storefront-app" and publicClient true and redirectUris ["https://shop.example.com/*"]
+1910 (keycloak) create client "vendor-portal" with clientId "vendor-portal" and publicClient true and redirectUris ["https://vendor.example.com/*"]
+1920 (keycloak) create client "mobile-shop" with clientId "mobile-app" and publicClient true and redirectUris ["ecommerce://callback"]
+
+1930 (print) "E-commerce IAM setup completed"
+
+REM ============================================================================
+REM Example 17: Enterprise Multi-Department Setup
+REM ============================================================================
+
+2000 (print) "=== Example 17: Enterprise Multi-Department Setup ==="
+
+REM Create enterprise realm
+2010 (keycloak) switch to realm "master"
+2020 (keycloak) create realm "enterprise" with displayName "Enterprise Corp" and enabled true
+2030 (keycloak) switch to realm "enterprise"
+
+REM Create department groups
+2040 (keycloak) create group "HR-Department" with attributes {"department": "hr", "costCenter": "1001"}
+2050 (keycloak) create group "IT-Department" with attributes {"department": "it", "costCenter": "1002"}
+2060 (keycloak) create group "Finance-Department" with attributes {"department": "finance", "costCenter": "1003"}
+2070 (keycloak) create group "Sales-Department" with attributes {"department": "sales", "costCenter": "1004"}
+
+REM Create sub-groups for IT
+2080 (keycloak) create group "Infrastructure" with parent "IT-Department"
+2090 (keycloak) create group "Development" with parent "IT-Department"
+2100 (keycloak) create group "Security" with parent "IT-Department"
+
+REM Create enterprise roles
+2110 (keycloak) create role "employee" with description "Base employee role"
+2120 (keycloak) create role "manager" with description "Department manager"
+2130 (keycloak) create role "director" with description "Department director"
+2140 (keycloak) create role "c-level" with description "C-level executive"
+
+REM Create sample employees
+2150 (keycloak) create user "it.manager" with email "it.manager@corp.com" and firstName "IT" and lastName "Manager" and enabled true
+2160 (keycloak) set password for user "it.manager" to "Manager123!" with temporary false
+2170 (keycloak) assign role "employee" to user "it.manager"
+2180 (keycloak) assign role "manager" to user "it.manager"
+2190 (keycloak) add user "it.manager" to group "IT-Department"
+
+2200 (keycloak) create user "developer1" with email "dev1@corp.com" and firstName "Senior" and lastName "Developer" and enabled true
+2210 (keycloak) set password for user "developer1" to "Dev123!" with temporary false
+2220 (keycloak) assign role "employee" to user "developer1"
+2230 (keycloak) add user "developer1" to group "Development"
+
+2240 (print) "Enterprise multi-department setup completed"
+
+REM ============================================================================
+REM Example 18: SaaS Multi-Tenant Setup
+REM ============================================================================
+
+2300 (print) "=== Example 18: SaaS Multi-Tenant Setup ==="
+
+REM Create SaaS platform realm
+2310 (keycloak) switch to realm "master"
+2320 (keycloak) create realm "saas-platform" with displayName "SaaS Platform" and enabled true
+2330 (keycloak) switch to realm "saas-platform"
+
+REM Create tenant groups (each tenant is a group)
+2340 (keycloak) create group "Tenant-Acme-Corp" with attributes {"tenantId": "acme-001", "plan": "enterprise"}
+2350 (keycloak) create group "Tenant-StartupXYZ" with attributes {"tenantId": "startup-002", "plan": "startup"}
+2360 (keycloak) create group "Tenant-MegaCorp" with attributes {"tenantId": "mega-003", "plan": "enterprise"}
+
+REM Create sub-groups for tenant organization
+2370 (keycloak) create group "Admins" with parent "Tenant-Acme-Corp"
+2380 (keycloak) create group "Users" with parent "Tenant-Acme-Corp"
+2390 (keycloak) create group "Guests" with parent "Tenant-Acme-Corp"
+
+REM Create platform roles
+2400 (keycloak) create role "platform-admin" with description "Platform administrator"
+2410 (keycloak) create role "tenant-admin" with description "Tenant administrator"
+2420 (keycloak) create role "tenant-user" with description "Tenant user"
+2430 (keycloak) create role "tenant-guest" with description "Guest user with limited access"
+
+REM Create tenant admin for Acme Corp
+2440 (keycloak) create user "admin@acme.com" with email "admin@acme.com" and firstName "Acme" and lastName "Admin" and enabled true
+2450 (keycloak) set password for user "admin@acme.com" to "AcmeAdmin123!" with temporary false
+2460 (keycloak) assign role "tenant-admin" to user "admin@acme.com"
+2470 (keycloak) add user "admin@acme.com" to group "Admins"
+
+REM Create regular users for Acme Corp
+2480 (keycloak) create user "user1@acme.com" with email "user1@acme.com" and firstName "John" and lastName "Doe" and enabled true
+2490 (keycloak) set password for user "user1@acme.com" to "User123!" with temporary false
+2500 (keycloak) assign role "tenant-user" to user "user1@acme.com"
+2510 (keycloak) add user "user1@acme.com" to group "Users"
+
+REM Register SaaS application clients
+2520 (keycloak) create client "saas-web-app" with clientId "saas-webapp" and publicClient true and redirectUris ["https://app.saas.com/*"]
+2530 (keycloak) create client "saas-api" with clientId "saas-api-client" and publicClient false and serviceAccountsEnabled true
+
+2540 (print) "SaaS multi-tenant setup completed"
+
+REM ============================================================================
+REM Example 19: Healthcare System IAM
+REM ============================================================================
+
+2600 (print) "=== Example 19: Healthcare System IAM ==="
+
+REM Create healthcare realm
+2610 (keycloak) switch to realm "master"
+2620 (keycloak) create realm "healthcare" with displayName "Healthcare System" and enabled true
+2630 (keycloak) switch to realm "healthcare"
+
+REM Create healthcare roles (HIPAA compliant)
+2640 (keycloak) create role "physician" with description "Licensed physician"
+2650 (keycloak) create role "nurse" with description "Registered nurse"
+2660 (keycloak) create role "administrator" with description "Healthcare administrator"
+2670 (keycloak) create role "patient" with description "Patient access"
+2680 (keycloak) create role "billing" with description "Billing department"
+2690 (keycloak) create role "pharmacy" with description "Pharmacy access"
+
+REM Create department groups
+2700 (keycloak) create group "Emergency-Department"
+2710 (keycloak) create group "Cardiology-Department"
+2720 (keycloak) create group "Pediatrics-Department"
+2730 (keycloak) create group "Administration"
+2740 (keycloak) create group "Pharmacy"
+
+REM Create healthcare staff
+2750 (keycloak) create user "dr.smith" with email "dr.smith@hospital.com" and firstName "Dr. John" and lastName "Smith" and enabled true
+2760 (keycloak) set password for user "dr.smith" to "Physician123!" with temporary false
+2770 (keycloak) assign role "physician" to user "dr.smith"
+2780 (keycloak) add user "dr.smith" to group "Cardiology-Department"
+
+2790 (keycloak) create user "nurse.jones" with email "nurse.jones@hospital.com" and firstName "Sarah" and lastName "Jones" and enabled true
+2800 (keycloak) set password for user "nurse.jones" to "Nurse123!" with temporary false
+2810 (keycloak) assign role "nurse" to user "nurse.jones"
+2820 (keycloak) add user "nurse.jones" to group "Emergency-Department"
+
+REM Create patient account
+2830 (keycloak) create user "patient123" with email "patient@email.com" and firstName "Patient" and lastName "Smith" and enabled true
+2840 (keycloak) set password for user "patient123" to "Patient123!" with temporary false
+2850 (keycloak) assign role "patient" to user "patient123"
+
+REM Register healthcare applications
+2860 (keycloak) create client "ehr-system" with clientId "ehr-app" and publicClient false and serviceAccountsEnabled true
+2870 (keycloak) create client "patient-portal" with clientId "patient-portal" and publicClient true and redirectUris ["https://portal.hospital.com/*"]
+
+2880 (print) "Healthcare IAM setup completed"
+
+REM ============================================================================
+REM Example 20: Educational Institution IAM
+REM ============================================================================
+
+2900 (print) "=== Example 20: Educational Institution IAM ==="
+
+REM Create university realm
+2910 (keycloak) switch to realm "master"
+2920 (keycloak) create realm "university" with displayName "University System" and enabled true
+2930 (keycloak) switch to realm "university"
+
+REM Create educational roles
+2940 (keycloak) create role "student" with description "Student account"
+2950 (keycloak) create role "faculty" with description "Faculty member"
+2960 (keycloak) create role "staff" with description "Administrative staff"
+2970 (keycloak) create role "admin" with description "System administrator"
+2980 (keycloak) create role "parent" with description "Parent/Guardian access"
+
+REM Create department groups
+2990 (keycloak) create group "Computer-Science"
+3000 (keycloak) create group "Mathematics"
+3010 (keycloak) create group "Physics"
+3020 (keycloak) create group "Engineering"
+
+REM Create class/course groups
+3030 (keycloak) create group "CS101-2024" with parent "Computer-Science"
+3040 (keycloak) create group "CS201-2024" with parent "Computer-Science"
+3050 (keycloak) create group "MATH101-2024" with parent "Mathematics"
+
+REM Create faculty member
+3060 (keycloak) create user "prof.johnson" with email "prof.johnson@university.edu" and firstName "Professor" and lastName "Johnson" and enabled true
+3070 (keycloak) set password for user "prof.johnson" to "Faculty123!" with temporary false
+3080 (keycloak) assign role "faculty" to user "prof.johnson"
+3090 (keycloak) add user "prof.johnson" to group "Computer-Science"
+
+REM Create students
+3100 (keycloak) create user "student001" with email "student001@university.edu" and firstName "Alice" and lastName "Student" and enabled true
+3110 (keycloak) set password for user "student001" to "Student123!" with temporary false
+3120 (keycloak) assign role "student" to user "student001"
+3130 (keycloak) add user "student001" to group "CS101-2024"
+
+3140 (keycloak) create user "student002" with email "student002@university.edu" and firstName "Bob" and lastName "Learner" and enabled true
+3150 (keycloak) set password for user "student002" to "Student123!" with temporary false
+3160 (keycloak) assign role "student" to user "student002"
+3170 (keycloak) add user "student002" to group "CS101-2024"
+
+REM Register university applications
+3180 (keycloak) create client "learning-management" with clientId "lms-app" and publicClient true and redirectUris ["https://lms.university.edu/*"]
+3190 (keycloak) create client "student-portal" with clientId "student-portal" and publicClient true and redirectUris ["https://portal.university.edu/*"]
+3200 (keycloak) create client "faculty-system" with clientId "faculty-app" and publicClient true and redirectUris ["https://faculty.university.edu/*"]
+
+3210 (print) "University IAM setup completed"
+
+REM ============================================================================
+REM Example 21: User Lifecycle Management
+REM ============================================================================
+
+3300 (print) "=== Example 21: User Lifecycle Management ==="
+
+REM Switch back to application realm
+3310 (keycloak) switch to realm "my-app-realm"
+
+REM User onboarding
+3320 (keycloak) create user "new.employee" with email "new.employee@example.com" and firstName "New" and lastName "Employee" and enabled true
+3330 (keycloak) set password for user "new.employee" to "Welcome123!" with temporary true
+3340 (keycloak) assign role "viewer" to user "new.employee"
+
+REM User role promotion
+3350 (keycloak) assign role "developer" to user "new.employee"
+
+REM User update (promotion)
+3360 (keycloak) update user "new.employee" with email "senior.employee@example.com"
+3370 (keycloak) assign role "manager" to user "new.employee"
+
+REM User deactivation (employee leave)
+3380 (keycloak) update user "new.employee" with enabled false
+
+3390 (print) "User lifecycle management completed"
+
+REM ============================================================================
+REM Example 22: Cleanup and User Deletion
+REM ============================================================================
+
+3400 (print) "=== Example 22: Cleanup Operations ==="
+
+REM Switch to dev realm for cleanup
+3410 (keycloak) switch to realm "dev-realm"
+
+REM Remove users
+3420 (keycloak) delete user "dev1"
+3430 (keycloak) delete user "dev2"
+3440 (keycloak) delete user "dev3"
+
+REM Switch to my-app-realm
+3450 (keycloak) switch to realm "my-app-realm"
+
+REM Remove test client
+3460 (keycloak) delete client "mobile-app"
+
+3470 (print) "Cleanup completed successfully"
+
+REM ============================================================================
+REM Example 23: Role Cleanup
+REM ============================================================================
+
+3500 (print) "=== Example 23: Role Cleanup ==="
+
+REM Remove users from roles first
+3510 (keycloak) remove role "viewer" from user "bob.wilson"
+
+REM Delete roles
+3520 (keycloak) delete role "user-read"
+3530 (keycloak) delete role "user-write"
+3540 (keycloak) delete role "user-delete"
+
+3550 (print) "Role cleanup completed"
+
+REM ============================================================================
+REM Example 24: Realm Cleanup
+REM ============================================================================
+
+3600 (print) "=== Example 24: Realm Cleanup ==="
+
+REM Switch to master realm
+3610 (keycloak) switch to realm "master"
+
+REM Delete test realms
+3620 (keycloak) delete realm "dev-realm"
+3630 (keycloak) delete realm "staging-realm"
+
+3640 (print) "Realm cleanup completed"
+
+REM ============================================================================
+REM End of Keycloak Module Examples
+REM ============================================================================
+
+REM Note: For production deployments:
+REM 1. Always use HTTPS/TLS for all Keycloak connections
+REM 2. Implement strong password policies (complexity, expiration, history)
+REM 3. Enable Multi-Factor Authentication (MFA/2FA) for sensitive accounts
+REM 4. Use client credentials flow for service-to-service authentication
+REM 5. Implement brute force detection and account lockout policies
+REM 6. Enable comprehensive audit logging and event listeners
+REM 7. Regular backups of Keycloak database and configuration
+REM 8. Use realm-specific admin accounts instead of master realm
+REM 9. Implement rate limiting on authentication endpoints
+REM 10. Regular security updates and vulnerability patching
+REM 11. Use groups for organizational structure and role inheritance
+REM 12. Implement session management policies (timeout, revocation)
+REM 13. Configure CORS policies for web applications
+REM 14. Use token encryption and signing with appropriate algorithms
+REM 15. Implement user federation with LDAP/AD where applicable
+REM 16. Enable GDPR compliance features for user data management
+REM 17. Use dedicated service accounts with minimal required permissions
+REM 18. Implement proper client secret rotation policies
+REM 19. Configure appropriate token lifetimes (access, refresh, ID tokens)
+REM 20. Use authorization services for fine-grained access control

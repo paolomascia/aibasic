@@ -1,0 +1,521 @@
+REM ============================================================================
+REM AIBASIC - MQTT (Message Queuing Telemetry Transport) Module Examples
+REM ============================================================================
+REM This file demonstrates how to use the MQTT module for IoT messaging,
+REM pub/sub communication, and lightweight message queuing.
+REM
+REM The MQTT module provides comprehensive support for:
+REM - Broker Connection: Connect to MQTT brokers (Mosquitto, HiveMQ, AWS IoT, etc.)
+REM - Publish Messages: Send messages to topics
+REM - Subscribe to Topics: Receive messages from topics with wildcards
+REM - QoS Support: Quality of Service levels 0 (at most once), 1 (at least once), 2 (exactly once)
+REM - Retained Messages: Store last message on broker for new subscribers
+REM - Last Will and Testament: Automatic disconnect notifications
+REM - TLS/SSL Support: Secure encrypted connections
+REM
+REM Configuration:
+REM Configure MQTT in aibasic.conf:
+REM [mqtt]
+REM BROKER = mqtt.example.com
+REM PORT = 1883
+REM USERNAME = mqtt_user
+REM PASSWORD = mqtt_password
+REM CLIENT_ID = aibasic_client
+REM KEEPALIVE = 60
+REM USE_TLS = false
+REM QOS = 1
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Connection and Publish
+REM ============================================================================
+
+10 (print) "=== Example 1: Basic Connection ==="
+
+REM Connect to MQTT broker
+20 (mqtt) connect to broker
+30 (print) "Connected to MQTT broker"
+
+REM Publish a simple message
+40 (mqtt) publish "Hello MQTT!" to topic "test/message"
+50 (print) "Message published"
+
+REM Disconnect
+60 (mqtt) disconnect
+70 (print) "Disconnected"
+
+REM ============================================================================
+REM Example 2: Subscribe and Receive Messages
+REM ============================================================================
+
+100 (print) "=== Example 2: Subscribe and Receive ==="
+
+REM Connect to broker
+110 (mqtt) connect to broker
+
+REM Subscribe to topic
+120 (mqtt) subscribe to topic "sensors/temperature"
+130 (print) "Subscribed to temperature sensor topic"
+
+REM Wait for messages (would run in background in real scenario)
+140 (mqtt) wait for messages for 10 seconds
+
+150 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 3: Quality of Service (QoS) Levels
+REM ============================================================================
+
+200 (print) "=== Example 3: QoS Levels ==="
+
+210 (mqtt) connect to broker
+
+REM QoS 0: At most once (fire and forget)
+220 (mqtt) publish "QoS 0 message" to topic "test/qos0" with qos 0
+230 (print) "QoS 0 message sent"
+
+REM QoS 1: At least once (acknowledged delivery)
+240 (mqtt) publish "QoS 1 message" to topic "test/qos1" with qos 1
+250 (print) "QoS 1 message sent"
+
+REM QoS 2: Exactly once (assured delivery)
+260 (mqtt) publish "QoS 2 message" to topic "test/qos2" with qos 2
+270 (print) "QoS 2 message sent"
+
+280 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 4: Retained Messages
+REM ============================================================================
+
+300 (print) "=== Example 4: Retained Messages ==="
+
+310 (mqtt) connect to broker
+
+REM Publish retained message (stays on broker for new subscribers)
+320 (mqtt) publish "Device Online" to topic "device/status" with retain true
+330 (print) "Retained status message published"
+
+REM Clear retained message
+340 (mqtt) clear retained message on topic "device/status"
+350 (print) "Retained message cleared"
+
+360 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 5: Topic Wildcards
+REM ============================================================================
+
+400 (print) "=== Example 5: Topic Wildcards ==="
+
+410 (mqtt) connect to broker
+
+REM Subscribe to all sensors using + wildcard (single level)
+420 (mqtt) subscribe to topic "sensors/+/temperature"
+430 (print) "Subscribed to all sensor temperatures"
+
+REM Subscribe to all home topics using # wildcard (multi-level)
+440 (mqtt) subscribe to topic "home/#"
+450 (print) "Subscribed to all home topics"
+
+460 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 6: JSON Messages
+REM ============================================================================
+
+500 (print) "=== Example 6: JSON Messages ==="
+
+510 (mqtt) connect to broker
+
+REM Publish JSON data
+520 (mqtt) publish json {"temperature": 25.5, "humidity": 60, "timestamp": "2025-01-15T10:30:00Z"} to topic "sensors/room1/data"
+530 (print) "JSON sensor data published"
+
+540 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 7: Last Will and Testament (LWT)
+REM ============================================================================
+
+600 (print) "=== Example 7: Last Will and Testament ==="
+
+REM Set LWT before connecting
+610 (mqtt) set last will topic "device/disconnect" message "Device went offline unexpectedly" with qos 1
+
+620 (mqtt) connect to broker
+630 (print) "Connected with LWT configured"
+
+REM If connection drops unexpectedly, broker will publish LWT message
+640 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 8: IoT Sensor Data Collection
+REM ============================================================================
+
+700 (print) "=== Example 8: IoT Sensor Publishing ==="
+
+710 (mqtt) connect to broker
+
+REM Publish temperature sensor data
+720 (mqtt) publish json {"sensor_id": "TEMP001", "value": 22.5, "unit": "celsius"} to topic "iot/sensors/temperature"
+
+REM Publish humidity sensor data
+730 (mqtt) publish json {"sensor_id": "HUM001", "value": 65, "unit": "percent"} to topic "iot/sensors/humidity"
+
+REM Publish motion detector data
+740 (mqtt) publish json {"sensor_id": "MOT001", "motion_detected": true} to topic "iot/sensors/motion"
+
+750 (print) "IoT sensor data published"
+760 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 9: Smart Home Automation
+REM ============================================================================
+
+800 (print) "=== Example 9: Smart Home Automation ==="
+
+810 (mqtt) connect to broker
+
+REM Publish commands to smart devices
+820 (mqtt) publish "ON" to topic "home/living-room/lights" with retain true
+830 (mqtt) publish json {"temperature": 22, "mode": "auto"} to topic "home/living-room/thermostat"
+840 (mqtt) publish "LOCK" to topic "home/front-door/lock"
+
+REM Subscribe to device status updates
+850 (mqtt) subscribe to topic "home/+/status"
+
+860 (print) "Smart home commands sent"
+870 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 10: Industrial IoT (IIoT) Monitoring
+REM ============================================================================
+
+900 (print) "=== Example 10: Industrial IoT ==="
+
+910 (mqtt) connect to broker
+
+REM Publish machine sensor data
+920 (mqtt) publish json {"machine_id": "CNC-001", "rpm": 3500, "temperature": 45, "vibration": 0.05} to topic "factory/floor1/cnc001/telemetry"
+
+REM Publish production counter
+930 (mqtt) publish json {"machine_id": "CNC-001", "parts_produced": 1450, "defects": 3} to topic "factory/floor1/cnc001/production"
+
+REM Publish alerts
+940 (mqtt) publish json {"machine_id": "CNC-001", "alert_type": "maintenance_required", "severity": "medium"} to topic "factory/floor1/cnc001/alerts"
+
+950 (print) "IIoT telemetry published"
+960 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 11: Vehicle Telemetry
+REM ============================================================================
+
+1000 (print) "=== Example 11: Vehicle Telemetry ==="
+
+1010 (mqtt) connect to broker
+
+REM Publish GPS location
+1020 (mqtt) publish json {"vehicle_id": "VEH001", "lat": 40.7128, "lon": -74.0060, "speed": 55} to topic "fleet/vehicle001/gps"
+
+REM Publish vehicle diagnostics
+1030 (mqtt) publish json {"vehicle_id": "VEH001", "fuel_level": 75, "engine_temp": 90, "oil_pressure": 35} to topic "fleet/vehicle001/diagnostics"
+
+REM Publish driver behavior
+1040 (mqtt) publish json {"vehicle_id": "VEH001", "harsh_braking": 0, "rapid_acceleration": 1, "speeding": 0} to topic "fleet/vehicle001/behavior"
+
+1050 (print) "Vehicle telemetry published"
+1060 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 12: Environmental Monitoring
+REM ============================================================================
+
+1100 (print) "=== Example 12: Environmental Monitoring ==="
+
+1110 (mqtt) connect to broker
+
+REM Publish air quality data
+1120 (mqtt) publish json {"station_id": "ENV001", "pm25": 12, "pm10": 18, "co2": 420, "timestamp": "2025-01-15T10:30:00Z"} to topic "environment/air-quality/station001"
+
+REM Publish weather data
+1130 (mqtt) publish json {"station_id": "ENV001", "temperature": 18.5, "humidity": 65, "pressure": 1013, "wind_speed": 15} to topic "environment/weather/station001"
+
+REM Publish water quality
+1140 (mqtt) publish json {"station_id": "WTR001", "ph": 7.2, "turbidity": 0.5, "dissolved_oxygen": 8.5} to topic "environment/water-quality/station001"
+
+1150 (print) "Environmental data published"
+1160 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 13: Healthcare Device Monitoring
+REM ============================================================================
+
+1200 (print) "=== Example 13: Healthcare Devices ==="
+
+1210 (mqtt) connect to broker
+
+REM Publish patient vitals
+1220 (mqtt) publish json {"device_id": "MON001", "patient_id": "PAT123", "heart_rate": 72, "blood_pressure": "120/80", "spo2": 98} to topic "healthcare/patient-monitors/room101"
+
+REM Publish medical equipment status
+1230 (mqtt) publish json {"device_id": "VENT001", "status": "operational", "oxygen_level": 95, "pressure": 15} to topic "healthcare/ventilators/icu/bed3"
+
+REM Publish alerts
+1240 (mqtt) publish json {"device_id": "MON001", "alert": "heart_rate_high", "value": 125, "threshold": 100} to topic "healthcare/alerts/critical"
+
+1250 (print) "Healthcare device data published"
+1260 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 14: Agriculture IoT
+REM ============================================================================
+
+1300 (print) "=== Example 14: Agriculture IoT ==="
+
+1310 (mqtt) connect to broker
+
+REM Publish soil sensor data
+1320 (mqtt) publish json {"sensor_id": "SOIL001", "field": "A", "moisture": 45, "temperature": 22, "ph": 6.5} to topic "agriculture/field-a/soil"
+
+REM Publish irrigation system status
+1330 (mqtt) publish json {"zone": "field-a-zone1", "status": "active", "flow_rate": 50, "duration": 1800} to topic "agriculture/irrigation/field-a"
+
+REM Publish crop health data
+1340 (mqtt) publish json {"field": "A", "crop": "wheat", "growth_stage": "flowering", "health_score": 85} to topic "agriculture/crops/field-a"
+
+1350 (print) "Agriculture IoT data published"
+1360 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 15: Energy Management
+REM ============================================================================
+
+1400 (print) "=== Example 15: Energy Management ==="
+
+1410 (mqtt) connect to broker
+
+REM Publish smart meter readings
+1420 (mqtt) publish json {"meter_id": "METER001", "consumption": 12.5, "voltage": 230, "current": 15.2, "power_factor": 0.95} to topic "energy/meters/building1/floor1"
+
+REM Publish solar panel data
+1430 (mqtt) publish json {"panel_id": "SOLAR001", "power_output": 4500, "efficiency": 18.5, "temperature": 35} to topic "energy/solar/building1/roof"
+
+REM Publish battery storage status
+1440 (mqtt) publish json {"battery_id": "BATT001", "charge_level": 85, "charging": true, "capacity": 10000} to topic "energy/battery/building1"
+
+1450 (print) "Energy management data published"
+1460 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 16: Retail Store Analytics
+REM ============================================================================
+
+1500 (print) "=== Example 16: Retail Analytics ==="
+
+1510 (mqtt) connect to broker
+
+REM Publish customer foot traffic
+1520 (mqtt) publish json {"store_id": "STORE001", "zone": "entrance", "count": 45, "timestamp": "2025-01-15T10:30:00Z"} to topic "retail/foottraffic/store001"
+
+REM Publish point-of-sale data
+1530 (mqtt) publish json {"store_id": "STORE001", "register": "POS01", "transaction_amount": 125.50, "items": 5} to topic "retail/pos/store001"
+
+REM Publish inventory sensors
+1540 (mqtt) publish json {"store_id": "STORE001", "product_id": "PROD123", "shelf_quantity": 12, "restock_needed": false} to topic "retail/inventory/store001"
+
+1550 (print) "Retail analytics data published"
+1560 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 17: Building Management System
+REM ============================================================================
+
+1600 (print) "=== Example 17: Building Management ==="
+
+1610 (mqtt) connect to broker
+
+REM Publish HVAC status
+1620 (mqtt) publish json {"floor": 5, "zone": "A", "temperature": 22, "setpoint": 22, "mode": "cooling", "fan_speed": 60} to topic "building/hvac/floor5/zoneA"
+
+REM Publish occupancy sensors
+1630 (mqtt) publish json {"floor": 5, "room": "501", "occupied": true, "people_count": 8} to topic "building/occupancy/floor5/room501"
+
+REM Publish access control
+1640 (mqtt) publish json {"door_id": "DOOR-501", "status": "unlocked", "user": "employee123", "timestamp": "2025-01-15T10:30:00Z"} to topic "building/access/floor5"
+
+1650 (print) "Building management data published"
+1660 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 18: Warehouse Logistics
+REM ============================================================================
+
+1700 (print) "=== Example 18: Warehouse Logistics ==="
+
+1710 (mqtt) connect to broker
+
+REM Publish forklift telemetry
+1720 (mqtt) publish json {"vehicle_id": "FORK001", "location": "aisle-12", "battery": 65, "load_weight": 850} to topic "warehouse/forklifts/fork001"
+
+REM Publish inventory scanner
+1730 (mqtt) publish json {"scanner_id": "SCAN001", "barcode": "1234567890", "location": "rack-A-12-3", "quantity": 100} to topic "warehouse/scanners/scan001"
+
+REM Publish conveyor belt status
+1740 (mqtt) publish json {"conveyor_id": "CONV001", "status": "running", "speed": 1.5, "items_per_hour": 350} to topic "warehouse/conveyors/conv001"
+
+1750 (print) "Warehouse logistics data published"
+1760 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 19: Smart City Infrastructure
+REM ============================================================================
+
+1800 (print) "=== Example 19: Smart City ==="
+
+1810 (mqtt) connect to broker
+
+REM Publish traffic sensors
+1820 (mqtt) publish json {"sensor_id": "TRAFFIC001", "location": "Main St & 5th Ave", "vehicle_count": 45, "average_speed": 35} to topic "city/traffic/intersection001"
+
+REM Publish street lighting
+1830 (mqtt) publish json {"light_id": "LIGHT001", "status": "on", "brightness": 80, "energy_consumption": 50} to topic "city/lighting/street001"
+
+REM Publish parking sensors
+1840 (mqtt) publish json {"lot_id": "PARK001", "available_spaces": 15, "total_spaces": 100, "occupancy": 85} to topic "city/parking/lot001"
+
+1850 (print) "Smart city data published"
+1860 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 20: Connected Device Heartbeat
+REM ============================================================================
+
+1900 (print) "=== Example 20: Device Heartbeat ==="
+
+1910 (mqtt) connect to broker
+
+REM Publish device heartbeat with status
+1920 (mqtt) publish json {"device_id": "DEV001", "status": "online", "uptime": 86400, "memory_usage": 45, "cpu_usage": 23} to topic "devices/dev001/heartbeat" with retain true
+
+1930 (print) "Device heartbeat published"
+1940 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 21: Alert and Notification System
+REM ============================================================================
+
+2000 (print) "=== Example 21: Alerts and Notifications ==="
+
+2010 (mqtt) connect to broker
+
+REM Publish critical alert
+2020 (mqtt) publish json {"alert_id": "ALT001", "severity": "critical", "message": "Temperature threshold exceeded", "value": 85, "threshold": 75} to topic "alerts/critical"
+
+REM Publish warning
+2030 (mqtt) publish json {"alert_id": "ALT002", "severity": "warning", "message": "Disk space low", "percentage": 15} to topic "alerts/warning"
+
+REM Publish info notification
+2040 (mqtt) publish json {"notification": "System backup completed successfully", "timestamp": "2025-01-15T10:30:00Z"} to topic "notifications/info"
+
+2050 (print) "Alerts published"
+2060 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 22: Multi-Subscription Pattern
+REM ============================================================================
+
+2100 (print) "=== Example 22: Multiple Subscriptions ==="
+
+2110 (mqtt) connect to broker
+
+REM Subscribe to multiple topics
+2120 (mqtt) subscribe to topic "sensors/temperature/#"
+2130 (mqtt) subscribe to topic "sensors/humidity/#"
+2140 (mqtt) subscribe to topic "alerts/+"
+2150 (mqtt) subscribe to topic "status/#"
+
+2160 (print) "Subscribed to multiple topics"
+
+REM Check active subscriptions
+2170 (mqtt) get active subscriptions
+2180 (print) "Active subscriptions listed"
+
+2190 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 23: Unsubscribe Pattern
+REM ============================================================================
+
+2200 (print) "=== Example 23: Unsubscribe ==="
+
+2210 (mqtt) connect to broker
+
+REM Subscribe to topics
+2220 (mqtt) subscribe to topic "test/topic1"
+2230 (mqtt) subscribe to topic "test/topic2"
+
+REM Unsubscribe from specific topic
+2240 (mqtt) unsubscribe from topic "test/topic1"
+2250 (print) "Unsubscribed from topic1"
+
+2260 (mqtt) disconnect
+
+REM ============================================================================
+REM Example 24: Connection Status Check
+REM ============================================================================
+
+2300 (print) "=== Example 24: Connection Status ==="
+
+2310 (mqtt) connect to broker
+
+REM Check if connected
+2320 (mqtt) check if connected
+2330 (print) "Connection status checked"
+
+2340 (mqtt) disconnect
+
+REM Check if disconnected
+2350 (mqtt) check if connected
+2360 (print) "Disconnection confirmed"
+
+REM ============================================================================
+REM Example 25: Custom Broker and Port
+REM ============================================================================
+
+2400 (print) "=== Example 25: Custom Broker Connection ==="
+
+REM Connect to specific broker and port
+2410 (mqtt) connect to broker "mqtt.hivemq.com" on port 1883
+2420 (print) "Connected to HiveMQ public broker"
+
+2430 (mqtt) publish "Test message from AIbasic" to topic "aibasic/test"
+
+2440 (mqtt) disconnect
+
+REM ============================================================================
+REM End of MQTT Module Examples
+REM ============================================================================
+
+REM Note: For production deployments:
+REM 1. Use TLS/SSL for all MQTT connections (port 8883)
+REM 2. Implement strong authentication (username/password or certificates)
+REM 3. Use QoS 1 or 2 for critical messages
+REM 4. Use QoS 0 for high-frequency, non-critical telemetry
+REM 5. Implement Last Will and Testament for device disconnection detection
+REM 6. Use retained messages for device status/configuration
+REM 7. Design topic hierarchy carefully (e.g., company/site/building/floor/device)
+REM 8. Use wildcards wisely to avoid subscription overload
+REM 9. Implement rate limiting to prevent message flooding
+REM 10. Monitor broker performance and message throughput
+REM 11. Use persistent sessions for reliable message delivery
+REM 12. Implement message validation and sanitization
+REM 13. Use compressed payloads for large messages
+REM 14. Set appropriate keepalive intervals (30-60 seconds typical)
+REM 15. Handle reconnection logic with exponential backoff
+REM 16. Use unique client IDs to avoid connection conflicts
+REM 17. Implement message deduplication for QoS 1/2
+REM 18. Monitor and log all MQTT errors and disconnections
+REM 19. Use separate topics for commands and telemetry
+REM 20. Implement access control lists (ACLs) on broker

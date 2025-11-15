@@ -87,3 +87,27 @@ azure-mgmt-containerinstance>=10.0.0  # Azure Container Instances
 azure-mgmt-keyvault>=10.0.0  # Azure Key Vault management
 azure-mgmt-cosmosdb>=9.0.0  # Azure Cosmos DB management
 azure-identity>=1.12.0  # Azure authentication (supports DefaultAzureCredential and Service Principal)
+
+# GCP module (Google Cloud Platform Services)
+google-cloud-compute>=1.14.0  # Google Compute Engine management
+google-cloud-storage>=2.10.0  # Google Cloud Storage management
+google-cloud-sql>=1.6.0  # Google Cloud SQL management
+google-cloud-bigquery>=3.11.0  # Google BigQuery for data analytics
+google-cloud-functions>=1.13.0  # Google Cloud Functions serverless
+google-cloud-run>=0.9.0  # Google Cloud Run container deployment
+google-cloud-pubsub>=2.18.0  # Google Pub/Sub messaging
+google-cloud-secret-manager>=2.16.0  # Google Secret Manager for secrets
+google-auth>=2.23.0  # Google Cloud authentication
+
+# LDAP module (LDAP/Active Directory Management)
+ldap3>=2.9.1  # Pure Python LDAP client for directory services and Active Directory
+
+# Keycloak module (Identity and Access Management)
+python-keycloak>=3.0.0  # Keycloak Admin REST API client for IAM operations
+
+# JWT module (JSON Web Token Authentication)
+PyJWT[crypto]>=2.8.0  # JSON Web Token implementation with cryptography support
+cryptography>=41.0.0  # Cryptographic library for RSA/ECDSA key support
+
+# MQTT module (IoT Messaging Protocol)
+paho-mqtt>=1.6.1  # Eclipse Paho MQTT client for IoT and pub/sub messaging

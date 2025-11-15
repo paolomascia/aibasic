@@ -1,0 +1,196 @@
+REM ============================================================================
+REM AIBASIC - LDAP/Active Directory Module Examples
+REM ============================================================================
+REM This file demonstrates how to use the LDAP module to manage directory
+REM services including users, groups, and organizational units.
+REM
+REM The LDAP module provides comprehensive support for:
+REM - User Management: Create, modify, delete, search users
+REM - Group Management: Create, delete groups, manage memberships
+REM - Authentication: Verify user credentials
+REM - Search Operations: Flexible LDAP search with filters
+REM - Organizational Units: Create and manage OUs
+REM - Active Directory: Full AD support
+REM
+REM Configuration:
+REM Configure LDAP in aibasic.conf:
+REM [ldap]
+REM SERVER = ldap.example.com
+REM PORT = 389
+REM BASE_DN = dc=example,dc=com
+REM BIND_DN = cn=admin,dc=example,dc=com
+REM BIND_PASSWORD = admin_password
+REM USE_SSL = false
+REM USE_TLS = false
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Connection and Server Information
+REM ============================================================================
+
+10 (print) "=== Example 1: LDAP Connection ==="
+20 (ldap) get server information
+30 (print) "Connected to LDAP server successfully"
+
+REM ============================================================================
+REM Example 2: Search Users
+REM ============================================================================
+
+100 (print) "=== Example 2: Search Users ==="
+110 (ldap) search for users with filter "john*"
+120 (ldap) search all users
+130 (print) "User search completed"
+
+REM ============================================================================
+REM Example 3: Create User
+REM ============================================================================
+
+200 (print) "=== Example 3: Create User ==="
+210 (ldap) create user "john.doe" with email "john.doe@example.com" and firstName "John" and lastName "Doe" and displayName "John Doe"
+220 (ldap) get user "john.doe"
+230 (print) "User created successfully"
+
+REM ============================================================================
+REM Example 4: Modify User
+REM ============================================================================
+
+300 (print) "=== Example 4: Modify User ==="
+310 (ldap) modify user "john.doe" with phone "+1-555-0123" and description "Software Developer"
+320 (ldap) get user "john.doe"
+330 (print) "User modified successfully"
+
+REM ============================================================================
+REM Example 5: User Authentication
+REM ============================================================================
+
+400 (print) "=== Example 5: User Authentication ==="
+410 (ldap) authenticate user "john.doe" with password "SecurePass123!"
+420 (print) "User authentication completed"
+
+REM ============================================================================
+REM Example 6: Set User Password
+REM ============================================================================
+
+500 (print) "=== Example 6: Set User Password ==="
+510 (ldap) set password for user "john.doe" to "NewSecurePass456!"
+520 (print) "Password updated successfully"
+
+REM ============================================================================
+REM Example 7: Group Management
+REM ============================================================================
+
+600 (print) "=== Example 7: Group Management ==="
+610 (ldap) create group "developers" with description "Development Team"
+620 (ldap) create group "admins" with description "System Administrators"
+630 (ldap) search all groups
+640 (print) "Groups created successfully"
+
+REM ============================================================================
+REM Example 8: Group Membership
+REM ============================================================================
+
+700 (print) "=== Example 8: Group Membership ==="
+710 (ldap) add user "john.doe" to group "developers"
+720 (ldap) get members of group "developers"
+730 (ldap) remove user "john.doe" from group "developers"
+740 (print) "Group membership operations completed"
+
+REM ============================================================================
+REM Example 9: Organizational Units
+REM ============================================================================
+
+800 (print) "=== Example 9: Organizational Units ==="
+810 (ldap) create organizational unit "engineering"
+820 (ldap) create organizational unit "marketing"
+830 (ldap) create organizational unit "sales"
+840 (print) "Organizational units created"
+
+REM ============================================================================
+REM Example 10: Complete User Onboarding
+REM ============================================================================
+
+900 (print) "=== Example 10: User Onboarding ==="
+
+REM Create user
+910 (ldap) create user "jane.smith" with email "jane.smith@example.com" and firstName "Jane" and lastName "Smith" and displayName "Jane Smith" and phone "+1-555-0456"
+
+REM Set password
+920 (ldap) set password for user "jane.smith" to "InitialPass123!"
+
+REM Add to groups
+930 (ldap) add user "jane.smith" to group "developers"
+940 (ldap) add user "jane.smith" to group "employees"
+
+950 (print) "User onboarding completed"
+
+REM ============================================================================
+REM Example 11: Bulk User Creation
+REM ============================================================================
+
+1000 (print) "=== Example 11: Bulk User Creation ==="
+1010 (ldap) create user "alice.johnson" with email "alice@example.com" and firstName "Alice" and lastName "Johnson"
+1020 (ldap) create user "bob.williams" with email "bob@example.com" and firstName "Bob" and lastName "Williams"
+1030 (ldap) create user "charlie.brown" with email "charlie@example.com" and firstName "Charlie" and lastName "Brown"
+1040 (ldap) search all users
+1050 (print) "Bulk user creation completed"
+
+REM ============================================================================
+REM Example 12: Advanced Search
+REM ============================================================================
+
+1100 (print) "=== Example 12: Advanced Search ==="
+1110 (ldap) search in base "ou=users,dc=example,dc=com" with filter "(&(objectClass=inetOrgPerson)(mail=*@example.com))"
+1120 (ldap) search in base "ou=groups,dc=example,dc=com" with filter "(objectClass=groupOfNames)"
+1130 (print) "Advanced search completed"
+
+REM ============================================================================
+REM Example 13: Department Structure
+REM ============================================================================
+
+1200 (print) "=== Example 13: Department Structure ==="
+
+REM Create department OUs
+1210 (ldap) create organizational unit "it-department"
+1220 (ldap) create organizational unit "hr-department"
+1230 (ldap) create organizational unit "finance-department"
+
+REM Create department groups
+1240 (ldap) create group "it-team" with description "IT Department Team"
+1250 (ldap) create group "hr-team" with description "HR Department Team"
+1260 (ldap) create group "finance-team" with description "Finance Department Team"
+
+1270 (print) "Department structure created"
+
+REM ============================================================================
+REM Example 14: User Cleanup and Deletion
+REM ============================================================================
+
+1300 (print) "=== Example 14: User Cleanup ==="
+1310 (ldap) delete user "bob.williams"
+1320 (ldap) delete user "charlie.brown"
+1330 (print) "Users deleted successfully"
+
+REM ============================================================================
+REM Example 15: Group Cleanup
+REM ============================================================================
+
+1400 (print) "=== Example 15: Group Cleanup ==="
+1410 (ldap) delete group "it-team"
+1420 (ldap) delete group "hr-team"
+1430 (print) "Groups deleted successfully"
+
+REM ============================================================================
+REM End of LDAP Module Examples
+REM ============================================================================
+
+REM Note: For production deployments:
+REM 1. Use SSL/TLS for all LDAP connections
+REM 2. Implement strong password policies
+REM 3. Use service accounts with minimal required permissions
+REM 4. Enable LDAP audit logging
+REM 5. Implement account lockout policies
+REM 6. Regular backup of LDAP directory
+REM 7. Use groups for access control management
+REM 8. Implement password expiration and complexity rules
+REM 9. Enable two-factor authentication where possible
+REM 10. Regular security audits and compliance checks

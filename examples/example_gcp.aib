@@ -1,0 +1,479 @@
+REM ============================================================================
+REM AIBASIC - Google Cloud Platform (GCP) Module Examples
+REM ============================================================================
+REM This file demonstrates how to use the GCP module to manage Google Cloud
+REM Platform resources through natural language instructions.
+REM
+REM The GCP module provides comprehensive support for:
+REM - Compute Engine: VM instance management
+REM - Cloud Storage: Bucket and object operations
+REM - Cloud SQL: Database instance management
+REM - BigQuery: Dataset, table, and query operations
+REM - Cloud Functions: Serverless function deployment
+REM - Cloud Run: Container deployment
+REM - Pub/Sub: Message queue operations
+REM - Secret Manager: Secrets management
+REM
+REM Configuration:
+REM Configure GCP credentials in aibasic.conf:
+REM [gcp]
+REM PROJECT_ID = your-project-id
+REM CREDENTIALS_PATH = /path/to/service-account-key.json
+REM REGION = us-central1
+REM ZONE = us-central1-a
+REM
+REM Or use environment variables:
+REM GCP_PROJECT_ID, GOOGLE_APPLICATION_CREDENTIALS, GCP_REGION, GCP_ZONE
+REM
+REM Or use Application Default Credentials (gcloud auth application-default login)
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Project Information and Setup
+REM ============================================================================
+REM Check project configuration and verify access.
+
+10 (print) "=== Example 1: Project Information ==="
+20 (gcp) get project information
+30 (print) "GCP project configured and accessible"
+
+REM ============================================================================
+REM Example 2: Compute Engine - Create and Manage VM Instances
+REM ============================================================================
+REM Deploy and manage virtual machines on Google Compute Engine.
+
+100 (print) "=== Example 2: Compute Engine VM Management ==="
+110 (gcp) create compute instance "web-server" in zone "us-central1-a" with machine_type "e2-medium" and disk_size_gb 20
+120 (sleep) 30
+130 (gcp) list compute instances in zone "us-central1-a"
+140 (print) "VM instance created successfully"
+
+REM ============================================================================
+REM Example 3: Compute Engine Operations - Start, Stop
+REM ============================================================================
+REM Control the state of virtual machines.
+
+200 (print) "=== Example 3: VM Instance Operations ==="
+210 (gcp) stop compute instance "web-server" in zone "us-central1-a"
+220 (sleep) 20
+230 (gcp) start compute instance "web-server" in zone "us-central1-a"
+240 (sleep) 20
+250 (print) "VM operations completed"
+
+REM ============================================================================
+REM Example 4: Cloud Storage - Bucket Management
+REM ============================================================================
+REM Create and manage Cloud Storage buckets.
+
+300 (print) "=== Example 4: Cloud Storage Bucket Management ==="
+310 (gcp) create storage bucket "aibasic-data-bucket" in location "us-central1" with storage_class "STANDARD"
+320 (gcp) list all storage buckets
+330 (print) "Storage bucket created"
+
+REM ============================================================================
+REM Example 5: Cloud Storage - File Upload and Download
+REM ============================================================================
+REM Upload and download files to/from Cloud Storage.
+
+400 (print) "=== Example 5: Cloud Storage File Operations ==="
+410 (file) write "test-data.txt" with content "Hello from AIBasic on GCP!"
+420 (gcp) upload file "test-data.txt" to bucket "aibasic-data-bucket" as "uploads/test-data.txt"
+430 (gcp) list blobs in bucket "aibasic-data-bucket"
+440 (gcp) download file "uploads/test-data.txt" from bucket "aibasic-data-bucket" to "downloaded-data.txt"
+450 (file) read "downloaded-data.txt"
+460 (print) "File upload and download completed"
+
+REM ============================================================================
+REM Example 6: Cloud SQL Database Management
+REM ============================================================================
+REM Create and manage Cloud SQL database instances.
+
+500 (print) "=== Example 6: Cloud SQL Management ==="
+510 (gcp) create cloudsql instance "aibasic-mysql" with database_version "MYSQL_8_0" and tier "db-f1-micro" in region "us-central1"
+520 (sleep) 120
+530 (gcp) list cloudsql instances
+540 (print) "Cloud SQL instance created (this takes several minutes)"
+
+REM ============================================================================
+REM Example 7: BigQuery - Dataset and Query Operations
+REM ============================================================================
+REM Create BigQuery datasets and run queries.
+
+600 (print) "=== Example 7: BigQuery Operations ==="
+610 (gcp) create bigquery dataset "analytics_data" in location "us-central1"
+620 (gcp) list bigquery datasets
+630 (gcp) run bigquery query "SELECT 'Hello from BigQuery!' as message, CURRENT_TIMESTAMP() as timestamp"
+640 (print) "BigQuery dataset created and query executed"
+
+REM ============================================================================
+REM Example 8: Pub/Sub - Topic and Messaging
+REM ============================================================================
+REM Create topics and publish messages.
+
+700 (print) "=== Example 8: Pub/Sub Messaging ==="
+710 (gcp) create pubsub topic "aibasic-events"
+720 (gcp) list pubsub topics
+730 (gcp) publish message "Event: User login" to topic "aibasic-events" with user_id "12345" and event_type "login"
+740 (gcp) create pubsub subscription "aibasic-events-sub" for topic "aibasic-events"
+750 (print) "Pub/Sub topic and subscription created"
+
+REM ============================================================================
+REM Example 9: Secret Manager - Secrets Management
+REM ============================================================================
+REM Store and retrieve secrets securely.
+
+800 (print) "=== Example 9: Secret Manager ==="
+810 (gcp) create secret "database-password" with value "SecurePassword123!"
+820 (gcp) create secret "api-key" with value "sk-1234567890abcdef"
+830 (gcp) list secrets
+840 (gcp) get secret "database-password"
+850 (print) "Secrets stored and retrieved securely"
+
+REM ============================================================================
+REM Example 10: Multi-Tier Web Application Deployment
+REM ============================================================================
+REM Deploy a complete web application infrastructure.
+
+900 (print) "=== Example 10: Multi-Tier Application Deployment ==="
+
+REM Create storage for application data
+910 (gcp) create storage bucket "webapp-assets-001" in location "us-central1" with storage_class "STANDARD"
+920 (gcp) create storage bucket "webapp-backups-001" in location "us-central1" with storage_class "NEARLINE"
+
+REM Create Cloud SQL database
+930 (gcp) create cloudsql instance "webapp-db" with database_version "POSTGRES_14" and tier "db-g1-small" in region "us-central1"
+
+REM Create Compute Engine instances for web and app tiers
+940 (sleep) 60
+950 (gcp) create compute instance "webapp-frontend" in zone "us-central1-a" with machine_type "e2-small" and labels {"tier": "web", "app": "webapp"}
+960 (gcp) create compute instance "webapp-backend" in zone "us-central1-a" with machine_type "e2-medium" and labels {"tier": "app", "app": "webapp"}
+
+REM Store secrets
+970 (gcp) create secret "webapp-db-connection" with value "postgresql://user:pass@webapp-db/webapp"
+980 (gcp) create secret "webapp-session-key" with value "random-session-key-12345"
+
+990 (print) "Multi-tier application infrastructure deployed"
+
+REM ============================================================================
+REM Example 11: Data Pipeline with Cloud Storage and BigQuery
+REM ============================================================================
+REM Build a data processing pipeline.
+
+1000 (print) "=== Example 11: Data Pipeline Deployment ==="
+
+REM Create storage buckets for data pipeline
+1010 (gcp) create storage bucket "data-pipeline-raw" in location "us-central1"
+1020 (gcp) create storage bucket "data-pipeline-processed" in location "us-central1"
+
+REM Create BigQuery datasets for analytics
+1030 (gcp) create bigquery dataset "raw_data" in location "us-central1"
+1040 (gcp) create bigquery dataset "analytics" in location "us-central1"
+
+REM Upload sample data
+1050 (file) write "sample-data.csv" with content "id,name,value\n1,Test,100\n2,Sample,200"
+1060 (gcp) upload file "sample-data.csv" to bucket "data-pipeline-raw" as "data/2025/01/sample.csv"
+
+REM Create Pub/Sub topic for pipeline events
+1070 (gcp) create pubsub topic "pipeline-events"
+1080 (gcp) create pubsub subscription "pipeline-processor" for topic "pipeline-events"
+
+1090 (print) "Data pipeline infrastructure deployed"
+
+REM ============================================================================
+REM Example 12: Microservices Architecture
+REM ============================================================================
+REM Deploy microservices infrastructure.
+
+1100 (print) "=== Example 12: Microservices Deployment ==="
+
+REM Create Pub/Sub topics for inter-service communication
+1110 (gcp) create pubsub topic "orders-queue"
+1120 (gcp) create pubsub topic "payments-queue"
+1130 (gcp) create pubsub topic "notifications-queue"
+
+REM Create subscriptions for each service
+1140 (gcp) create pubsub subscription "order-processor" for topic "orders-queue"
+1150 (gcp) create pubsub subscription "payment-processor" for topic "payments-queue"
+1160 (gcp) create pubsub subscription "notification-sender" for topic "notifications-queue"
+
+REM Create Cloud SQL for shared database
+1170 (gcp) create cloudsql instance "microservices-db" with database_version "POSTGRES_14" and tier "db-custom-2-7680"
+
+REM Create storage for service data
+1180 (gcp) create storage bucket "microservices-data" in location "us-central1"
+
+REM Store service secrets
+1190 (gcp) create secret "payment-gateway-key" with value "pk_live_123456789"
+1200 (gcp) create secret "email-smtp-password" with value "smtp-password-123"
+
+1210 (print) "Microservices infrastructure deployed"
+
+REM ============================================================================
+REM Example 13: Machine Learning Pipeline
+REM ============================================================================
+REM Set up infrastructure for ML workflows.
+
+1300 (print) "=== Example 13: ML Pipeline Infrastructure ==="
+
+REM Create storage buckets for ML pipeline
+1310 (gcp) create storage bucket "ml-training-data" in location "us-central1"
+1320 (gcp) create storage bucket "ml-models" in location "us-central1" with storage_class "STANDARD"
+1330 (gcp) create storage bucket "ml-predictions" in location "us-central1"
+
+REM Create BigQuery datasets for feature store
+1340 (gcp) create bigquery dataset "feature_store" in location "us-central1"
+1350 (gcp) create bigquery dataset "model_metrics" in location "us-central1"
+
+REM Create Pub/Sub for model serving
+1360 (gcp) create pubsub topic "prediction-requests"
+1370 (gcp) create pubsub topic "prediction-results"
+
+REM Upload sample training data
+1380 (file) write "training-data.csv" with content "feature1,feature2,label\n0.1,0.2,0\n0.8,0.9,1"
+1390 (gcp) upload file "training-data.csv" to bucket "ml-training-data" as "datasets/v1/data.csv"
+
+1400 (print) "ML pipeline infrastructure deployed"
+
+REM ============================================================================
+REM Example 14: IoT Data Collection Platform
+REM ============================================================================
+REM Build IoT data ingestion and processing.
+
+1500 (print) "=== Example 14: IoT Platform Deployment ==="
+
+REM Create Pub/Sub for device telemetry
+1510 (gcp) create pubsub topic "device-telemetry"
+1520 (gcp) create pubsub topic "device-commands"
+1530 (gcp) create pubsub subscription "telemetry-processor" for topic "device-telemetry"
+
+REM Create storage for device data
+1540 (gcp) create storage bucket "iot-device-data" in location "us-central1"
+1550 (gcp) create storage bucket "iot-device-logs" in location "us-central1" with storage_class "COLDLINE"
+
+REM Create BigQuery for analytics
+1560 (gcp) create bigquery dataset "iot_telemetry" in location "us-central1"
+1570 (gcp) create bigquery dataset "device_analytics" in location "us-central1"
+
+REM Simulate device message
+1580 (gcp) publish message '{"device_id": "sensor-001", "temperature": 22.5, "humidity": 45}' to topic "device-telemetry" with device_id "sensor-001"
+
+1590 (print) "IoT platform infrastructure deployed"
+
+REM ============================================================================
+REM Example 15: Real-Time Analytics Platform
+REM ============================================================================
+REM Deploy real-time data analytics infrastructure.
+
+1600 (print) "=== Example 15: Real-Time Analytics Platform ==="
+
+REM Create Pub/Sub for event streaming
+1610 (gcp) create pubsub topic "user-events"
+1620 (gcp) create pubsub topic "analytics-results"
+1630 (gcp) create pubsub subscription "event-processor" for topic "user-events"
+
+REM Create BigQuery for data warehouse
+1640 (gcp) create bigquery dataset "events" in location "us-central1"
+1650 (gcp) create bigquery dataset "aggregations" in location "us-central1"
+
+REM Publish sample events
+1660 (gcp) publish message "pageview" to topic "user-events" with user_id "user123" and page "/home"
+1670 (gcp) publish message "click" to topic "user-events" with user_id "user123" and element "buy-button"
+
+REM Create storage for raw event data
+1680 (gcp) create storage bucket "analytics-raw-events" in location "us-central1"
+
+1690 (print) "Real-time analytics platform deployed"
+
+REM ============================================================================
+REM Example 16: Disaster Recovery and Backup Setup
+REM ============================================================================
+REM Configure backup and disaster recovery.
+
+1700 (print) "=== Example 16: Disaster Recovery Setup ==="
+
+REM Create multi-region storage for backups
+1710 (gcp) create storage bucket "prod-backups-primary" in location "us-central1" with storage_class "STANDARD"
+1720 (gcp) create storage bucket "prod-backups-secondary" in location "europe-west1" with storage_class "NEARLINE"
+
+REM Upload backup data
+1730 (file) write "database-backup.sql" with content "-- Database backup placeholder"
+1740 (gcp) upload file "database-backup.sql" to bucket "prod-backups-primary" as "backups/2025/01/15/db-backup.sql"
+
+REM Create Cloud SQL with backup configuration
+1750 (gcp) create cloudsql instance "prod-db-replica" with database_version "POSTGRES_14" and tier "db-g1-small" in region "europe-west1"
+
+REM Store DR credentials
+1760 (gcp) create secret "dr-admin-password" with value "dr-secure-pass-123"
+
+1770 (print) "Disaster recovery infrastructure configured"
+
+REM ============================================================================
+REM Example 17: CI/CD Pipeline Infrastructure
+REM ============================================================================
+REM Set up continuous integration and deployment.
+
+1800 (print) "=== Example 17: CI/CD Pipeline Infrastructure ==="
+
+REM Create storage for build artifacts
+1810 (gcp) create storage bucket "cicd-artifacts" in location "us-central1"
+1820 (gcp) create storage bucket "cicd-docker-cache" in location "us-central1"
+
+REM Create Pub/Sub for build notifications
+1830 (gcp) create pubsub topic "build-started"
+1840 (gcp) create pubsub topic "build-completed"
+1850 (gcp) create pubsub topic "deployment-events"
+
+REM Create secrets for CI/CD
+1860 (gcp) create secret "github-token" with value "ghp_1234567890abcdef"
+1870 (gcp) create secret "docker-registry-password" with value "docker-pass-123"
+1880 (gcp) create secret "deploy-ssh-key" with value "ssh-private-key-placeholder"
+
+1890 (print) "CI/CD pipeline infrastructure deployed"
+
+REM ============================================================================
+REM Example 18: E-Commerce Platform
+REM ============================================================================
+REM Deploy complete e-commerce infrastructure.
+
+1900 (print) "=== Example 18: E-Commerce Platform Deployment ==="
+
+REM Create storage for product images and assets
+1910 (gcp) create storage bucket "ecommerce-product-images" in location "us-central1"
+1920 (gcp) create storage bucket "ecommerce-user-uploads" in location "us-central1"
+
+REM Create Cloud SQL databases
+1930 (gcp) create cloudsql instance "ecommerce-products-db" with database_version "MYSQL_8_0" and tier "db-n1-standard-2"
+1940 (gcp) create cloudsql instance "ecommerce-orders-db" with database_version "MYSQL_8_0" and tier "db-n1-standard-2"
+
+REM Create Pub/Sub for order processing
+1950 (gcp) create pubsub topic "new-orders"
+1960 (gcp) create pubsub topic "payment-processed"
+1970 (gcp) create pubsub topic "order-shipped"
+1980 (gcp) create pubsub subscription "order-fulfillment" for topic "new-orders"
+
+REM Create BigQuery for analytics
+1990 (gcp) create bigquery dataset "sales_analytics" in location "us-central1"
+2000 (gcp) create bigquery dataset "customer_analytics" in location "us-central1"
+
+REM Store sensitive data
+2010 (gcp) create secret "payment-gateway-secret" with value "stripe-sk-123456789"
+2020 (gcp) create secret "shipping-api-key" with value "shippo-api-key-123"
+
+REM Create compute instances for application servers
+2030 (gcp) create compute instance "ecommerce-web-01" in zone "us-central1-a" with machine_type "n1-standard-2" and labels {"tier": "web", "app": "ecommerce"}
+2040 (gcp) create compute instance "ecommerce-api-01" in zone "us-central1-a" with machine_type "n1-standard-4" and labels {"tier": "api", "app": "ecommerce"}
+
+2050 (print) "E-commerce platform infrastructure deployed"
+
+REM ============================================================================
+REM Example 19: Log Aggregation and Monitoring
+REM ============================================================================
+REM Set up centralized logging and monitoring.
+
+2100 (print) "=== Example 19: Log Aggregation Infrastructure ==="
+
+REM Create storage for logs
+2110 (gcp) create storage bucket "application-logs" in location "us-central1" with storage_class "NEARLINE"
+2120 (gcp) create storage bucket "audit-logs" in location "us-central1" with storage_class "COLDLINE"
+
+REM Create BigQuery for log analysis
+2130 (gcp) create bigquery dataset "logs" in location "us-central1"
+2140 (gcp) create bigquery dataset "metrics" in location "us-central1"
+
+REM Create Pub/Sub for log ingestion
+2150 (gcp) create pubsub topic "app-logs"
+2160 (gcp) create pubsub topic "error-logs"
+2170 (gcp) create pubsub subscription "log-processor" for topic "app-logs"
+
+REM Publish sample log
+2180 (gcp) publish message '{"level": "INFO", "message": "Application started", "timestamp": "2025-01-15T10:00:00Z"}' to topic "app-logs"
+
+2190 (print) "Log aggregation infrastructure deployed"
+
+REM ============================================================================
+REM Example 20: Content Delivery and Media Platform
+REM ============================================================================
+REM Deploy content delivery infrastructure.
+
+2200 (print) "=== Example 20: Content Delivery Platform ==="
+
+REM Create storage for media content
+2210 (gcp) create storage bucket "cdn-videos" in location "us-central1" with storage_class "STANDARD"
+2220 (gcp) create storage bucket "cdn-images" in location "us-central1" with storage_class "STANDARD"
+2230 (gcp) create storage bucket "cdn-audio" in location "us-central1" with storage_class "STANDARD"
+
+REM Upload sample content
+2240 (file) write "sample-image.txt" with content "Image placeholder"
+2250 (gcp) upload file "sample-image.txt" to bucket "cdn-images" as "media/sample.jpg"
+
+REM Create Pub/Sub for transcoding jobs
+2260 (gcp) create pubsub topic "video-upload-events"
+2270 (gcp) create pubsub topic "transcoding-complete"
+2280 (gcp) create pubsub subscription "transcoder" for topic "video-upload-events"
+
+REM Create BigQuery for analytics
+2290 (gcp) create bigquery dataset "content_analytics" in location "us-central1"
+
+2300 (print) "Content delivery platform deployed"
+
+REM ============================================================================
+REM Example 21: Resource Cleanup and Cost Management
+REM ============================================================================
+REM Clean up resources to manage costs.
+
+2400 (print) "=== Example 21: Resource Cleanup ==="
+2410 (gcp) list compute instances in zone "us-central1-a"
+2420 (gcp) list all storage buckets
+2430 (gcp) list cloudsql instances
+2440 (gcp) list bigquery datasets
+2450 (gcp) list pubsub topics
+
+REM Delete test resources (uncomment to execute)
+REM 2460 (gcp) delete compute instance "web-server" in zone "us-central1-a"
+REM 2470 (gcp) delete storage bucket "aibasic-data-bucket" with force True
+REM 2480 (gcp) delete pubsub topic "aibasic-events"
+
+2490 (print) "Resource inventory completed"
+
+REM ============================================================================
+REM Example 22: Multi-Region Deployment
+REM ============================================================================
+REM Deploy resources across multiple regions for high availability.
+
+2500 (print) "=== Example 22: Multi-Region Deployment ==="
+
+REM Create compute instances in multiple zones
+2510 (gcp) create compute instance "app-us-central" in zone "us-central1-a" with machine_type "e2-medium" and labels {"region": "us-central", "role": "primary"}
+2520 (gcp) create compute instance "app-us-east" in zone "us-east1-b" with machine_type "e2-medium" and labels {"region": "us-east", "role": "secondary"}
+2530 (gcp) create compute instance "app-europe" in zone "europe-west1-b" with machine_type "e2-medium" and labels {"region": "europe", "role": "secondary"}
+
+REM Create Cloud SQL instances in multiple regions
+2540 (gcp) create cloudsql instance "db-us-central" with database_version "POSTGRES_14" and tier "db-g1-small" in region "us-central1"
+2550 (gcp) create cloudsql instance "db-europe" with database_version "POSTGRES_14" and tier "db-g1-small" in region "europe-west1"
+
+REM Create multi-region storage
+2560 (gcp) create storage bucket "global-assets-us" in location "us-central1"
+2570 (gcp) create storage bucket "global-assets-eu" in location "europe-west1"
+
+2580 (print) "Multi-region deployment completed"
+
+REM ============================================================================
+REM End of GCP Module Examples
+REM ============================================================================
+
+REM Note: Remember to clean up resources after testing to avoid unnecessary costs:
+REM (gcp) delete compute instance "instance-name" in zone "zone-name"
+REM (gcp) delete storage bucket "bucket-name" with force True
+REM (gcp) delete cloudsql instance "instance-name"
+
+REM For production deployments:
+REM 1. Use Secret Manager for all sensitive data
+REM 2. Implement proper IAM roles and permissions
+REM 3. Enable Cloud Monitoring and Cloud Logging
+REM 4. Use VPC networks for security
+REM 5. Enable Cloud Armor for DDoS protection
+REM 6. Use Cloud CDN for content delivery
+REM 7. Implement proper backup and disaster recovery
+REM 8. Regular security audits and compliance checks
+REM 9. Cost monitoring and optimization with Budgets & Alerts
+REM 10. Use Terraform or Deployment Manager for infrastructure as code
