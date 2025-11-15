@@ -36,7 +36,7 @@
 
 <div class="container grid">
   <aside class="sidebar">
-    <strong>Modules (20)</strong>
+    <strong>Modules (24)</strong>
     <a href="#postgres">PostgreSQL</a>
     <a href="#mysql">MySQL</a>
     <a href="#mongodb">MongoDB</a>
@@ -51,16 +51,20 @@
     <a href="#elasticsearch">Elasticsearch</a>
     <a href="#email">Email</a>
     <a href="#s3">S3/MinIO</a>
+    <a href="#aws">AWS</a>
     <a href="#ssh">SSH/SFTP</a>
     <a href="#vault">Vault</a>
     <a href="#compress">Compression</a>
     <a href="#api">REST API</a>
     <a href="#teams">Microsoft Teams</a>
     <a href="#slack">Slack</a>
+    <a href="#terraform">Terraform</a>
+    <a href="#docker">Docker</a>
+    <a href="#kubernetes">Kubernetes</a>
   </aside>
   <main>
     <h1>Modules Reference</h1>
-    <p class="muted">AIbasic includes 20 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, and security.</p>
+    <p class="muted">AIbasic includes 24 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, cloud, IaC, containers, orchestration, and security.</p>
 
     <h2 id="postgres">1. PostgreSQL Module</h2>
     <div class="panel">
@@ -525,7 +529,63 @@ REGION = us-east-1
       </ul>
     </div>
 
-    <h2 id="ssh">15. SSH/SFTP Module</h2>
+    <h2 id="aws">15. AWS Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(aws)</code></p>
+      <p><strong>Purpose:</strong> Comprehensive Amazon Web Services integration (S3, DynamoDB, SQS, SNS, Lambda, Secrets Manager, CloudWatch)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[aws]
+AWS_ACCESS_KEY_ID = your-access-key
+AWS_SECRET_ACCESS_KEY = your-secret-key
+AWS_REGION = us-east-1
+DEFAULT_S3_BUCKET = my-bucket
+DEFAULT_DYNAMODB_TABLE = my-table</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code># S3 Operations
+10 (aws) upload file "data.csv" to S3 bucket "my-bucket"
+20 (aws) download from S3 bucket "my-bucket" key "data.csv"
+30 (aws) list S3 objects in bucket "my-bucket"
+
+# DynamoDB Operations
+40 (aws) put item into DynamoDB table "users" with data
+50 (aws) get item from DynamoDB table "users" with key
+60 (aws) query DynamoDB table "users" where user_id equals "123"
+
+# SQS Operations
+70 (aws) send message to SQS queue "orders-queue"
+80 (aws) receive messages from SQS queue "orders-queue"
+
+# SNS Operations
+90 (aws) publish to SNS topic with message "Alert"
+
+# Lambda Operations
+100 (aws) invoke Lambda function "my-function" with payload
+
+# Secrets Manager
+110 (aws) get secret from Secrets Manager "db-credentials"
+
+# CloudWatch
+120 (aws) put CloudWatch metric "OrderCount" value 150</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>S3 - Object storage (upload, download, list, presigned URLs)</li>
+        <li>DynamoDB - NoSQL database (put, get, query, scan, delete)</li>
+        <li>SQS - Message queuing (send, receive, delete messages)</li>
+        <li>SNS - Pub/sub notifications (publish to topics)</li>
+        <li>Lambda - Invoke serverless functions (sync/async)</li>
+        <li>Secrets Manager - Secure credential storage</li>
+        <li>CloudWatch - Custom metrics and monitoring</li>
+        <li>LocalStack support for local development</li>
+        <li>Automatic credential management (IAM, env, config)</li>
+        <li>Connection pooling and retry logic</li>
+        <li>Perfect for: Cloud-native apps, serverless, data pipelines, microservices</li>
+      </ul>
+    </div>
+
+    <h2 id="ssh">16. SSH/SFTP Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(ssh)</code></p>
       <p><strong>Purpose:</strong> Remote server access and file transfer</p>
@@ -559,7 +619,7 @@ PASSWORD = password
       </ul>
     </div>
 
-    <h2 id="vault">16. HashiCorp Vault Module</h2>
+    <h2 id="vault">17. HashiCorp Vault Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(vault)</code></p>
       <p><strong>Purpose:</strong> Secure secrets management</p>
@@ -591,7 +651,7 @@ VAULT_TOKEN = your-vault-token
       </ul>
     </div>
 
-    <h2 id="compress">17. Compression Module</h2>
+    <h2 id="compress">18. Compression Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(compress)</code></p>
       <p><strong>Purpose:</strong> File compression and extraction</p>
@@ -617,7 +677,7 @@ VAULT_TOKEN = your-vault-token
       </ul>
     </div>
 
-    <h2 id="api">18. REST API Module</h2>
+    <h2 id="api">19. REST API Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(api)</code></p>
       <p><strong>Purpose:</strong> HTTP client for REST API calls</p>
@@ -654,7 +714,7 @@ BEARER_TOKEN = your-token
       </ul>
     </div>
 
-    <h2 id="teams">19. Microsoft Teams Module</h2>
+    <h2 id="teams">20. Microsoft Teams Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(teams)</code></p>
       <p><strong>Purpose:</strong> Send messages, alerts, and adaptive cards to Microsoft Teams channels</p>
@@ -701,7 +761,7 @@ CHANNEL_ID = 19:xxx@thread.tacv2</code></pre>
       </ul>
     </div>
 
-    <h2 id="slack">20. Slack Module</h2>
+    <h2 id="slack">21. Slack Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(slack)</code></p>
       <p><strong>Purpose:</strong> Send messages, alerts, blocks, and files to Slack channels</p>
@@ -756,11 +816,172 @@ DEFAULT_CHANNEL = #general</code></pre>
       </ul>
     </div>
 
+    <h2 id="terraform">22. Terraform Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(terraform)</code></p>
+      <p><strong>Purpose:</strong> Manage infrastructure as code (IaC) using HashiCorp Terraform</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[terraform]
+WORKING_DIR = ./terraform
+AUTO_APPROVE = false
+PARALLELISM = 10
+DEFAULT_WORKSPACE = default
+BACKEND_TYPE = s3
+BACKEND_CONFIG = {"bucket": "my-tf-state", "key": "terraform.tfstate", "region": "us-east-1"}</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (terraform) initialize terraform in directory "./terraform"
+20 (terraform) validate terraform configuration
+30 (terraform) format terraform configuration files
+40 (terraform) create terraform plan and save to "plan.out"
+50 (terraform) apply terraform configuration with auto approve
+
+60 (terraform) get all terraform outputs
+70 (terraform) get terraform output "instance_ip"
+
+80 (terraform) list all terraform workspaces
+90 (terraform) create new terraform workspace "staging"
+100 (terraform) select terraform workspace "staging"
+
+110 (terraform) list all resources in terraform state
+120 (terraform) show terraform state for resource "aws_instance.web"
+130 (terraform) refresh terraform state
+
+140 (terraform) import terraform resource at "aws_instance.existing" with id "i-1234567890"
+
+150 (terraform) destroy terraform with auto approve</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Full Terraform CLI wrapper</li>
+        <li>Multi-cloud support (AWS, Azure, GCP, 1000+ providers)</li>
+        <li>Workspace management for environment isolation</li>
+        <li>State management operations</li>
+        <li>Backend configuration (S3, Azure, GCS, local)</li>
+        <li>Variable management</li>
+        <li>Plan, apply, destroy operations</li>
+        <li>Import existing resources</li>
+        <li>Validation and formatting</li>
+        <li>Output value retrieval</li>
+      </ul>
+    </div>
+
+    <h2 id="docker">23. Docker Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(docker)</code></p>
+      <p><strong>Purpose:</strong> Manage Docker containers, images, volumes, and networks</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[docker]
+DOCKER_HOST = unix:///var/run/docker.sock
+TLS_VERIFY = false
+TIMEOUT = 60
+DEFAULT_REGISTRY = docker.io
+REGISTRY_USERNAME = your_username
+REGISTRY_PASSWORD = your_password</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (docker) run container from image "nginx:latest" named "web-server" in detached mode
+20 (docker) list all running containers
+30 (docker) stop container "web-server"
+40 (docker) remove container "web-server"
+
+50 (docker) pull image "alpine" with tag "latest"
+60 (docker) list all images
+70 (docker) remove image "alpine:latest"
+
+80 (docker) create volume "data-volume"
+90 (docker) list all volumes
+100 (docker) remove volume "data-volume"
+
+110 (docker) create network "app-network" with driver "bridge"
+120 (docker) list all networks
+130 (docker) remove network "app-network"
+
+140 (docker) get logs from container "web-server" tail 50 lines
+150 (docker) exec command "whoami" in container "web-server"
+160 (docker) get stats from container "web-server"
+
+170 (docker) get system info
+180 (docker) prune all system resources</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Container lifecycle management (run, start, stop, restart, remove)</li>
+        <li>Image management (pull, build, push, tag, remove)</li>
+        <li>Volume operations for persistent storage</li>
+        <li>Network management for multi-container communication</li>
+        <li>Container execution (exec commands)</li>
+        <li>Logs and stats monitoring</li>
+        <li>Health checks and pause/unpause</li>
+        <li>Resource limits and restart policies</li>
+        <li>Docker Hub search and registry operations</li>
+        <li>System-wide cleanup and pruning</li>
+      </ul>
+    </div>
+
+    <h2 id="kubernetes">24. Kubernetes Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(kubernetes)</code></p>
+      <p><strong>Purpose:</strong> Manage Kubernetes cluster resources (pods, deployments, services, etc.)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[kubernetes]
+KUBECONFIG_PATH = ~/.kube/config
+CONTEXT = default
+NAMESPACE = default
+API_SERVER = https://kubernetes.default.svc
+TOKEN = <service-account-token>
+VERIFY_SSL = true</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (kubernetes) create pod named "app-pod" from image "nginx:latest"
+20 (kubernetes) list all pods in namespace "default"
+30 (kubernetes) delete pod "app-pod"
+
+40 (kubernetes) create deployment named "web-app" from image "nginx:latest"
+50 (kubernetes) with 3 replicas
+60 (kubernetes) scale deployment "web-app" to 5 replicas
+70 (kubernetes) rollout restart deployment "web-app"
+80 (kubernetes) delete deployment "web-app"
+
+90 (kubernetes) create service named "web-service" on port 80 target port 80
+100 (kubernetes) with type "LoadBalancer"
+110 (kubernetes) list all services
+120 (kubernetes) delete service "web-service"
+
+130 (kubernetes) create configmap named "app-config" with data config_data
+140 (kubernetes) create secret named "app-secrets" with data secret_data
+
+150 (kubernetes) create namespace "production"
+160 (kubernetes) list all namespaces
+170 (kubernetes) delete namespace "production"
+
+180 (kubernetes) get logs from pod "app-pod" tail 100 lines
+190 (kubernetes) exec command list "whoami" in pod "app-pod"
+200 (kubernetes) get cluster info</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Pod lifecycle management (create, list, delete, logs, exec)</li>
+        <li>Deployment management (create, scale, rollout, delete)</li>
+        <li>Service management (ClusterIP, NodePort, LoadBalancer)</li>
+        <li>ConfigMap and Secret management</li>
+        <li>Namespace isolation and multi-tenancy</li>
+        <li>Resource monitoring and events</li>
+        <li>Cluster information and node management</li>
+        <li>Label-based resource selection</li>
+        <li>Support for kubeconfig and in-cluster auth</li>
+        <li>Multi-context cluster management</li>
+      </ul>
+    </div>
+
     <div class="panel">
       <h3>Module Usage Tips</h3>
       <ul>
         <li>Configure modules in <code>aibasic.conf</code> before use</li>
-        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(s3)</code></li>
+        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(s3)</code>, <code>(terraform)</code>, <code>(docker)</code>, <code>(kubernetes)</code></li>
         <li>Combine modules for powerful workflows (e.g., Postgres → DataFrame → S3)</li>
         <li>Use error handling (<code>ON ERROR GOTO</code>) with I/O operations</li>
         <li>Close connections explicitly or rely on automatic cleanup</li>
@@ -770,7 +991,7 @@ DEFAULT_CHANNEL = #general</code></pre>
 </div>
 
 <div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
-  © 2025 AIbasic v1.0 — Complete documentation with 20 integrated modules
+  © 2025 AIbasic v1.0 — Complete documentation with 24 integrated modules
 </div>
 <script src="script.js"></script>
 </body></html>

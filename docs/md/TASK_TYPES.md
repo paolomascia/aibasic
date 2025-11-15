@@ -203,6 +203,43 @@ If you don't specify a task type, the compiler will automatically detect it base
   - Continuous aggregates refresh automatically based on policies
   - Perfect for: IoT sensor data, application metrics, financial data, server monitoring, logs
 
+#### `aws` - AWS Cloud Services Integration (with Module)
+- **Description**: Comprehensive Amazon Web Services integration for cloud-native applications
+- **Keywords**: aws, s3, dynamodb, sqs, sns, lambda, cloud, serverless, secrets manager, cloudwatch
+- **Common Libraries**: boto3
+- **Module**: `aibasic.modules.AWSModule`
+- **Configuration**: Requires `[aws]` section in `aibasic.conf`
+- **Examples**:
+  - `10 (aws) upload file data.csv to S3 bucket my-bucket`
+  - `20 (aws) download from S3 bucket my-bucket key data.csv`
+  - `30 (aws) put item into DynamoDB table users with data`
+  - `40 (aws) get item from DynamoDB table users with key`
+  - `50 (aws) send message to SQS queue orders-queue`
+  - `60 (aws) receive messages from SQS queue orders-queue`
+  - `70 (aws) publish to SNS topic with message`
+  - `80 (aws) invoke Lambda function my-function with payload`
+  - `90 (aws) get secret from Secrets Manager db-credentials`
+  - `100 (aws) put CloudWatch metric OrderCount value 150`
+- **Usage Notes**:
+  - The AWSModule provides unified access to 10+ AWS services
+  - Supports production AWS and LocalStack for local development
+  - Use `aws.s3_upload_file()` / `s3_download_file()` for S3 operations
+  - Use `aws.dynamodb_put_item()` / `get_item()` / `query()` / `scan()` for DynamoDB
+  - Use `aws.sqs_send_message()` / `receive_messages()` for SQS queuing
+  - Use `aws.sns_publish()` for pub/sub notifications
+  - Use `aws.lambda_invoke()` for serverless function execution
+  - Use `aws.secrets_get_secret()` for secure credential retrieval
+  - Use `aws.cloudwatch_put_metric()` for custom monitoring metrics
+  - Automatic credential management: IAM roles, environment variables, or config file
+  - Built-in retry logic and connection pooling
+  - LocalStack endpoint: http://localhost:4566 (credentials: test/test)
+  - S3: Upload, download, list, delete, presigned URLs, server-side encryption
+  - DynamoDB: NoSQL database with primary keys, GSI, queries, scans
+  - SQS: Message queuing with visibility timeout, long polling, dead-letter queues
+  - SNS: Topic-based pub/sub with multiple subscribers
+  - Lambda: Sync (RequestResponse) and async (Event) invocation
+  - Perfect for: Cloud-native apps, serverless architectures, microservices, data pipelines, event-driven systems
+
 ### Network Operations
 
 #### `api` - API/REST Operations

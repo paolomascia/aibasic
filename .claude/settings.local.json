@@ -8,7 +8,8 @@
       "Bash(chmod:*)",
       "Bash(\"c:\\Area51\\GIT-Repos\\aibasic\\requirements.txt\")",
       "Bash(\"c:\\Area51\\GIT-Repos\\aibasic\\aibasic.conf.example\")",
-      "Bash(\"c:\\Area51\\GIT-Repos\\aibasic\\docker\\config\\aibasic.conf\")"
+      "Bash(\"c:\\Area51\\GIT-Repos\\aibasic\\docker\\config\\aibasic.conf\")",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

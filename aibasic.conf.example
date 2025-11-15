@@ -391,6 +391,39 @@ MODEL = gpt-4o-mini
 # SFTP Settings
 # SFTP_TIMEOUT = 60  # SFTP operation timeout
 
+# =============================================================================
+# AWS Module Configuration
+# =============================================================================
+# [aws]
+# AWS credentials (or use IAM roles, environment variables, or AWS CLI config)
+# AWS_ACCESS_KEY_ID = AKIAIOSFODNN7EXAMPLE
+# AWS_SECRET_ACCESS_KEY = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+# AWS_REGION = us-east-1
+
+# Optional: Session Token (for temporary credentials)
+# AWS_SESSION_TOKEN = your_session_token_here
+
+# Optional: Endpoint URL (for LocalStack or custom endpoints)
+# ENDPOINT_URL = http://localhost:4566  # LocalStack endpoint
+# VERIFY_SSL = false  # Set to false for LocalStack or self-signed certificates
+
+# Default Resource Settings
+# DEFAULT_S3_BUCKET = my-default-bucket
+# DEFAULT_DYNAMODB_TABLE = my-default-table
+# DEFAULT_SQS_QUEUE = my-default-queue
+# DEFAULT_SNS_TOPIC = arn:aws:sns:us-east-1:123456789012:my-topic
+
+# Retry Configuration
+# MAX_RETRIES = 3  # Maximum number of retry attempts
+# RETRY_MODE = standard  # standard, legacy, or adaptive
+
+# Notes:
+# - AWS Module supports: S3, DynamoDB, SQS, SNS, Lambda, EC2, CloudWatch, Secrets Manager, SES
+# - Credentials priority: 1) Config file, 2) Environment variables, 3) IAM role
+# - For production, use IAM roles instead of hardcoded credentials
+# - Use LocalStack for local development and testing
+# - Enable CloudTrail for audit logging in production
+
 [teams]
 # Microsoft Teams integration settings
 # Uncomment and configure these settings to use the teams module
@@ -592,3 +625,177 @@ MODEL = gpt-4o-mini
 # - Automatic chunk management for efficient time-series storage
 # - Compression can reduce storage by 90%+
 # - Perfect for: High-ingest rates (millions of rows/sec), complex queries on time-series data
+
+[terraform]
+# Terraform Infrastructure as Code (IaC) settings
+# Uncomment and configure these settings to use the terraform module
+
+# Terraform Binary Path (optional - defaults to system PATH)
+# TERRAFORM_BIN = /usr/local/bin/terraform
+
+# Working Directory (where Terraform configuration files are located)
+# WORKING_DIR = ./terraform
+
+# Auto-Approve (DANGEROUS - use only for dev/testing)
+# AUTO_APPROVE = false  # Set to true to skip confirmation prompts
+
+# Parallelism (number of concurrent operations)
+# PARALLELISM = 10  # Default is 10, adjust based on rate limits
+
+# Default Workspace
+# DEFAULT_WORKSPACE = default  # or dev, staging, prod
+
+# Backend Configuration (for remote state storage)
+# BACKEND_TYPE = s3  # Options: s3, azurerm, gcs, local, remote, consul
+# BACKEND_CONFIG = {"bucket": "my-tf-state", "key": "terraform.tfstate", "region": "us-east-1"}
+
+# Variables (global variables for all Terraform operations)
+# VARIABLES = {"environment": "dev", "region": "us-east-1"}
+
+# Notes:
+# - Terraform enables Infrastructure as Code (IaC) for cloud resources
+# - Supports: AWS, Azure, GCP, Kubernetes, DigitalOcean, and 1000+ providers
+# - Best for: Provisioning infrastructure, multi-cloud deployments, automation
+# - Use workspaces to manage multiple environments (dev, staging, prod)
+# - Always use remote state (S3, Azure Storage, GCS) for team collaboration
+# - Never set AUTO_APPROVE=true in production
+# - Review plans before applying with terraform plan
+# - Use variables for configuration flexibility and reusability
+
+[docker]
+# Docker Engine API settings
+# Uncomment and configure these settings to use the docker module
+
+# Docker Host (socket or TCP)
+# DOCKER_HOST = unix:///var/run/docker.sock  # Linux/macOS
+# DOCKER_HOST = tcp://localhost:2375  # Windows or remote
+# DOCKER_HOST = npipe:////./pipe/docker_engine  # Windows named pipe
+
+# TLS/SSL Settings (for remote Docker daemon)
+# TLS_VERIFY = false  # Enable TLS verification
+# TLS_CA_CERT = /path/to/ca.pem
+# TLS_CLIENT_CERT = /path/to/cert.pem
+# TLS_CLIENT_KEY = /path/to/key.pem
+
+# Connection Settings
+# TIMEOUT = 60  # API timeout in seconds
+
+# Registry Settings (for push/pull operations)
+# DEFAULT_REGISTRY = docker.io
+# REGISTRY_USERNAME = your_dockerhub_username
+# REGISTRY_PASSWORD = your_dockerhub_password_or_token
+
+# Notes:
+# - Docker module enables container, image, volume, and network management
+# - Best for: Microservices, development environments, CI/CD pipelines
+# - Supports: Container lifecycle, image management, Docker Compose workflows
+# - Use volumes for persistent data across container restarts
+# - Use networks for multi-container communication
+# - Always set resource limits for production containers
+# - Implement health checks for critical services
+# - Use restart policies for high availability (always, on-failure, unless-stopped)
+# - Regular cleanup: prune unused images, containers, volumes, networks
+
+[kubernetes]
+# Kubernetes cluster management settings
+# Uncomment and configure these settings to use the kubernetes module
+
+# Kubeconfig File Path
+# KUBECONFIG_PATH = ~/.kube/config  # Standard kubeconfig location
+# KUBECONFIG_PATH = /path/to/custom/kubeconfig  # Custom location
+
+# Context (cluster to use from kubeconfig)
+# CONTEXT = default  # Use default context
+# CONTEXT = production-cluster  # Use specific context
+
+# Default Namespace
+# NAMESPACE = default  # Default namespace for operations
+# NAMESPACE = my-app  # Custom namespace
+
+# Direct API Server Connection (alternative to kubeconfig)
+# API_SERVER = https://kubernetes.default.svc  # In-cluster
+# API_SERVER = https://k8s.example.com:6443  # External cluster
+# TOKEN = <service-account-token>  # Service account token
+
+# TLS/SSL Settings
+# VERIFY_SSL = true  # Verify SSL certificates
+# CA_CERT = /var/run/secrets/kubernetes.io/serviceaccount/ca.crt  # CA certificate path
+
+# Notes:
+# - Kubernetes module enables cluster and resource management
+# - Best for: Container orchestration, microservices, scalable deployments
+# - Supports: Pods, Deployments, Services, ConfigMaps, Secrets, Namespaces
+# - Use Deployments for stateless applications with auto-scaling
+# - Use StatefulSets for stateful applications (databases, etc.)
+# - Use Services for stable network endpoints
+# - Use ConfigMaps for configuration, Secrets for sensitive data
+# - Implement liveness and readiness probes for health checks
+# - Use namespaces for multi-tenancy and resource isolation
+# - Set resource requests and limits for production workloads
+# - Use RBAC for access control and security
+
+[azure]
+# Microsoft Azure Cloud Services settings
+# Uncomment and configure these settings to use the azure module
+
+# Subscription and Tenant
+# SUBSCRIPTION_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # Your Azure subscription ID
+# TENANT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # Azure AD tenant ID
+
+# Service Principal Authentication (recommended for automation)
+# CLIENT_ID = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # Application (client) ID
+# CLIENT_SECRET = your-client-secret-here  # Client secret value
+
+# Default Azure Location
+# LOCATION = eastus  # Default region: eastus, westus, northeurope, etc.
+
+# Resource Naming Convention
+# RESOURCE_PREFIX = aibasic  # Prefix for resource names
+# ENVIRONMENT = dev  # Environment tag: dev, staging, prod
+
+# Default Resource Group
+# DEFAULT_RESOURCE_GROUP = aibasic-rg  # Default resource group for operations
+
+# Storage Settings
+# DEFAULT_STORAGE_ACCOUNT = aibasicstorage001
+# DEFAULT_STORAGE_SKU = Standard_LRS  # Standard_LRS, Standard_GRS, Premium_LRS
+
+# VM Settings
+# DEFAULT_VM_SIZE = Standard_B2s  # Default VM size
+# DEFAULT_VM_IMAGE_PUBLISHER = Canonical
+# DEFAULT_VM_IMAGE_OFFER = 0001-com-ubuntu-server-jammy
+# DEFAULT_VM_IMAGE_SKU = 22_04-lts-gen2
+
+# Network Settings
+# DEFAULT_VNET_ADDRESS_SPACE = 10.0.0.0/16
+# DEFAULT_SUBNET_PREFIX = 10.0.1.0/24
+
+# SQL Database Settings
+# DEFAULT_SQL_SKU = Basic  # Basic, S0, S1, P1, etc.
+# DEFAULT_SQL_ADMIN_USER = sqladmin
+
+# Cosmos DB Settings
+# DEFAULT_COSMOS_KIND = GlobalDocumentDB  # GlobalDocumentDB, MongoDB, Cassandra
+# DEFAULT_COSMOS_CONSISTENCY = Session  # Session, Strong, BoundedStaleness, etc.
+
+# App Service Settings
+# DEFAULT_APP_SERVICE_SKU = B1  # F1 (Free), B1, S1, P1v2, etc.
+
+# Container Instance Settings
+# DEFAULT_CONTAINER_CPU = 1.0
+# DEFAULT_CONTAINER_MEMORY = 1.5
+
+# Tagging Strategy
+# DEFAULT_TAGS = {"Environment": "dev", "ManagedBy": "AIBasic", "Project": "automation"}
+
+# Notes:
+# - Azure module supports: VMs, Storage, SQL, Cosmos DB, App Service, Functions, AKS
+# - Authentication methods: Service Principal (recommended), Managed Identity, Azure CLI
+# - Use DefaultAzureCredential for local development (reads from az login)
+# - For production, use Service Principal with minimal required permissions
+# - Always tag resources for cost tracking and management
+# - Use Azure Key Vault for secrets and sensitive configuration
+# - Enable Azure Monitor and Log Analytics for monitoring
+# - Implement Azure Policy for compliance and governance
+# - Use resource locks to prevent accidental deletion
+# - Consider using Azure Resource Manager (ARM) templates for complex deployments

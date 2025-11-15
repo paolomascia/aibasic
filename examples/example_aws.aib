@@ -1,0 +1,394 @@
+# ============================================
+# AWS Module Example - Comprehensive Demo
+# ============================================
+# This example demonstrates all major AWS services
+# integrated in the AWS module including S3, DynamoDB,
+# SQS, SNS, Lambda, Secrets Manager, and CloudWatch.
+#
+# Services Covered:
+# - S3: Object storage
+# - DynamoDB: NoSQL database
+# - SQS: Message queuing
+# - SNS: Pub/sub notifications
+# - Lambda: Serverless functions
+# - Secrets Manager: Secure credentials
+# - CloudWatch: Metrics and monitoring
+#
+# Prerequisites:
+# - AWS credentials configured (IAM, env vars, or aibasic.conf)
+# - boto3 installed: pip install boto3
+# - LocalStack for local testing (optional)
+# ============================================
+
+# ============================================
+# Example 1: S3 Object Storage Operations
+# ============================================
+
+10 print "=== Example 1: S3 Object Storage ==="
+
+# Upload file to S3
+20 (aws) upload file "data.csv" to S3 bucket "my-aibasic-bucket" with key "uploads/data.csv"
+30 print "File uploaded to S3 successfully"
+
+# Download file from S3
+40 (aws) download from S3 bucket "my-aibasic-bucket" key "uploads/data.csv" to "downloaded.csv"
+50 print "File downloaded from S3"
+
+# List objects in bucket
+60 (aws) list S3 objects in bucket "my-aibasic-bucket" with prefix "uploads/"
+70 print "S3 objects listed"
+
+# Generate presigned URL (expires in 1 hour)
+80 (aws) generate S3 presigned URL for bucket "my-aibasic-bucket" key "uploads/data.csv" expiration 3600
+90 print "Presigned URL generated"
+
+# Delete object from S3
+100 (aws) delete S3 object from bucket "my-aibasic-bucket" key "uploads/data.csv"
+110 print "S3 object deleted"
+
+# ============================================
+# Example 2: DynamoDB NoSQL Database
+# ============================================
+
+120 print ""
+130 print "=== Example 2: DynamoDB NoSQL Database ==="
+
+# Put item into DynamoDB table
+140 (aws) put item into DynamoDB table "users" with data {"user_id": "123", "name": "Alice", "email": "alice@example.com", "age": 30}
+150 print "Item inserted into DynamoDB"
+
+# Get item from DynamoDB
+160 (aws) get item from DynamoDB table "users" with key {"user_id": "123"}
+170 print "Retrieved user:" and result
+
+# Query DynamoDB with condition
+180 (aws) query DynamoDB table "users" where user_id equals "123"
+190 print "Query result:" and result
+
+# Scan DynamoDB table (full scan)
+200 (aws) scan DynamoDB table "users" where age greater than 25
+210 print "Scan results:" and result
+
+# Update item in DynamoDB
+220 (aws) put item into DynamoDB table "users" with data {"user_id": "123", "name": "Alice Smith", "email": "alice@example.com", "age": 31}
+230 print "DynamoDB item updated"
+
+# Delete item from DynamoDB
+240 (aws) delete item from DynamoDB table "users" with key {"user_id": "123"}
+250 print "DynamoDB item deleted"
+
+# ============================================
+# Example 3: SQS Message Queue
+# ============================================
+
+260 print ""
+270 print "=== Example 3: SQS Message Queue ==="
+
+# Send message to SQS queue
+280 (aws) send message to SQS queue "my-orders-queue" with body {"order_id": "ORD-456", "customer": "Alice", "amount": 99.99}
+290 print "Message sent to SQS queue"
+
+# Send message with delay (5 seconds)
+300 (aws) send delayed message to SQS queue "my-orders-queue" with body {"order_id": "ORD-457", "status": "pending"} delay 5 seconds
+310 print "Delayed message sent"
+
+# Receive messages from queue (long polling)
+320 (aws) receive messages from SQS queue "my-orders-queue" max 10 wait 5 seconds
+330 print "Received messages:" and messages
+
+# Process and delete messages
+340 for each message in messages
+350   print "Processing order:" and message.body
+360   (aws) delete message from SQS queue "my-orders-queue" with receipt handle message.receipt_handle
+370   print "Message deleted from queue"
+380 next
+
+# ============================================
+# Example 4: SNS Pub/Sub Notifications
+# ============================================
+
+390 print ""
+400 print "=== Example 4: SNS Pub/Sub Notifications ==="
+
+# Publish message to SNS topic
+410 (aws) publish to SNS topic "arn:aws:sns:us-east-1:123456789012:my-notifications" with message "System alert: High CPU usage detected"
+420 print "Message published to SNS topic"
+
+# Publish with subject (for email subscriptions)
+430 (aws) publish to SNS topic "arn:aws:sns:us-east-1:123456789012:my-alerts" with subject "Alert" and message "Database backup completed successfully"
+440 print "Notification sent to SNS subscribers"
+
+# Publish structured message
+450 (aws) publish to SNS topic "arn:aws:sns:us-east-1:123456789012:my-events" with message {"event": "order_created", "order_id": "ORD-789", "timestamp": "2025-01-15T10:30:00Z"}
+460 print "Event published to SNS"
+
+# ============================================
+# Example 5: AWS Lambda Function Invocation
+# ============================================
+
+470 print ""
+480 print "=== Example 5: Lambda Functions ==="
+
+# Invoke Lambda function synchronously
+490 (aws) invoke Lambda function "my-data-processor" with payload {"input_file": "data.csv", "output_format": "json"}
+500 print "Lambda function invoked, response:" and result
+
+# Invoke Lambda asynchronously (fire and forget)
+510 (aws) invoke Lambda function "send-email-notification" asynchronously with payload {"to": "user@example.com", "subject": "Report Ready"}
+520 print "Lambda function invoked asynchronously"
+
+# Invoke with DryRun (test without execution)
+530 (aws) invoke Lambda function "my-validator" with dry run and payload {"data": "test"}
+540 print "DryRun result:" and result
+
+# ============================================
+# Example 6: Secrets Manager
+# ============================================
+
+550 print ""
+560 print "=== Example 6: Secrets Manager ==="
+
+# Create secret
+570 (aws) create secret in Secrets Manager named "api/production/key" with value {"api_key": "sk-abc123", "api_secret": "secret456"}
+580 print "Secret created in Secrets Manager"
+
+# Retrieve secret
+590 (aws) get secret from Secrets Manager named "api/production/key"
+600 print "Retrieved secret:" and secret_value
+
+# Use secret in application
+610 set api_key to secret_value.api_key
+620 print "Using API key:" and api_key
+
+# Retrieve database credentials
+630 (aws) get secret from Secrets Manager named "database/prod/credentials"
+640 set db_password to secret_value.password
+650 print "Database password retrieved securely"
+
+# ============================================
+# Example 7: CloudWatch Metrics and Monitoring
+# ============================================
+
+660 print ""
+670 print "=== Example 7: CloudWatch Metrics ==="
+
+# Put custom metric to CloudWatch
+680 (aws) put CloudWatch metric "OrderCount" in namespace "MyApp/Orders" with value 150 unit "Count"
+690 print "Custom metric sent to CloudWatch"
+
+# Put metric with dimensions
+700 (aws) put CloudWatch metric "ResponseTime" in namespace "MyApp/API" with value 245 unit "Milliseconds" dimensions [{"Name": "Environment", "Value": "Production"}]
+710 print "Metric with dimensions sent"
+
+# Get metric statistics (last hour)
+720 (aws) get CloudWatch metric statistics for "OrderCount" in namespace "MyApp/Orders" from 1 hour ago to now period 300 statistics ["Average", "Sum", "Maximum"]
+730 print "Metric statistics:" and datapoints
+
+# Put multiple metrics
+740 (aws) put CloudWatch metric "ErrorRate" in namespace "MyApp/API" with value 0.02 unit "Percent"
+750 (aws) put CloudWatch metric "SuccessRate" in namespace "MyApp/API" with value 99.98 unit "Percent"
+760 print "Multiple metrics sent to CloudWatch"
+
+# ============================================
+# Example 8: Complete Workflow - Order Processing
+# ============================================
+
+770 print ""
+780 print "=== Example 8: Complete Order Processing Workflow ==="
+
+# 1. Receive order from SQS
+790 (aws) receive messages from SQS queue "orders-queue" max 1 wait 5 seconds
+800 if messages is empty then goto 900
+
+# 2. Process order
+810 set order to messages[0].body
+820 print "Processing order:" and order.order_id
+
+# 3. Store order in DynamoDB
+830 (aws) put item into DynamoDB table "orders" with data order
+840 print "Order saved to DynamoDB"
+
+# 4. Upload order details to S3
+850 (aws) upload data to S3 bucket "order-archive" with key "orders/" + order.order_id + ".json" content order
+860 print "Order archived to S3"
+
+# 5. Send notification via SNS
+870 (aws) publish to SNS topic "arn:aws:sns:us-east-1:123456789012:order-notifications" with message "Order " + order.order_id + " processed successfully"
+880 print "Notification sent"
+
+# 6. Log metric to CloudWatch
+890 (aws) put CloudWatch metric "OrdersProcessed" in namespace "MyApp/Orders" with value 1 unit "Count"
+900 (aws) delete message from SQS queue "orders-queue" with receipt handle messages[0].receipt_handle
+910 print "Order processing complete"
+
+# ============================================
+# Example 9: Multi-Region Operations
+# ============================================
+
+920 print ""
+930 print "=== Example 9: Multi-Region Operations ==="
+
+# Upload to multiple regions (requires configuration)
+940 (aws) upload file "backup.zip" to S3 bucket "backups-us-east-1" in region "us-east-1"
+950 (aws) upload file "backup.zip" to S3 bucket "backups-eu-west-1" in region "eu-west-1"
+960 print "File uploaded to multiple regions"
+
+# Query DynamoDB global table
+970 (aws) get item from DynamoDB global table "global-users" with key {"user_id": "123"} in region "us-west-2"
+980 print "Retrieved from global table"
+
+# ============================================
+# Example 10: Error Handling and Retry Logic
+# ============================================
+
+990 print ""
+1000 print "=== Example 10: Error Handling ==="
+
+# Set error handler
+1010 on error goto 9000
+
+# Attempt operation that might fail
+1020 (aws) get item from DynamoDB table "nonexistent-table" with key {"id": "123"}
+1030 print "This won't execute if table doesn't exist"
+
+# Success path
+1040 goto 9100
+
+# Error handler
+9000 print "Error occurred:" and _last_error
+9010 print "Error at line:" and _last_error_line
+9020 print "Retrying with different approach..."
+
+# Retry logic
+9030 (aws) create DynamoDB table "nonexistent-table" if not exists
+9040 print "Error handled gracefully"
+
+# ============================================
+# Example 11: Batch Operations
+# ============================================
+
+9100 print ""
+9110 print "=== Example 11: Batch Operations ==="
+
+# Batch insert to DynamoDB
+9120 set users_list to [
+9130   {"user_id": "001", "name": "Alice", "country": "USA"},
+9140   {"user_id": "002", "name": "Bob", "country": "UK"},
+9150   {"user_id": "003", "name": "Charlie", "country": "Canada"}
+9160 ]
+
+9170 for each user in users_list
+9180   (aws) put item into DynamoDB table "users" with data user
+9190   print "Inserted user:" and user.name
+9200 next
+
+# Batch upload to S3
+9210 set files to ["file1.txt", "file2.txt", "file3.txt"]
+9220 for each file in files
+9230   (aws) upload file file to S3 bucket "my-bucket" with key "batch/" + file
+9240   print "Uploaded:" and file
+9250 next
+
+# Batch send to SQS
+9260 set messages to [
+9270   {"message": "Task 1", "priority": "high"},
+9280   {"message": "Task 2", "priority": "medium"},
+9290   {"message": "Task 3", "priority": "low"}
+9300 ]
+
+9310 for each msg in messages
+9320   (aws) send message to SQS queue "tasks-queue" with body msg
+9330   print "Queued message:" and msg.message
+9340 next
+
+# ============================================
+# Example 12: Integration with Other Services
+# ============================================
+
+9350 print ""
+9360 print "=== Example 12: Service Integration ==="
+
+# S3 → Lambda → DynamoDB pipeline
+9370 print "Pipeline: S3 → Lambda → DynamoDB"
+
+# 1. Upload data file to S3 (triggers Lambda)
+9380 (aws) upload file "new-data.csv" to S3 bucket "data-ingestion" with key "incoming/data.csv"
+9390 print "File uploaded, Lambda triggered automatically"
+
+# 2. Invoke processing Lambda
+9400 (aws) invoke Lambda function "process-data" with payload {"s3_bucket": "data-ingestion", "s3_key": "incoming/data.csv"}
+9410 print "Lambda processing complete:" and result
+
+# 3. Verify data in DynamoDB
+9420 (aws) scan DynamoDB table "processed-data" limit 10
+9430 print "Processed records:" and result
+
+# SQS → Lambda → SNS pipeline
+9440 print "Pipeline: SQS → Lambda → SNS"
+
+# Send event to queue
+9450 (aws) send message to SQS queue "events-queue" with body {"event_type": "user_signup", "user_id": "U789"}
+9460 print "Event sent to SQS"
+
+# ============================================
+# Example 13: Cost Optimization with Lifecycle
+# ============================================
+
+9470 print ""
+9480 print "=== Example 13: S3 Lifecycle Management ==="
+
+# Upload with storage class for cost optimization
+9490 (aws) upload file "archive.zip" to S3 bucket "archives" with key "2025/archive.zip" storage class "GLACIER"
+9500 print "File uploaded to Glacier storage (cost-effective)"
+
+# Upload with intelligent tiering
+9510 (aws) upload file "data.csv" to S3 bucket "my-bucket" with key "data.csv" storage class "INTELLIGENT_TIERING"
+9520 print "File with intelligent tiering enabled"
+
+# ============================================
+# Example 14: Security and Encryption
+# ============================================
+
+9530 print ""
+9540 print "=== Example 14: Security Features ==="
+
+# Upload with server-side encryption
+9550 (aws) upload file "sensitive.txt" to S3 bucket "secure-bucket" with key "sensitive.txt" encryption "AES256"
+9560 print "File uploaded with encryption"
+
+# Upload with KMS encryption
+9570 (aws) upload file "confidential.pdf" to S3 bucket "secure-bucket" with key "confidential.pdf" encryption "aws:kms"
+9580 print "File encrypted with KMS"
+
+# Store encrypted credentials in Secrets Manager
+9590 (aws) create secret "database/prod/master" with value {"username": "admin", "password": "SuperSecret123!"}
+9600 print "Credentials stored securely"
+
+# ============================================
+# Example 15: Cleanup Operations
+# ============================================
+
+9610 print ""
+9620 print "=== Example 15: Cleanup ==="
+
+# Delete test objects from S3
+9630 (aws) delete S3 object from bucket "my-bucket" key "test-file.txt"
+9640 print "S3 object deleted"
+
+# Delete test records from DynamoDB
+9650 (aws) delete item from DynamoDB table "test-table" with key {"id": "test-123"}
+9660 print "DynamoDB item deleted"
+
+# Purge SQS queue (delete all messages)
+9670 (aws) purge SQS queue "test-queue"
+9680 print "SQS queue purged"
+
+# Delete secret
+9690 (aws) delete secret "test/credentials" from Secrets Manager
+9700 print "Secret deleted"
+
+9710 print ""
+9720 print "=== AWS Module Examples Complete ==="
+9730 print "All AWS services demonstrated successfully!"
+
+9999 print "Program finished"

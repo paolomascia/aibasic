@@ -14,6 +14,7 @@ This Docker setup includes:
 - **Neo4j 5.15** - Native graph database
 - **Elasticsearch 8.11** - Distributed search and analytics engine
 - **TimescaleDB (PG 16)** - Time-series database (PostgreSQL extension)
+- **LocalStack** - AWS services emulator for local development
 - **Redis 7** - In-memory cache
 - **RabbitMQ 3** - Message queue with management UI
 - **Apache Kafka** - Distributed streaming platform (with Zookeeper)
@@ -48,7 +49,7 @@ docker-compose up -d
 
 This will:
 - Build the AIbasic image
-- Start all 16 services
+- Start all 17 services
 - Initialize databases with sample data
 - Create necessary volumes and networks
 
@@ -90,6 +91,7 @@ python /app/output/program.py
 | ClickHouse HTTP | http://localhost:8123 | aibasic / aibasic123 |
 | Neo4j Browser | http://localhost:7474 | neo4j / aibasic123 |
 | TimescaleDB | localhost:5433 | aibasic / aibasic123 |
+| LocalStack | http://localhost:4566 | test / test |
 | MailHog Web UI | http://localhost:8025 | - |
 | PostgreSQL | localhost:5432 | aibasic / aibasic123 |
 | MySQL | localhost:3306 | aibasic / aibasic123 |

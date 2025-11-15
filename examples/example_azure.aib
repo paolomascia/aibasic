@@ -1,0 +1,397 @@
+REM ============================================================================
+REM AIBASIC - Microsoft Azure Module Examples
+REM ============================================================================
+REM This file demonstrates how to use the Azure module to manage Microsoft
+REM Azure cloud resources through natural language instructions.
+REM
+REM The Azure module provides comprehensive support for:
+REM - Resource Group management
+REM - Virtual Machine operations
+REM - Storage Account and Blob Storage
+REM - SQL Database management
+REM - Virtual Network management
+REM - App Service management
+REM - Container Instances
+REM - Key Vault operations
+REM - Cosmos DB management
+REM
+REM Configuration:
+REM Configure Azure credentials in aibasic.conf:
+REM [azure]
+REM SUBSCRIPTION_ID = your-subscription-id
+REM TENANT_ID = your-tenant-id
+REM CLIENT_ID = your-client-id (service principal)
+REM CLIENT_SECRET = your-client-secret
+REM LOCATION = eastus
+REM
+REM Or use environment variables:
+REM AZURE_SUBSCRIPTION_ID, AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Azure Resource Group Management
+REM ============================================================================
+REM This example shows how to create, list, and manage resource groups.
+
+10 (print) "=== Example 1: Resource Group Management ==="
+20 (azure) create resource group "aibasic-rg" in location "eastus" with tags {"environment": "development", "project": "aibasic"}
+30 (azure) list all resource groups
+40 (azure) get subscription information
+50 (print) "Resource group created successfully"
+
+REM ============================================================================
+REM Example 2: Virtual Machine Creation and Management
+REM ============================================================================
+REM Deploy and manage Azure Virtual Machines.
+
+100 (print) "=== Example 2: Virtual Machine Management ==="
+110 (azure) create resource group "vm-rg" in location "eastus"
+120 (azure) create virtual network "vm-vnet" in resource group "vm-rg" with address space "10.0.0.0/16" and subnet "default" with address prefix "10.0.0.0/24"
+130 (azure) create virtual machine "web-vm" in resource group "vm-rg" with vm_size "Standard_B2s" and image {"publisher": "Canonical", "offer": "0001-com-ubuntu-server-jammy", "sku": "22_04-lts-gen2", "version": "latest"} and admin_username "azureuser" and admin_password "SecurePassword123!" and network_interface {"vnet_name": "vm-vnet", "subnet_name": "default"}
+140 (azure) list virtual machines in resource group "vm-rg"
+150 (azure) get virtual machine "web-vm" in resource group "vm-rg"
+160 (print) "Virtual machine created and ready"
+
+REM ============================================================================
+REM Example 3: VM Operations - Start, Stop, Restart
+REM ============================================================================
+REM Control the state of virtual machines.
+
+200 (print) "=== Example 3: VM Operations ==="
+210 (azure) stop virtual machine "web-vm" in resource group "vm-rg"
+220 (sleep) 30
+230 (azure) start virtual machine "web-vm" in resource group "vm-rg"
+240 (sleep) 30
+250 (azure) restart virtual machine "web-vm" in resource group "vm-rg"
+260 (print) "VM operations completed"
+
+REM ============================================================================
+REM Example 4: Storage Account and Blob Storage
+REM ============================================================================
+REM Create storage accounts and manage blob storage.
+
+300 (print) "=== Example 4: Storage Account and Blob Storage ==="
+310 (azure) create resource group "storage-rg" in location "eastus"
+320 (azure) create storage account "aibasicstorage001" in resource group "storage-rg" with sku {"name": "Standard_LRS"} and kind "StorageV2"
+330 (sleep) 30
+340 (azure) get storage account keys for "aibasicstorage001" in resource group "storage-rg"
+350 (file) write "test-data.txt" with content "Hello from AIBasic!"
+360 (azure) upload file "test-data.txt" to blob storage "aibasicstorage001" in container "data" as "uploads/test-data.txt"
+370 (azure) list blobs in storage account "aibasicstorage001" container "data"
+380 (azure) download blob "uploads/test-data.txt" from storage account "aibasicstorage001" container "data" to "downloaded-data.txt"
+390 (file) read "downloaded-data.txt"
+400 (print) "Blob storage operations completed"
+
+REM ============================================================================
+REM Example 5: SQL Database Management
+REM ============================================================================
+REM Create and manage Azure SQL databases.
+
+500 (print) "=== Example 5: SQL Database Management ==="
+510 (azure) create resource group "sql-rg" in location "eastus"
+520 (azure) create sql server "aibasic-sqlserver" in resource group "sql-rg" with admin_login "sqladmin" and admin_password "SecurePassword123!"
+530 (sleep) 60
+540 (azure) create sql database "aibasic-db" on server "aibasic-sqlserver" in resource group "sql-rg" with sku {"name": "Basic", "tier": "Basic"}
+550 (azure) list sql databases on server "aibasic-sqlserver" in resource group "sql-rg"
+560 (print) "SQL database created successfully"
+
+REM ============================================================================
+REM Example 6: Virtual Network Management
+REM ============================================================================
+REM Create and configure virtual networks with subnets.
+
+600 (print) "=== Example 6: Virtual Network Management ==="
+610 (azure) create resource group "network-rg" in location "eastus"
+620 (azure) create virtual network "app-vnet" in resource group "network-rg" with address_space "10.1.0.0/16" and subnets [{"name": "web-subnet", "address_prefix": "10.1.1.0/24"}, {"name": "app-subnet", "address_prefix": "10.1.2.0/24"}, {"name": "db-subnet", "address_prefix": "10.1.3.0/24"}]
+630 (azure) list virtual networks in resource group "network-rg"
+640 (print) "Virtual network with multiple subnets created"
+
+REM ============================================================================
+REM Example 7: Multi-Tier Application Infrastructure
+REM ============================================================================
+REM Deploy a complete multi-tier application infrastructure.
+
+700 (print) "=== Example 7: Multi-Tier Application Infrastructure ==="
+710 (azure) create resource group "app-rg" in location "eastus" with tags {"tier": "production", "app": "webapp"}
+
+REM Create network infrastructure
+720 (azure) create virtual network "app-vnet" in resource group "app-rg" with address_space "10.2.0.0/16" and subnets [{"name": "web-subnet", "address_prefix": "10.2.1.0/24"}, {"name": "app-subnet", "address_prefix": "10.2.2.0/24"}, {"name": "db-subnet", "address_prefix": "10.2.3.0/24"}]
+
+REM Create storage account for application data
+730 (azure) create storage account "appdata001" in resource group "app-rg" with sku {"name": "Standard_GRS"} and kind "StorageV2"
+
+REM Create SQL database for application
+740 (azure) create sql server "app-sqlserver" in resource group "app-rg" with admin_login "appadmin" and admin_password "SecurePassword123!"
+750 (sleep) 60
+760 (azure) create sql database "app-db" on server "app-sqlserver" in resource group "app-rg" with sku {"name": "S0", "tier": "Standard"}
+
+REM Create VMs for web and app tiers
+770 (azure) create virtual machine "web-vm-01" in resource group "app-rg" with vm_size "Standard_B2s" and image {"publisher": "Canonical", "offer": "0001-com-ubuntu-server-jammy", "sku": "22_04-lts-gen2", "version": "latest"} and admin_username "webadmin" and admin_password "SecurePassword123!" and network_interface {"vnet_name": "app-vnet", "subnet_name": "web-subnet"}
+
+780 (azure) create virtual machine "app-vm-01" in resource group "app-rg" with vm_size "Standard_B2s" and image {"publisher": "Canonical", "offer": "0001-com-ubuntu-server-jammy", "sku": "22_04-lts-gen2", "version": "latest"} and admin_username "appadmin" and admin_password "SecurePassword123!" and network_interface {"vnet_name": "app-vnet", "subnet_name": "app-subnet"}
+
+790 (print) "Multi-tier application infrastructure deployed"
+
+REM ============================================================================
+REM Example 8: Container-Based Application Deployment
+REM ============================================================================
+REM Deploy containerized applications using Azure Container Instances.
+
+800 (print) "=== Example 8: Container Application Deployment ==="
+810 (azure) create resource group "container-rg" in location "eastus"
+820 (azure) create container instance "webapp-container" in resource group "container-rg" with image "nginx:latest" and cpu 1.0 and memory 1.5 and ports [80, 443] and environment_variables {"NGINX_HOST": "example.com", "NGINX_PORT": "80"}
+830 (sleep) 30
+840 (azure) list container instances in resource group "container-rg"
+850 (print) "Container application deployed"
+
+REM ============================================================================
+REM Example 9: Key Vault Secret Management
+REM ============================================================================
+REM Securely store and manage application secrets.
+
+900 (print) "=== Example 9: Key Vault Secret Management ==="
+910 (azure) create resource group "security-rg" in location "eastus"
+920 (azure) create key vault "aibasic-vault-001" in resource group "security-rg" with sku {"name": "standard"}
+930 (sleep) 30
+940 (azure) set key vault secret "db-connection-string" in vault "aibasic-vault-001" with value "Server=app-sqlserver.database.windows.net;Database=app-db;User=appadmin;Password=SecurePassword123!"
+950 (azure) set key vault secret "api-key" in vault "aibasic-vault-001" with value "sk-1234567890abcdef"
+960 (azure) list key vault secrets in vault "aibasic-vault-001"
+970 (azure) get key vault secret "db-connection-string" from vault "aibasic-vault-001"
+980 (print) "Secrets stored securely in Key Vault"
+
+REM ============================================================================
+REM Example 10: App Service Web Application
+REM ============================================================================
+REM Deploy a web application using Azure App Service.
+
+1000 (print) "=== Example 10: App Service Deployment ==="
+1010 (azure) create resource group "webapp-rg" in location "eastus"
+1020 (azure) create app service plan "webapp-plan" in resource group "webapp-rg" with sku {"name": "B1", "tier": "Basic", "size": "B1"} and is_linux True
+1030 (azure) create web app "aibasic-webapp-001" in resource group "webapp-rg" with app_service_plan "webapp-plan" and runtime_stack {"name": "python", "version": "3.11"}
+1040 (azure) list web apps in resource group "webapp-rg"
+1050 (print) "Web application deployed to App Service"
+
+REM ============================================================================
+REM Example 11: Cosmos DB NoSQL Database
+REM ============================================================================
+REM Create and manage Cosmos DB for globally distributed applications.
+
+1100 (print) "=== Example 11: Cosmos DB Management ==="
+1110 (azure) create resource group "cosmosdb-rg" in location "eastus"
+1120 (azure) create cosmos db account "aibasic-cosmos-001" in resource group "cosmosdb-rg" with kind "GlobalDocumentDB" and locations [{"location": "eastus", "failover_priority": 0}, {"location": "westus", "failover_priority": 1}]
+1130 (sleep) 120
+1140 (azure) create cosmos db database "app-database" in account "aibasic-cosmos-001" in resource group "cosmosdb-rg"
+1150 (azure) create cosmos db container "users" in database "app-database" account "aibasic-cosmos-001" in resource group "cosmosdb-rg" with partition_key "/userId" and throughput 400
+1160 (print) "Cosmos DB created with global distribution"
+
+REM ============================================================================
+REM Example 12: Backup and Disaster Recovery Setup
+REM ============================================================================
+REM Configure backup and disaster recovery for critical resources.
+
+1200 (print) "=== Example 12: Backup and Disaster Recovery ==="
+1210 (azure) create resource group "backup-rg" in location "eastus"
+1220 (azure) create recovery services vault "aibasic-vault" in resource group "backup-rg"
+1230 (azure) create backup policy "daily-backup" in vault "aibasic-vault" with schedule {"frequency": "Daily", "time": "02:00"} and retention {"daily": 30, "weekly": 12, "monthly": 12, "yearly": 5}
+1240 (azure) enable backup for virtual machine "web-vm" in resource group "vm-rg" using vault "aibasic-vault" and policy "daily-backup"
+1250 (print) "Backup and disaster recovery configured"
+
+REM ============================================================================
+REM Example 13: Azure Monitor and Alerts
+REM ============================================================================
+REM Set up monitoring and alerting for resources.
+
+1300 (print) "=== Example 13: Monitoring and Alerts ==="
+1310 (azure) create resource group "monitoring-rg" in location "eastus"
+1320 (azure) create log analytics workspace "aibasic-logs" in resource group "monitoring-rg"
+1330 (azure) create action group "alert-admins" in resource group "monitoring-rg" with email_receivers [{"name": "admin1", "email": "admin1@example.com"}, {"name": "admin2", "email": "admin2@example.com"}]
+1340 (azure) create metric alert "high-cpu-alert" in resource group "monitoring-rg" for vm "web-vm" with condition {"metric": "Percentage CPU", "operator": "GreaterThan", "threshold": 80} and action_group "alert-admins"
+1350 (print) "Monitoring and alerts configured"
+
+REM ============================================================================
+REM Example 14: Azure Functions Serverless Deployment
+REM ============================================================================
+REM Deploy serverless functions using Azure Functions.
+
+1400 (print) "=== Example 14: Azure Functions Deployment ==="
+1410 (azure) create resource group "functions-rg" in location "eastus"
+1420 (azure) create storage account "funcstore001" in resource group "functions-rg" with sku {"name": "Standard_LRS"} and kind "StorageV2"
+1430 (sleep) 30
+1440 (azure) create function app "aibasic-functions" in resource group "functions-rg" with storage_account "funcstore001" and runtime_stack {"name": "python", "version": "3.11"} and functions_version "4"
+1450 (azure) list function apps in resource group "functions-rg"
+1460 (print) "Azure Functions app deployed"
+
+REM ============================================================================
+REM Example 15: Load Balancer Configuration
+REM ============================================================================
+REM Configure load balancing for high availability.
+
+1500 (print) "=== Example 15: Load Balancer Configuration ==="
+1510 (azure) create resource group "lb-rg" in location "eastus"
+1520 (azure) create virtual network "lb-vnet" in resource group "lb-rg" with address_space "10.3.0.0/16" and subnet "backend-subnet" with address_prefix "10.3.1.0/24"
+1530 (azure) create public ip "lb-public-ip" in resource group "lb-rg" with allocation "Static" and sku "Standard"
+1540 (azure) create load balancer "app-lb" in resource group "lb-rg" with frontend_ip {"name": "frontend", "public_ip": "lb-public-ip"} and backend_pool {"name": "backend-pool"} and health_probe {"name": "http-probe", "protocol": "Http", "port": 80, "path": "/"} and rules [{"name": "http-rule", "protocol": "Tcp", "frontend_port": 80, "backend_port": 80}]
+1550 (print) "Load balancer configured"
+
+REM ============================================================================
+REM Example 16: Azure DevOps CI/CD Pipeline Integration
+REM ============================================================================
+REM Integrate with Azure DevOps for automated deployments.
+
+1600 (print) "=== Example 16: DevOps Pipeline Integration ==="
+1610 (azure) create resource group "devops-rg" in location "eastus"
+1620 (azure) create container registry "aibasicregistry" in resource group "devops-rg" with sku "Basic"
+1630 (azure) create service principal for devops with role "Contributor" on resource group "devops-rg"
+1640 (azure) configure web app "aibasic-webapp-001" with deployment source {"type": "GitHub", "repo": "https://github.com/user/repo", "branch": "main"}
+1650 (print) "DevOps integration configured"
+
+REM ============================================================================
+REM Example 17: Data Analytics with Azure Synapse
+REM ============================================================================
+REM Set up data analytics infrastructure.
+
+1700 (print) "=== Example 17: Azure Synapse Analytics ==="
+1710 (azure) create resource group "analytics-rg" in location "eastus"
+1720 (azure) create storage account "synapsestorage001" in resource group "analytics-rg" with sku {"name": "Standard_LRS"} and kind "StorageV2" and hierarchical_namespace True
+1730 (sleep) 30
+1740 (azure) create synapse workspace "aibasic-synapse" in resource group "analytics-rg" with storage_account "synapsestorage001" and sql_admin_login "sqladmin" and sql_admin_password "SecurePassword123!"
+1750 (azure) create synapse sql pool "analytics-pool" in workspace "aibasic-synapse" in resource group "analytics-rg" with sku "DW100c"
+1760 (print) "Synapse Analytics workspace created"
+
+REM ============================================================================
+REM Example 18: Machine Learning Workspace
+REM ============================================================================
+REM Set up Azure Machine Learning for AI/ML workloads.
+
+1800 (print) "=== Example 18: Machine Learning Workspace ==="
+1810 (azure) create resource group "ml-rg" in location "eastus"
+1820 (azure) create storage account "mlstorage001" in resource group "ml-rg" with sku {"name": "Standard_LRS"} and kind "StorageV2"
+1830 (azure) create key vault "ml-vault-001" in resource group "ml-rg" with sku {"name": "standard"}
+1840 (azure) create application insights "ml-insights" in resource group "ml-rg"
+1850 (sleep) 30
+1860 (azure) create machine learning workspace "aibasic-ml" in resource group "ml-rg" with storage_account "mlstorage001" and key_vault "ml-vault-001" and application_insights "ml-insights"
+1870 (print) "Machine Learning workspace created"
+
+REM ============================================================================
+REM Example 19: Complete E-Commerce Platform
+REM ============================================================================
+REM Deploy a full e-commerce platform with all components.
+
+1900 (print) "=== Example 19: E-Commerce Platform Deployment ==="
+1910 (azure) create resource group "ecommerce-rg" in location "eastus" with tags {"environment": "production", "project": "ecommerce"}
+
+REM Network infrastructure
+1920 (azure) create virtual network "ecommerce-vnet" in resource group "ecommerce-rg" with address_space "10.4.0.0/16" and subnets [{"name": "web-subnet", "address_prefix": "10.4.1.0/24"}, {"name": "app-subnet", "address_prefix": "10.4.2.0/24"}, {"name": "db-subnet", "address_prefix": "10.4.3.0/24"}, {"name": "cache-subnet", "address_prefix": "10.4.4.0/24"}]
+
+REM Storage for product images and files
+1930 (azure) create storage account "ecommercestore001" in resource group "ecommerce-rg" with sku {"name": "Standard_GRS"} and kind "StorageV2"
+1940 (sleep) 30
+1950 (azure) upload file "logo.png" to blob storage "ecommercestore001" in container "assets" as "images/logo.png"
+
+REM Database for products and orders
+1960 (azure) create sql server "ecommerce-sql" in resource group "ecommerce-rg" with admin_login "ecomadmin" and admin_password "SecurePassword123!"
+1970 (sleep) 60
+1980 (azure) create sql database "products-db" on server "ecommerce-sql" in resource group "ecommerce-rg" with sku {"name": "S1", "tier": "Standard"}
+1990 (azure) create sql database "orders-db" on server "ecommerce-sql" in resource group "ecommerce-rg" with sku {"name": "S1", "tier": "Standard"}
+
+REM Cosmos DB for shopping carts (fast NoSQL)
+2000 (azure) create cosmos db account "ecommerce-cosmos" in resource group "ecommerce-rg" with kind "GlobalDocumentDB" and locations [{"location": "eastus", "failover_priority": 0}]
+2010 (sleep) 120
+2020 (azure) create cosmos db database "shopping-carts" in account "ecommerce-cosmos" in resource group "ecommerce-rg"
+2030 (azure) create cosmos db container "carts" in database "shopping-carts" account "ecommerce-cosmos" in resource group "ecommerce-rg" with partition_key "/userId" and throughput 400
+
+REM Redis cache for session management
+2040 (azure) create redis cache "ecommerce-cache" in resource group "ecommerce-rg" with sku {"name": "Basic", "family": "C", "capacity": 1}
+
+REM Key Vault for secrets
+2050 (azure) create key vault "ecommerce-vault" in resource group "ecommerce-rg" with sku {"name": "standard"}
+2060 (sleep) 30
+2070 (azure) set key vault secret "sql-connection-string" in vault "ecommerce-vault" with value "Server=ecommerce-sql.database.windows.net;Database=products-db;User=ecomadmin;Password=SecurePassword123!"
+2080 (azure) set key vault secret "payment-gateway-key" in vault "ecommerce-vault" with value "pk_test_123456789"
+
+REM Web application
+2090 (azure) create app service plan "ecommerce-plan" in resource group "ecommerce-rg" with sku {"name": "P1v2", "tier": "PremiumV2"} and is_linux False
+2100 (azure) create web app "ecommerce-webapp" in resource group "ecommerce-rg" with app_service_plan "ecommerce-plan" and runtime_stack {"name": "dotnet", "version": "7.0"}
+
+REM Azure Functions for order processing
+2110 (azure) create function app "ecommerce-functions" in resource group "ecommerce-rg" with storage_account "ecommercestore001" and runtime_stack {"name": "node", "version": "18"} and functions_version "4"
+
+REM Load balancer for high availability
+2120 (azure) create public ip "ecommerce-lb-ip" in resource group "ecommerce-rg" with allocation "Static" and sku "Standard"
+
+REM Monitoring and alerts
+2130 (azure) create log analytics workspace "ecommerce-logs" in resource group "ecommerce-rg"
+2140 (azure) create action group "ecommerce-alerts" in resource group "ecommerce-rg" with email_receivers [{"name": "ops-team", "email": "ops@example.com"}]
+
+2150 (print) "Complete e-commerce platform deployed successfully"
+
+REM ============================================================================
+REM Example 20: Resource Cleanup and Cost Management
+REM ============================================================================
+REM Clean up resources and manage costs.
+
+2200 (print) "=== Example 20: Resource Cleanup ==="
+2210 (azure) list all resource groups
+2220 (azure) get cost analysis for resource group "ecommerce-rg" for last 30 days
+2230 (azure) stop all virtual machines in resource group "app-rg"
+2240 (sleep) 60
+2250 (azure) delete virtual machine "web-vm-01" in resource group "app-rg"
+2260 (azure) delete resource group "container-rg" with force True
+2270 (print) "Resources cleaned up to reduce costs"
+
+REM ============================================================================
+REM Example 21: Security Best Practices Implementation
+REM ============================================================================
+REM Implement security best practices across Azure resources.
+
+2300 (print) "=== Example 21: Security Best Practices ==="
+2310 (azure) create resource group "security-rg" in location "eastus"
+
+REM Network security
+2320 (azure) create network security group "web-nsg" in resource group "security-rg" with rules [{"name": "allow-https", "priority": 100, "direction": "Inbound", "access": "Allow", "protocol": "Tcp", "source_port": "*", "destination_port": "443", "source_address": "*", "destination_address": "*"}, {"name": "allow-http", "priority": 110, "direction": "Inbound", "access": "Allow", "protocol": "Tcp", "source_port": "*", "destination_port": "80", "source_address": "*", "destination_address": "*"}, {"name": "deny-all-inbound", "priority": 4096, "direction": "Inbound", "access": "Deny", "protocol": "*", "source_port": "*", "destination_port": "*", "source_address": "*", "destination_address": "*"}]
+
+REM Enable managed identity for VMs
+2330 (azure) enable managed identity for virtual machine "web-vm" in resource group "vm-rg" with type "SystemAssigned"
+
+REM Enable encryption for storage
+2340 (azure) enable encryption for storage account "ecommercestore001" in resource group "ecommerce-rg" with encryption_services ["blob", "file"]
+
+REM Enable Azure Security Center
+2350 (azure) enable security center for subscription with tier "Standard"
+2360 (azure) enable security center auto provisioning
+
+REM Configure firewall rules
+2370 (azure) add sql firewall rule "allow-azure-services" on server "ecommerce-sql" in resource group "ecommerce-rg" with start_ip "0.0.0.0" and end_ip "0.0.0.0"
+
+2380 (print) "Security best practices implemented"
+
+REM ============================================================================
+REM Example 22: Hybrid Cloud with Azure Arc
+REM ============================================================================
+REM Extend Azure management to on-premises and multi-cloud resources.
+
+2400 (print) "=== Example 22: Hybrid Cloud with Azure Arc ==="
+2410 (azure) create resource group "hybrid-rg" in location "eastus"
+2420 (azure) register azure arc for kubernetes cluster with name "on-prem-k8s" in resource group "hybrid-rg"
+2430 (azure) register azure arc for server with name "on-prem-server-01" in resource group "hybrid-rg"
+2440 (azure) create policy assignment for arc-enabled servers in resource group "hybrid-rg" with policy "enforce-tag-on-resources" and parameters {"tagName": "environment", "tagValue": "hybrid"}
+2450 (print) "Hybrid cloud management configured with Azure Arc"
+
+REM ============================================================================
+REM End of Azure Module Examples
+REM ============================================================================
+
+REM Note: Remember to clean up resources after testing to avoid unnecessary costs:
+REM (azure) delete resource group "resource-group-name" with force True
+
+REM For production deployments:
+REM 1. Use Azure Key Vault for all secrets and credentials
+REM 2. Implement proper network security groups and firewall rules
+REM 3. Enable Azure Monitor and configure alerts
+REM 4. Use managed identities instead of service principals when possible
+REM 5. Enable encryption at rest and in transit
+REM 6. Implement proper RBAC (Role-Based Access Control)
+REM 7. Regular backup and disaster recovery testing
+REM 8. Cost monitoring and optimization
+REM 9. Compliance and security scanning with Azure Security Center
+REM 10. Use Azure Policy for governance and compliance

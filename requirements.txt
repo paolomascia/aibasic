@@ -63,3 +63,27 @@ elasticsearch>=8.0.0  # Elasticsearch client for full-text search and analytics
 
 # TimescaleDB module (uses PostgreSQL driver)
 # psycopg2-binary>=2.9.9 already included above
+
+# AWS module (comprehensive AWS services integration)
+# boto3>=1.26.0 already included above (S3 and AWS services)
+
+# Terraform module (Infrastructure as Code)
+python-terraform>=0.10.1  # Python wrapper for HashiCorp Terraform CLI
+
+# Docker module (Container and Image Management)
+docker>=7.0.0  # Docker SDK for Python (container, image, volume, network management)
+
+# Kubernetes module (Kubernetes Cluster Management)
+kubernetes>=28.0.0  # Official Kubernetes Python client for cluster and resource management
+
+# Azure module (Microsoft Azure Cloud Services)
+azure-mgmt-compute>=30.0.0  # Azure Virtual Machines management
+azure-mgmt-storage>=21.0.0  # Azure Storage management
+azure-mgmt-resource>=23.0.0  # Azure Resource Groups and resources
+azure-mgmt-network>=25.0.0  # Azure Virtual Networks and networking
+azure-mgmt-sql>=4.0.0  # Azure SQL Database management
+azure-mgmt-web>=7.0.0  # Azure App Service management
+azure-mgmt-containerinstance>=10.0.0  # Azure Container Instances
+azure-mgmt-keyvault>=10.0.0  # Azure Key Vault management
+azure-mgmt-cosmosdb>=9.0.0  # Azure Cosmos DB management
+azure-identity>=1.12.0  # Azure authentication (supports DefaultAzureCredential and Service Principal)

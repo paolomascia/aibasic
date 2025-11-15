@@ -26,5 +26,10 @@ from .clickhouse_module import ClickHouseModule
 from .neo4j_module import Neo4jModule
 from .elasticsearch_module import ElasticsearchModule
 from .timescaledb_module import TimescaleDBModule
+from .aws_module import AWSModule
+from .terraform_module import TerraformModule
+from .docker_module import DockerModule
+from .kubernetes_module import KubernetesModule
+from .azure_module import AzureModule
 
-__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule', 'EmailModule', 'MongoDBModule', 'S3Module', 'RestAPIModule', 'SSHModule', 'TeamsModule', 'SlackModule', 'ClickHouseModule', 'Neo4jModule', 'ElasticsearchModule', 'TimescaleDBModule']
+__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule', 'EmailModule', 'MongoDBModule', 'S3Module', 'RestAPIModule', 'SSHModule', 'TeamsModule', 'SlackModule', 'ClickHouseModule', 'Neo4jModule', 'ElasticsearchModule', 'TimescaleDBModule', 'AWSModule', 'TerraformModule', 'DockerModule', 'KubernetesModule', 'AzureModule']

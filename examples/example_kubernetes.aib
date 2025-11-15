@@ -1,0 +1,511 @@
+# =============================================================================
+# AIbasic Kubernetes Module - Complete Examples
+# =============================================================================
+# Module: kubernetes (Kubernetes Cluster Management)
+# Version: 1.0
+# Dependencies: kubernetes>=28.0.0
+#
+# The kubernetes module enables comprehensive Kubernetes cluster and resource
+# management through the official Kubernetes Python client.
+#
+# Supported Operations: pods, deployments, services, configmaps, secrets,
+#                       namespaces, jobs, ingresses, and more
+# =============================================================================
+
+# =============================================================================
+# Example 1: Basic Pod Operations
+# =============================================================================
+# Description: Create, list, and manage pods
+# Use case: Basic workload deployment
+
+10 print "=== Example 1: Basic Pod Operations ==="
+20 (kubernetes) create pod named "nginx-pod" from image "nginx:latest"
+30 print "Pod created:" and _result
+40
+50 (kubernetes) list all pods in namespace "default"
+60 print "Pods:" and _result
+70
+80 (kubernetes) get pod "nginx-pod" details
+90 print "Pod details:" and _result
+100
+110 (kubernetes) delete pod "nginx-pod"
+120 print "Pod deleted"
+
+# =============================================================================
+# Example 2: Pod with Environment Variables and Ports
+# =============================================================================
+# Description: Create pod with custom configuration
+# Use case: Application pod with configuration
+
+200 print "=== Example 2: Pod with Environment and Ports ==="
+210 set env to dict with "DATABASE_HOST" as "db.example.com"
+220 set env["DATABASE_PORT"] to "5432"
+230 set env["APP_ENV"] to "production"
+240
+250 set ports to list 8080, 8443
+260
+270 (kubernetes) create pod named "app-pod" from image "myapp:1.0"
+280 (kubernetes) with environment env and ports ports
+290 print "Application pod created"
+300
+310 (kubernetes) get logs from pod "app-pod" tail 50 lines
+320 print "Logs:" and _result
+
+# =============================================================================
+# Example 3: Deployment Management
+# =============================================================================
+# Description: Create and manage deployments
+# Use case: Scalable application deployment
+
+400 print "=== Example 3: Deployment Management ==="
+410 set env to dict with "REDIS_HOST" as "redis-service"
+420 set ports to list 80
+430
+440 (kubernetes) create deployment named "web-app" from image "nginx:latest"
+450 (kubernetes) with 3 replicas and environment env and ports ports
+460 print "Deployment created"
+470
+480 (kubernetes) list all deployments
+490 print "Deployments:" and _result
+500
+510 (kubernetes) scale deployment "web-app" to 5 replicas
+520 print "Deployment scaled to 5 replicas"
+530
+540 (kubernetes) rollout restart deployment "web-app"
+550 print "Deployment restarted"
+
+# =============================================================================
+# Example 4: Service Creation
+# =============================================================================
+# Description: Create services to expose deployments
+# Use case: Network access to applications
+
+600 print "=== Example 4: Service Creation ==="
+610 set selector to dict with "app" as "web-app"
+620
+630 (kubernetes) create service named "web-service" on port 80 target port 80
+640 (kubernetes) with type "ClusterIP" and selector selector
+650 print "ClusterIP service created"
+660
+670 (kubernetes) create service named "web-lb" on port 80 target port 80
+680 (kubernetes) with type "LoadBalancer" and selector selector
+690 print "LoadBalancer service created"
+700
+710 (kubernetes) list all services
+720 print "Services:" and _result
+
+# =============================================================================
+# Example 5: ConfigMap Management
+# =============================================================================
+# Description: Manage application configuration
+# Use case: External configuration
+
+800 print "=== Example 5: ConfigMap Management ==="
+810 set config_data to dict with "app.properties" as "server.port=8080\napp.name=MyApp"
+820 set config_data["database.url"] to "postgres://db:5432/mydb"
+830
+840 (kubernetes) create configmap named "app-config" with data config_data
+850 print "ConfigMap created"
+860
+870 (kubernetes) list all configmaps
+880 print "ConfigMaps:" and _result
+890
+900 (kubernetes) delete configmap "app-config"
+910 print "ConfigMap deleted"
+
+# =============================================================================
+# Example 6: Secret Management
+# =============================================================================
+# Description: Manage sensitive data
+# Use case: Credentials and secrets
+
+1000 print "=== Example 6: Secret Management ==="
+1010 set secret_data to dict with "username" as "admin"
+1020 set secret_data["password"] to "superSecret123"
+1030 set secret_data["api-key"] to "abc123xyz789"
+1040
+1050 (kubernetes) create secret named "app-secrets" with data secret_data
+1060 print "Secret created"
+1070
+1080 (kubernetes) list all secrets
+1090 print "Secrets:" and _result
+1100
+1110 (kubernetes) delete secret "app-secrets"
+1120 print "Secret deleted"
+
+# =============================================================================
+# Example 7: Namespace Management
+# =============================================================================
+# Description: Organize resources in namespaces
+# Use case: Multi-tenant or environment separation
+
+1200 print "=== Example 7: Namespace Management ==="
+1210 (kubernetes) create namespace "development"
+1220 print "Development namespace created"
+1230
+1240 (kubernetes) create namespace "staging"
+1250 print "Staging namespace created"
+1260
+1270 (kubernetes) create namespace "production"
+1280 print "Production namespace created"
+1290
+1300 (kubernetes) list all namespaces
+1310 print "Namespaces:" and _result
+1320
+1330 (kubernetes) delete namespace "development"
+1340 print "Development namespace deleted"
+
+# =============================================================================
+# Example 8: Complete Application Stack
+# =============================================================================
+# Description: Deploy a full application with database
+# Use case: Multi-tier application
+
+1400 print "=== Example 8: Complete Application Stack ==="
+1410 # Create namespace
+1420 (kubernetes) create namespace "myapp"
+1430 print "Namespace created"
+1440
+1450 # Deploy database
+1460 set db_env to dict with "POSTGRES_PASSWORD" as "dbpass123"
+1470 set db_env["POSTGRES_DB"] to "appdb"
+1480 (kubernetes) create deployment named "postgres" from image "postgres:15"
+1490 (kubernetes) in namespace "myapp" with 1 replica and environment db_env
+1500 print "Database deployed"
+1510
+1520 # Create database service
+1530 set db_selector to dict with "app" as "postgres"
+1540 (kubernetes) create service named "postgres-service" on port 5432 target port 5432
+1550 (kubernetes) in namespace "myapp" with type "ClusterIP" and selector db_selector
+1560 print "Database service created"
+1570
+1580 # Deploy application
+1590 set app_env to dict with "DATABASE_URL" as "postgres://postgres-service:5432/appdb"
+1600 set app_ports to list 8080
+1610 (kubernetes) create deployment named "webapp" from image "myapp:1.0"
+1620 (kubernetes) in namespace "myapp" with 3 replicas and environment app_env and ports app_ports
+1630 print "Application deployed"
+1640
+1650 # Create application service
+1660 set app_selector to dict with "app" as "webapp"
+1670 (kubernetes) create service named "webapp-service" on port 80 target port 8080
+1680 (kubernetes) in namespace "myapp" with type "LoadBalancer" and selector app_selector
+1690 print "Application service created"
+1700
+1710 print "Complete application stack deployed!"
+
+# =============================================================================
+# Example 9: Pod Logs and Debugging
+# =============================================================================
+# Description: Debug running pods
+# Use case: Troubleshooting
+
+1800 print "=== Example 9: Pod Logs and Debugging ==="
+1810 (kubernetes) create pod named "debug-pod" from image "busybox:latest"
+1820 (kubernetes) with command list "sleep", "3600"
+1830 print "Debug pod created"
+1840
+1850 (kubernetes) get logs from pod "debug-pod"
+1860 print "Pod logs:" and _result
+1870
+1880 (kubernetes) exec command list "whoami" in pod "debug-pod"
+1890 print "Command output:" and _result
+1900
+1910 (kubernetes) exec command list "ls", "-la", "/" in pod "debug-pod"
+1920 print "Directory listing:" and _result
+1930
+1940 (kubernetes) delete pod "debug-pod"
+
+# =============================================================================
+# Example 10: Cluster Information
+# =============================================================================
+# Description: Get cluster details
+# Use case: Monitoring and status checks
+
+2000 print "=== Example 10: Cluster Information ==="
+2010 (kubernetes) get cluster info
+2020 print "Cluster info:" and _result
+2030
+2040 (kubernetes) list all nodes
+2050 print "Cluster nodes:" and _result
+2060
+2070 (kubernetes) list all namespaces
+2080 print "Namespaces:" and _result
+2090
+2100 (kubernetes) list events in namespace "default"
+2110 print "Recent events:" and _result
+
+# =============================================================================
+# Example 11: Rolling Update
+# =============================================================================
+# Description: Update application with zero downtime
+# Use case: Continuous deployment
+
+2200 print "=== Example 11: Rolling Update ==="
+2210 # Initial deployment
+2220 (kubernetes) create deployment named "api-server" from image "api:v1.0"
+2230 (kubernetes) with 3 replicas
+2240 print "Initial version deployed (v1.0)"
+2250
+2260 # Update to new version
+2270 print "Updating to v2.0..."
+2280 (kubernetes) update deployment "api-server" image to "api:v2.0"
+2290 print "Rolling update started"
+2300
+2310 # Monitor rollout
+2320 (kubernetes) get deployment "api-server" status
+2330 print "Rollout status:" and _result
+2340
+2350 # Rollback if needed
+2360 # (kubernetes) rollback deployment "api-server"
+2370 # print "Rolled back to previous version"
+
+# =============================================================================
+# Example 12: ConfigMap and Secret in Pod
+# =============================================================================
+# Description: Use ConfigMap and Secret in pod
+# Use case: Configuration injection
+
+2400 print "=== Example 12: ConfigMap and Secret in Pod ==="
+2410 # Create ConfigMap
+2420 set config to dict with "app.properties" as "log.level=INFO"
+2430 (kubernetes) create configmap named "app-config" with data config
+2440 print "ConfigMap created"
+2450
+2460 # Create Secret
+2470 set creds to dict with "db-password" as "secret123"
+2480 (kubernetes) create secret named "db-creds" with data creds
+2490 print "Secret created"
+2500
+2510 # Create pod with ConfigMap and Secret volumes
+2520 # (This would require more advanced pod spec)
+2530 print "ConfigMap and Secret ready for pod mounting"
+
+# =============================================================================
+# Example 13: Scaling Based on Load
+# =============================================================================
+# Description: Manual scaling operations
+# Use case: Handle traffic spikes
+
+2600 print "=== Example 13: Scaling Based on Load ==="
+2610 (kubernetes) create deployment named "api" from image "api:latest"
+2620 (kubernetes) with 2 replicas
+2630 print "API deployed with 2 replicas"
+2640
+2650 # Simulate load increase
+2660 print "Traffic spike detected - scaling up..."
+2670 (kubernetes) scale deployment "api" to 10 replicas
+2680 print "Scaled to 10 replicas"
+2690
+2700 # Simulate load decrease
+2710 print "Traffic normalized - scaling down..."
+2720 (kubernetes) scale deployment "api" to 3 replicas
+2730 print "Scaled to 3 replicas"
+
+# =============================================================================
+# Example 14: Multi-Environment Deployment
+# =============================================================================
+# Description: Deploy to multiple environments
+# Use case: Dev, Staging, Production
+
+2800 print "=== Example 14: Multi-Environment Deployment ==="
+2810 # Development
+2820 (kubernetes) create namespace "dev"
+2830 (kubernetes) create deployment named "app" from image "app:dev"
+2840 (kubernetes) in namespace "dev" with 1 replica
+2850 print "Development environment deployed"
+2860
+2870 # Staging
+2880 (kubernetes) create namespace "staging"
+2890 (kubernetes) create deployment named "app" from image "app:staging"
+2900 (kubernetes) in namespace "staging" with 2 replicas
+2910 print "Staging environment deployed"
+2920
+2930 # Production
+2940 (kubernetes) create namespace "prod"
+2950 (kubernetes) create deployment named "app" from image "app:v1.0"
+2960 (kubernetes) in namespace "prod" with 5 replicas
+2970 print "Production environment deployed"
+2980
+2990 print "All environments deployed successfully!"
+
+# =============================================================================
+# Example 15: Health Check and Monitoring
+# =============================================================================
+# Description: Monitor pod and deployment health
+# Use case: Production monitoring
+
+3000 print "=== Example 15: Health Check and Monitoring ==="
+3010 (kubernetes) create deployment named "webapp" from image "nginx:latest"
+3020 (kubernetes) with 3 replicas
+3030 print "Deployment created"
+3040
+3050 # Get deployment status
+3060 (kubernetes) get deployment "webapp" details
+3070 print "Deployment status:" and _result
+3080
+3090 # List pods for deployment
+3100 (kubernetes) list all pods with label "app=webapp"
+3110 print "Pods:" and _result
+3120
+3130 # Get events
+3140 (kubernetes) list events in namespace "default"
+3150 print "Recent events:" and _result
+
+# =============================================================================
+# Example 16: Cleanup and Resource Management
+# =============================================================================
+# Description: Clean up resources
+# Use case: Resource management
+
+3200 print "=== Example 16: Cleanup and Resource Management ==="
+3210 on error goto 3900
+3220
+3230 # Delete deployments
+3240 (kubernetes) delete deployment "web-app"
+3250 (kubernetes) delete deployment "api-server"
+3260 (kubernetes) delete deployment "webapp"
+3270 print "Deployments deleted"
+3280
+3290 # Delete services
+3300 (kubernetes) delete service "web-service"
+3310 (kubernetes) delete service "web-lb"
+3320 print "Services deleted"
+3330
+3340 # Delete namespaces (this deletes all resources in them)
+3350 (kubernetes) delete namespace "myapp"
+3360 (kubernetes) delete namespace "dev"
+3370 (kubernetes) delete namespace "staging"
+3380 print "Namespaces deleted"
+3390
+3400 print "Cleanup complete!"
+3410 goto 3999
+3900 print "Cleanup error:" and _last_error
+3910 print "Some resources may not exist - continuing..."
+3999 print "Resource management complete"
+
+# =============================================================================
+# Example 17: StatefulSet for Database
+# =============================================================================
+# Description: Deploy stateful application
+# Use case: Database or persistent workload
+
+3500 print "=== Example 17: StatefulSet Pattern ==="
+3510 # Note: StatefulSet requires more complex configuration
+3520 # This example shows the concept
+3530 (kubernetes) create deployment named "mysql" from image "mysql:8.0"
+3540 (kubernetes) with 1 replica
+3550 set mysql_env to dict with "MYSQL_ROOT_PASSWORD" as "rootpass"
+3560 (kubernetes) with environment mysql_env
+3570 print "MySQL deployed (use StatefulSet for production)"
+
+# =============================================================================
+# Example 18: Job Execution
+# =============================================================================
+# Description: Run one-time jobs
+# Use case: Batch processing, migrations
+
+3600 print "=== Example 18: Job Execution ==="
+3610 # Create a job pod (simplified)
+3620 (kubernetes) create pod named "migration-job" from image "migrate:latest"
+3630 (kubernetes) with command list "/migrate.sh"
+3640 print "Migration job started"
+3650
+3660 (kubernetes) get logs from pod "migration-job"
+3670 print "Job logs:" and _result
+3680
+3690 (kubernetes) delete pod "migration-job"
+3700 print "Job completed and cleaned up"
+
+# =============================================================================
+# Example 19: Error Handling in Kubernetes Operations
+# =============================================================================
+# Description: Handle Kubernetes errors gracefully
+# Use case: Production robustness
+
+3800 print "=== Example 19: Error Handling ==="
+3810 on error goto 3900
+3820
+3830 (kubernetes) create deployment named "test-app" from image "test:latest"
+3840 (kubernetes) with 3 replicas
+3850 print "Deployment created successfully"
+3860
+3870 (kubernetes) scale deployment "test-app" to 5 replicas
+3880 print "Scaled successfully"
+3890 goto 3950
+3900 print "ERROR:" and _last_error
+3910 print "Operation failed - check cluster state"
+3920 # Cleanup on error
+3930 (kubernetes) delete deployment "test-app" force
+3950 print "Error handling complete"
+
+# =============================================================================
+# Example 20: Blue-Green Deployment
+# =============================================================================
+# Description: Zero-downtime deployment strategy
+# Use case: Production deployments
+
+4000 print "=== Example 20: Blue-Green Deployment ==="
+4010 # Deploy Blue (current production)
+4020 (kubernetes) create deployment named "app-blue" from image "app:v1.0"
+4030 (kubernetes) with 3 replicas
+4040 set blue_selector to dict with "app" as "myapp" and "version" as "blue"
+4050 (kubernetes) with labels blue_selector
+4060 print "Blue deployment created"
+4070
+4080 # Create service pointing to Blue
+4090 (kubernetes) create service named "app-service" on port 80 target port 8080
+4100 (kubernetes) with selector blue_selector
+4110 print "Service pointing to Blue"
+4120
+4130 # Deploy Green (new version)
+4140 (kubernetes) create deployment named "app-green" from image "app:v2.0"
+4150 (kubernetes) with 3 replicas
+4160 set green_selector to dict with "app" as "myapp" and "version" as "green"
+4170 (kubernetes) with labels green_selector
+4180 print "Green deployment created"
+4190
+4200 # Test Green deployment
+4210 print "Testing Green deployment..."
+4220
+4230 # Switch traffic to Green
+4240 print "Switching traffic to Green..."
+4250 (kubernetes) update service "app-service" selector to green_selector
+4260 print "Traffic switched to Green (v2.0)"
+4270
+4280 # Delete Blue deployment
+4290 print "Removing Blue deployment..."
+4300 (kubernetes) delete deployment "app-blue"
+4310 print "Blue-Green deployment complete!"
+
+# =============================================================================
+# Best Practices Demonstrated
+# =============================================================================
+# 1. Use namespaces for resource isolation
+# 2. Always set resource limits and requests
+# 3. Use labels and selectors for organization
+# 4. Implement health checks (liveness/readiness probes)
+# 5. Use ConfigMaps for configuration
+# 6. Use Secrets for sensitive data
+# 7. Deploy with multiple replicas for high availability
+# 8. Use services for stable network endpoints
+# 9. Implement rolling updates for zero downtime
+# 10. Monitor with logs and events
+
+# =============================================================================
+# Configuration Notes
+# =============================================================================
+# aibasic.conf [kubernetes] section:
+#
+# [kubernetes]
+# KUBECONFIG_PATH = ~/.kube/config
+# CONTEXT = default
+# NAMESPACE = default
+# API_SERVER = https://kubernetes.default.svc
+# TOKEN = <service-account-token>
+# VERIFY_SSL = true
+# CA_CERT = /path/to/ca.crt
+#
+# =============================================================================
+
+9999 print "All Kubernetes examples completed successfully!"

@@ -1,0 +1,450 @@
+# =============================================================================
+# AIbasic Terraform Module - Complete Examples
+# =============================================================================
+# Module: terraform (Infrastructure as Code)
+# Version: 1.0
+# Dependencies: python-terraform>=0.10.1
+#
+# The terraform module enables Infrastructure as Code (IaC) management,
+# allowing you to define, provision, and manage cloud infrastructure
+# using HashiCorp Terraform through natural language instructions.
+#
+# Supported Providers: AWS, Azure, GCP, DigitalOcean, Kubernetes, and more
+# =============================================================================
+
+# =============================================================================
+# Example 1: Basic Terraform Initialization
+# =============================================================================
+# Description: Initialize Terraform working directory
+# Use case: First time setup
+
+10 print "=== Example 1: Basic Terraform Initialization ==="
+20 (terraform) initialize terraform in directory "./terraform"
+30 print "Terraform initialized successfully!"
+
+# =============================================================================
+# Example 2: Validate and Format Configuration
+# =============================================================================
+# Description: Validate and format Terraform configuration files
+# Use case: Check configuration syntax and formatting
+
+100 print "=== Example 2: Validate and Format Configuration ==="
+110 (terraform) validate terraform configuration
+120 print "Validation result:" and _result
+130 (terraform) format terraform configuration files
+140 print "Formatted files:" and _result
+
+# =============================================================================
+# Example 3: Create Execution Plan
+# =============================================================================
+# Description: Preview infrastructure changes before applying
+# Use case: Review what Terraform will do
+
+200 print "=== Example 3: Create Execution Plan ==="
+210 (terraform) create terraform plan and save to "plan.out"
+220 print "Plan created. Changes to apply:" and _result
+230 (terraform) show terraform plan from file "plan.out"
+240 print "Plan details:" and _result
+
+# =============================================================================
+# Example 4: Apply Infrastructure Changes
+# =============================================================================
+# Description: Apply Terraform configuration to create infrastructure
+# Use case: Deploy infrastructure
+
+300 print "=== Example 4: Apply Infrastructure Changes ==="
+310 set variables to dict with "environment" as "dev" and "region" as "us-east-1"
+320 (terraform) apply terraform configuration with variables and auto approve
+330 print "Infrastructure applied successfully!"
+340 print "Apply result:" and _result
+
+# =============================================================================
+# Example 5: Read Terraform Outputs
+# =============================================================================
+# Description: Get output values from Terraform state
+# Use case: Retrieve resource information after apply
+
+400 print "=== Example 5: Read Terraform Outputs ==="
+410 (terraform) get all terraform outputs
+420 print "All outputs:" and _result
+430 (terraform) get terraform output "instance_ip"
+440 print "Instance IP:" and _result
+450 (terraform) get terraform output "database_endpoint" in json format
+460 print "Database endpoint (JSON):" and _result
+
+# =============================================================================
+# Example 6: Workspace Management
+# =============================================================================
+# Description: Manage multiple environments using workspaces
+# Use case: Separate dev, staging, and production infrastructure
+
+500 print "=== Example 6: Workspace Management ==="
+510 (terraform) list all terraform workspaces
+520 print "Available workspaces:" and _result
+530 (terraform) create new terraform workspace "staging"
+540 print "Created workspace: staging"
+550 (terraform) select terraform workspace "staging"
+560 print "Switched to workspace: staging"
+570 (terraform) initialize terraform in workspace "staging"
+580 (terraform) apply terraform in workspace "staging" with auto approve
+590 print "Staging infrastructure deployed!"
+
+# =============================================================================
+# Example 7: State Management
+# =============================================================================
+# Description: View and manage Terraform state
+# Use case: Inspect infrastructure state
+
+600 print "=== Example 7: State Management ==="
+610 (terraform) list all resources in terraform state
+620 print "Resources in state:" and _result
+630 (terraform) show terraform state for resource "aws_instance.web"
+640 print "Instance details:" and _result
+650 (terraform) refresh terraform state
+660 print "State refreshed from real infrastructure"
+
+# =============================================================================
+# Example 8: Import Existing Resources
+# =============================================================================
+# Description: Import existing infrastructure into Terraform state
+# Use case: Bring unmanaged resources under Terraform control
+
+700 print "=== Example 8: Import Existing Resources ==="
+710 set resource_address to "aws_instance.existing_server"
+720 set resource_id to "i-1234567890abcdef0"
+730 (terraform) import terraform resource at resource_address with id resource_id
+740 print "Imported existing resource:" and _result
+750 (terraform) list all resources in terraform state
+760 print "Updated state:" and _result
+
+# =============================================================================
+# Example 9: AWS Infrastructure with Variables
+# =============================================================================
+# Description: Deploy AWS EC2 instance with custom variables
+# Use case: Create cloud resources with parameters
+
+800 print "=== Example 9: AWS Infrastructure with Variables ==="
+810 set aws_vars to dict with "instance_type" as "t2.micro" and "ami" as "ami-0c55b159cbfafe1f0"
+820 set aws_vars["key_name"] to "my-key-pair"
+830 set aws_vars["environment"] to "production"
+840 (terraform) initialize terraform in directory "./terraform/aws"
+850 (terraform) plan terraform with variables aws_vars
+860 print "AWS plan created:" and _result
+870 (terraform) apply terraform with variables aws_vars and auto approve
+880 print "AWS infrastructure deployed!"
+890 (terraform) get terraform output "instance_public_ip"
+900 print "EC2 Public IP:" and _result
+
+# =============================================================================
+# Example 10: Azure Infrastructure with Backend
+# =============================================================================
+# Description: Deploy Azure resources with remote state in Azure Storage
+# Use case: Multi-user collaboration with shared state
+
+1000 print "=== Example 10: Azure Infrastructure with Backend ==="
+1010 set backend_config to dict with "storage_account_name" as "mytfstate"
+1020 set backend_config["container_name"] to "tfstate"
+1030 set backend_config["key"] to "terraform.tfstate"
+1040 (terraform) initialize terraform in directory "./terraform/azure" with backend backend_config
+1050 print "Terraform initialized with Azure backend"
+1060 set azure_vars to dict with "location" as "East US" and "vm_size" as "Standard_B1s"
+1070 (terraform) apply terraform with variables azure_vars and auto approve
+1080 print "Azure infrastructure deployed!"
+
+# =============================================================================
+# Example 11: GCP Infrastructure with Parallelism
+# =============================================================================
+# Description: Deploy Google Cloud resources with controlled parallelism
+# Use case: Optimize deployment speed while avoiding rate limits
+
+1100 print "=== Example 11: GCP Infrastructure with Parallelism ==="
+1110 set gcp_vars to dict with "project_id" as "my-gcp-project" and "region" as "us-central1"
+1120 set gcp_vars["zone"] to "us-central1-a"
+1130 set gcp_vars["machine_type"] to "e2-micro"
+1140 (terraform) initialize terraform in directory "./terraform/gcp"
+1150 (terraform) plan terraform with variables gcp_vars and parallelism 5
+1160 print "GCP plan created with 5 parallel operations"
+1170 (terraform) apply terraform with variables gcp_vars and parallelism 5 and auto approve
+1180 print "GCP infrastructure deployed!"
+1190 (terraform) get all terraform outputs
+1200 print "GCP outputs:" and _result
+
+# =============================================================================
+# Example 12: Multi-Cloud Deployment
+# =============================================================================
+# Description: Deploy infrastructure across AWS, Azure, and GCP
+# Use case: Multi-cloud strategy
+
+1300 print "=== Example 12: Multi-Cloud Deployment ==="
+1310 # AWS
+1320 (terraform) select terraform workspace "aws-prod"
+1330 (terraform) initialize terraform in directory "./terraform/aws"
+1340 set aws_vars to dict with "region" as "us-west-2" and "instance_type" as "t3.small"
+1350 (terraform) apply terraform with variables aws_vars and auto approve
+1360 print "AWS infrastructure deployed"
+1370 # Azure
+1380 (terraform) select terraform workspace "azure-prod"
+1390 (terraform) initialize terraform in directory "./terraform/azure"
+1400 set azure_vars to dict with "location" as "West US" and "vm_size" as "Standard_B2s"
+1410 (terraform) apply terraform with variables azure_vars and auto approve
+1420 print "Azure infrastructure deployed"
+1430 # GCP
+1440 (terraform) select terraform workspace "gcp-prod"
+1450 (terraform) initialize terraform in directory "./terraform/gcp"
+1460 set gcp_vars to dict with "region" as "us-west1" and "machine_type" as "e2-small"
+1470 (terraform) apply terraform with variables gcp_vars and auto approve
+1480 print "GCP infrastructure deployed"
+1490 print "Multi-cloud deployment complete!"
+
+# =============================================================================
+# Example 13: Infrastructure Lifecycle Management
+# =============================================================================
+# Description: Complete lifecycle from creation to destruction
+# Use case: Temporary infrastructure for testing
+
+1500 print "=== Example 13: Infrastructure Lifecycle Management ==="
+1510 # Create
+1520 (terraform) initialize terraform in directory "./terraform/test"
+1530 set test_vars to dict with "environment" as "test" and "instance_count" as 3
+1540 (terraform) apply terraform with variables test_vars and auto approve
+1550 print "Test infrastructure created"
+1560 # Use
+1570 (terraform) get all terraform outputs
+1580 set outputs to _result
+1590 print "Infrastructure is ready. Outputs:" and outputs
+1600 # Wait for testing
+1610 print "Infrastructure running... (simulate usage)"
+1620 # Destroy
+1630 print "Tearing down test infrastructure..."
+1640 (terraform) destroy terraform with variables test_vars and auto approve
+1650 print "Test infrastructure destroyed successfully"
+
+# =============================================================================
+# Example 14: State Operations
+# =============================================================================
+# Description: Advanced state manipulation
+# Use case: Refactoring infrastructure code
+
+1700 print "=== Example 14: State Operations ==="
+1710 # List all resources
+1720 (terraform) list all resources in terraform state
+1730 set all_resources to _result
+1740 print "All resources:" and all_resources
+1750 # Show specific resource
+1760 (terraform) show terraform state for resource "aws_s3_bucket.data"
+1770 print "S3 bucket state:" and _result
+1780 # Remove resource from state (doesn't destroy it)
+1790 print "Removing resource from state (not destroying)..."
+1800 (terraform) remove resource "aws_s3_bucket.temp" from terraform state
+1810 print "Resource removed from state"
+1820 # Refresh state
+1830 (terraform) refresh terraform state
+1840 print "State synchronized with real infrastructure"
+
+# =============================================================================
+# Example 15: Error Handling and Validation
+# =============================================================================
+# Description: Handle Terraform errors gracefully
+# Use case: Production deployment with error recovery
+
+1900 print "=== Example 15: Error Handling and Validation ==="
+1910 on error goto 1990
+1920 # Validate before applying
+1930 (terraform) validate terraform configuration
+1940 if _result contains "Error" goto 1990
+1950 # Apply with error handling
+1960 (terraform) apply terraform with auto approve
+1970 print "Infrastructure deployed successfully!"
+1980 goto 2000
+1990 print "ERROR occurred:" and _last_error
+1995 print "Please check Terraform configuration and try again"
+2000 print "Error handling complete"
+
+# =============================================================================
+# Example 16: Kubernetes Infrastructure
+# =============================================================================
+# Description: Deploy Kubernetes cluster and resources
+# Use case: Container orchestration setup
+
+2100 print "=== Example 16: Kubernetes Infrastructure ==="
+2110 set k8s_vars to dict with "cluster_name" as "my-cluster" and "node_count" as 3
+2120 set k8s_vars["node_type"] to "n1-standard-2"
+2130 set k8s_vars["k8s_version"] to "1.27"
+2140 (terraform) initialize terraform in directory "./terraform/kubernetes"
+2150 (terraform) plan terraform with variables k8s_vars
+2160 print "Kubernetes cluster plan:" and _result
+2170 (terraform) apply terraform with variables k8s_vars and auto approve
+2180 print "Kubernetes cluster deployed!"
+2190 (terraform) get terraform output "kubeconfig"
+2200 print "Kubeconfig:" and _result
+2210 (terraform) get terraform output "cluster_endpoint"
+2220 print "Cluster endpoint:" and _result
+
+# =============================================================================
+# Example 17: Database Infrastructure
+# =============================================================================
+# Description: Deploy managed database services
+# Use case: Production database setup
+
+2300 print "=== Example 17: Database Infrastructure ==="
+2310 set db_vars to dict with "db_engine" as "postgres" and "db_version" as "14.7"
+2320 set db_vars["instance_class"] to "db.t3.medium"
+2330 set db_vars["allocated_storage"] to 100
+2340 set db_vars["database_name"] to "production_db"
+2350 set db_vars["master_username"] to "admin"
+2360 set db_vars["backup_retention_days"] to 7
+2370 (terraform) initialize terraform in directory "./terraform/database"
+2380 (terraform) apply terraform with variables db_vars and auto approve
+2390 print "Database infrastructure deployed!"
+2400 (terraform) get terraform output "db_endpoint"
+2410 set db_endpoint to _result
+2420 print "Database endpoint:" and db_endpoint
+2430 (terraform) get terraform output "db_connection_string"
+2440 print "Connection string:" and _result
+
+# =============================================================================
+# Example 18: Network Infrastructure
+# =============================================================================
+# Description: Deploy VPC, subnets, and security groups
+# Use case: Network foundation for applications
+
+2500 print "=== Example 18: Network Infrastructure ==="
+2510 set network_vars to dict with "vpc_cidr" as "10.0.0.0/16"
+2520 set network_vars["public_subnet_cidrs"] to list "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"
+2530 set network_vars["private_subnet_cidrs"] to list "10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"
+2540 set network_vars["availability_zones"] to list "us-east-1a", "us-east-1b", "us-east-1c"
+2550 set network_vars["enable_nat_gateway"] to true
+2560 (terraform) initialize terraform in directory "./terraform/network"
+2570 (terraform) apply terraform with variables network_vars and auto approve
+2580 print "Network infrastructure deployed!"
+2590 (terraform) get terraform output "vpc_id"
+2600 print "VPC ID:" and _result
+2610 (terraform) get terraform output "public_subnet_ids"
+2620 print "Public subnets:" and _result
+
+# =============================================================================
+# Example 19: CI/CD Pipeline Integration
+# =============================================================================
+# Description: Automated deployment pipeline
+# Use case: GitOps and automated infrastructure updates
+
+2700 print "=== Example 19: CI/CD Pipeline Integration ==="
+2710 # Step 1: Validate
+2720 print "Step 1: Validating configuration..."
+2730 (terraform) validate terraform configuration
+2740 if _result contains "Error" goto 2900
+2750 print "Validation passed!"
+2760 # Step 2: Format check
+2770 print "Step 2: Checking formatting..."
+2780 (terraform) format terraform configuration files
+2790 # Step 3: Plan
+2800 print "Step 3: Creating plan..."
+2810 set ci_vars to dict with "environment" as "staging" and "version" as "1.0.0"
+2820 (terraform) plan terraform with variables ci_vars and save to "ci-plan.out"
+2830 print "Plan created and saved"
+2840 # Step 4: Apply (in production, this would require approval)
+2850 print "Step 4: Applying changes..."
+2860 (terraform) apply terraform plan from file "ci-plan.out" with auto approve
+2870 print "Deployment successful!"
+2880 goto 2910
+2900 print "CI/CD pipeline failed. Check errors and retry."
+2910 print "CI/CD pipeline complete"
+
+# =============================================================================
+# Example 20: Cost Optimization
+# =============================================================================
+# Description: Deploy cost-optimized infrastructure
+# Use case: Development environment with minimal costs
+
+3000 print "=== Example 20: Cost Optimization ==="
+3010 set cost_vars to dict with "environment" as "dev" and "enable_spot_instances" as true
+3020 set cost_vars["instance_type"] to "t3.micro"
+3030 set cost_vars["min_size"] to 1
+3040 set cost_vars["max_size"] to 2
+3050 set cost_vars["desired_capacity"] to 1
+3060 set cost_vars["enable_autoscaling"] to true
+3070 (terraform) initialize terraform in directory "./terraform/cost-optimized"
+3080 (terraform) plan terraform with variables cost_vars
+3090 print "Cost-optimized plan created"
+3100 (terraform) apply terraform with variables cost_vars and auto approve
+3110 print "Cost-optimized infrastructure deployed!"
+3120 (terraform) get terraform output "estimated_monthly_cost"
+3130 print "Estimated monthly cost:" and _result
+
+# =============================================================================
+# Example 21: Disaster Recovery
+# =============================================================================
+# Description: Multi-region deployment for disaster recovery
+# Use case: High availability and business continuity
+
+3200 print "=== Example 21: Disaster Recovery ==="
+3210 # Primary region
+3220 print "Deploying primary region..."
+3230 (terraform) select terraform workspace "primary"
+3240 set primary_vars to dict with "region" as "us-east-1" and "is_primary" as true
+3250 (terraform) initialize terraform in directory "./terraform/dr"
+3260 (terraform) apply terraform with variables primary_vars and auto approve
+3270 (terraform) get terraform output "primary_endpoint"
+3280 set primary_endpoint to _result
+3290 print "Primary region deployed:" and primary_endpoint
+3300 # DR region
+3310 print "Deploying DR region..."
+3320 (terraform) select terraform workspace "dr"
+3330 set dr_vars to dict with "region" as "us-west-2" and "is_primary" as false
+3340 set dr_vars["primary_endpoint"] to primary_endpoint
+3350 (terraform) initialize terraform in directory "./terraform/dr"
+3360 (terraform) apply terraform with variables dr_vars and auto approve
+3370 (terraform) get terraform output "dr_endpoint"
+3380 print "DR region deployed:" and _result
+3390 print "Disaster recovery setup complete!"
+
+# =============================================================================
+# Example 22: Cleanup and Destroy
+# =============================================================================
+# Description: Safely destroy all created infrastructure
+# Use case: Environment teardown
+
+3500 print "=== Example 22: Cleanup and Destroy ==="
+3510 print "WARNING: This will destroy all infrastructure!"
+3520 # Destroy test environment
+3530 (terraform) select terraform workspace "test"
+3540 (terraform) destroy terraform with auto approve
+3550 print "Test environment destroyed"
+3560 # Destroy staging
+3570 (terraform) select terraform workspace "staging"
+3580 (terraform) destroy terraform with auto approve
+3590 print "Staging environment destroyed"
+3600 # Note: Production should require manual approval
+3610 print "Cleanup complete. Production environment preserved."
+
+# =============================================================================
+# Best Practices Demonstrated
+# =============================================================================
+# 1. Always validate before apply
+# 2. Use workspaces for environment separation
+# 3. Store state remotely for team collaboration
+# 4. Use variables for configuration flexibility
+# 5. Review plans before applying
+# 6. Handle errors gracefully
+# 7. Use parallelism to optimize deployment speed
+# 8. Format code consistently
+# 9. Import existing resources when needed
+# 10. Clean up unused resources
+
+# =============================================================================
+# Configuration Notes
+# =============================================================================
+# aibasic.conf [terraform] section:
+#
+# [terraform]
+# TERRAFORM_BIN = /usr/local/bin/terraform
+# WORKING_DIR = ./terraform
+# AUTO_APPROVE = false
+# PARALLELISM = 10
+# DEFAULT_WORKSPACE = default
+# BACKEND_TYPE = s3
+# BACKEND_CONFIG = {"bucket": "my-tf-state", "key": "terraform.tfstate", "region": "us-east-1"}
+#
+# =============================================================================
+
+9999 print "All Terraform examples completed successfully!"

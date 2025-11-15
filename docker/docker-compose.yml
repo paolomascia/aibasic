@@ -30,6 +30,7 @@ services:
       - neo4j
       - elasticsearch
       - timescaledb
+      - localstack
     networks:
       - aibasic-network
     stdin_open: true
@@ -401,6 +402,34 @@ services:
       timeout: 5s
       retries: 5
 
+  # LocalStack (AWS services emulator for local development)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: aibasic-localstack
+    environment:
+      - SERVICES=s3,dynamodb,sqs,sns,lambda,secretsmanager,cloudwatch,ses,events,sts
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - LOCALSTACK_HOST=localstack
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./init-scripts/localstack:/etc/localstack/init/ready.d
+    ports:
+      - "4566:4566"  # LocalStack edge port (all services)
+      - "4510-4559:4510-4559"  # External services port range
+    networks:
+      - aibasic-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   postgres_data:
   mysql_data:
@@ -421,6 +450,7 @@ volumes:
   neo4j_import:
   elasticsearch_data:
   timescaledb_data:
+  localstack_data:
   aibasic_output:
   aibasic_logs:
 

@@ -1,0 +1,525 @@
+# =============================================================================
+# AIbasic Docker Module - Complete Examples
+# =============================================================================
+# Module: docker (Container and Image Management)
+# Version: 1.0
+# Dependencies: docker>=7.0.0
+#
+# The docker module enables comprehensive Docker container, image, volume,
+# and network management through natural language instructions.
+#
+# Supported Operations: containers, images, volumes, networks, system operations
+# =============================================================================
+
+# =============================================================================
+# Example 1: Basic Container Operations
+# =============================================================================
+# Description: Run, stop, and manage containers
+# Use case: Basic container lifecycle
+
+10 print "=== Example 1: Basic Container Operations ==="
+20 (docker) run container from image "nginx:latest" named "web-server" in detached mode
+30 print "Container started:" and _result
+40
+50 (docker) list all running containers
+60 print "Running containers:" and _result
+70
+80 (docker) stop container "web-server"
+90 print "Container stopped"
+100
+110 (docker) remove container "web-server"
+120 print "Container removed"
+
+# =============================================================================
+# Example 2: Container with Port Mapping
+# =============================================================================
+# Description: Run container with exposed ports
+# Use case: Web server accessible from host
+
+200 print "=== Example 2: Container with Port Mapping ==="
+210 set ports to dict with "80/tcp" as 8080
+220 (docker) run container from image "nginx:latest" named "nginx-web"
+230 (docker) with ports ports in detached mode
+240 print "Nginx running on http://localhost:8080"
+250
+260 (docker) get logs from container "nginx-web" tail 20 lines
+270 print "Container logs:" and _result
+280
+290 (docker) stop and remove container "nginx-web"
+
+# =============================================================================
+# Example 3: Container with Environment Variables
+# =============================================================================
+# Description: Run container with custom environment
+# Use case: Database or app with configuration
+
+300 print "=== Example 3: Container with Environment Variables ==="
+310 set env to dict with "POSTGRES_PASSWORD" as "secret123"
+320 set env["POSTGRES_USER"] to "aibasic"
+330 set env["POSTGRES_DB"] to "testdb"
+340
+350 set ports to dict with "5432/tcp" as 5433
+360
+370 (docker) run container from image "postgres:15" named "test-postgres"
+380 (docker) with environment env and ports ports in detached mode
+390 print "PostgreSQL container started"
+400
+410 (docker) inspect container "test-postgres"
+420 print "Container details:" and _result
+430
+440 (docker) stop and remove container "test-postgres"
+
+# =============================================================================
+# Example 4: Container with Volumes
+# =============================================================================
+# Description: Run container with persistent storage
+# Use case: Data persistence across container restarts
+
+500 print "=== Example 4: Container with Volumes ==="
+510 (docker) create volume "data-volume"
+520 print "Volume created"
+530
+540 set volumes to dict with "data-volume" as dict with "bind" as "/data" and "mode" as "rw"
+550
+560 (docker) run container from image "alpine:latest" named "data-container"
+570 (docker) with volumes volumes and command "sh -c 'echo Hello > /data/test.txt && cat /data/test.txt'"
+580 print "Data written to volume"
+590
+600 (docker) remove volume "data-volume"
+610 print "Volume removed"
+
+# =============================================================================
+# Example 5: Execute Commands in Running Container
+# =============================================================================
+# Description: Execute commands inside a running container
+# Use case: Debugging, maintenance, configuration
+
+700 print "=== Example 5: Execute Commands in Container ==="
+710 (docker) run container from image "ubuntu:22.04" named "ubuntu-test" in detached mode
+720 (docker) with command "sleep 60"
+730
+740 (docker) exec command "whoami" in container "ubuntu-test"
+750 print "Current user:" and _result
+760
+770 (docker) exec command "cat /etc/os-release" in container "ubuntu-test"
+780 print "OS Info:" and _result
+790
+800 (docker) exec command "ls -la /" in container "ubuntu-test"
+810 print "Root directory:" and _result
+820
+830 (docker) stop and remove container "ubuntu-test"
+
+# =============================================================================
+# Example 6: Container Stats and Monitoring
+# =============================================================================
+# Description: Monitor container resource usage
+# Use case: Performance monitoring
+
+900 print "=== Example 6: Container Stats and Monitoring ==="
+910 (docker) run container from image "nginx:latest" named "nginx-monitor" in detached mode
+920
+930 (docker) get stats from container "nginx-monitor"
+940 print "Container stats:" and _result
+950
+960 (docker) pause container "nginx-monitor"
+970 print "Container paused"
+980
+990 (docker) unpause container "nginx-monitor"
+1000 print "Container unpaused"
+1010
+1020 (docker) stop and remove container "nginx-monitor"
+
+# =============================================================================
+# Example 7: Image Management
+# =============================================================================
+# Description: Pull, tag, and manage Docker images
+# Use case: Image lifecycle management
+
+1100 print "=== Example 7: Image Management ==="
+1110 (docker) pull image "alpine" with tag "3.18"
+1120 print "Image pulled:" and _result
+1130
+1140 (docker) list all images
+1150 print "Available images:" and _result
+1160
+1170 (docker) tag image "alpine:3.18" as "my-alpine:latest"
+1180 print "Image tagged"
+1190
+1200 (docker) inspect image "alpine:3.18"
+1210 print "Image details:" and _result
+1220
+1230 (docker) get history of image "alpine:3.18"
+1240 print "Image history:" and _result
+1250
+1260 (docker) remove image "my-alpine:latest"
+1270 print "Image removed"
+
+# =============================================================================
+# Example 8: Search Docker Hub
+# =============================================================================
+# Description: Search for images on Docker Hub
+# Use case: Finding images
+
+1400 print "=== Example 8: Search Docker Hub ==="
+1410 (docker) search for images with term "redis" limit 10
+1420 print "Search results:" and _result
+1430
+1440 (docker) search for images with term "postgres" limit 5
+1450 print "PostgreSQL images:" and _result
+
+# =============================================================================
+# Example 9: Build Custom Image
+# =============================================================================
+# Description: Build image from Dockerfile
+# Use case: Custom application image
+
+1500 print "=== Example 9: Build Custom Image ==="
+1510 # Assuming Dockerfile exists in ./docker-build directory
+1520 (docker) build image from path "./docker-build" with tag "my-app:1.0"
+1530 print "Image built:" and _result
+1540
+1550 (docker) list all images with filter "my-app"
+1560 print "Built images:" and _result
+1570
+1580 # Optional: remove built image
+1590 # (docker) remove image "my-app:1.0"
+
+# =============================================================================
+# Example 10: Network Management
+# =============================================================================
+# Description: Create and manage Docker networks
+# Use case: Multi-container communication
+
+1700 print "=== Example 10: Network Management ==="
+1710 (docker) create network "app-network" with driver "bridge"
+1720 print "Network created"
+1730
+1740 (docker) list all networks
+1750 print "Networks:" and _result
+1760
+1770 (docker) run container from image "nginx:latest" named "nginx-networked"
+1780 (docker) in network "app-network" in detached mode
+1790 print "Container started in network"
+1800
+1810 (docker) inspect network "app-network"
+1820 print "Network details:" and _result
+1830
+1840 (docker) stop and remove container "nginx-networked"
+1850 (docker) remove network "app-network"
+1860 print "Network removed"
+
+# =============================================================================
+# Example 11: Multi-Container Application
+# =============================================================================
+# Description: Run multiple connected containers
+# Use case: Web app with database
+
+1900 print "=== Example 11: Multi-Container Application ==="
+1910 # Create network
+1920 (docker) create network "webapp-network"
+1930 print "Network created"
+1940
+1950 # Start database
+1960 set db_env to dict with "POSTGRES_PASSWORD" as "dbpass123"
+1970 set db_env["POSTGRES_DB"] to "appdb"
+1980 (docker) run container from image "postgres:15" named "app-database"
+1990 (docker) with environment db_env in network "webapp-network" in detached mode
+2000 print "Database started"
+2010
+2020 # Start web app (example with nginx)
+2030 set web_ports to dict with "80/tcp" as 8080
+2040 (docker) run container from image "nginx:latest" named "app-web"
+2050 (docker) with ports web_ports in network "webapp-network" in detached mode
+2060 print "Web app started"
+2070
+2080 # List containers
+2090 (docker) list all running containers
+2100 print "Running containers:" and _result
+2110
+2120 # Cleanup
+2130 (docker) stop container "app-web"
+2140 (docker) stop container "app-database"
+2150 (docker) remove container "app-web"
+2160 (docker) remove container "app-database"
+2170 (docker) remove network "webapp-network"
+2180 print "Application cleaned up"
+
+# =============================================================================
+# Example 12: Volume Operations
+# =============================================================================
+# Description: Comprehensive volume management
+# Use case: Persistent data storage
+
+2200 print "=== Example 12: Volume Operations ==="
+2210 (docker) create volume "persistent-data"
+2220 print "Volume created"
+2230
+2240 (docker) list all volumes
+2250 print "Volumes:" and _result
+2260
+2270 (docker) inspect volume "persistent-data"
+2280 print "Volume details:" and _result
+2290
+2300 # Use volume in container
+2310 set vols to dict with "persistent-data" as dict with "bind" as "/app/data" and "mode" as "rw"
+2320 (docker) run container from image "alpine:latest" named "vol-test"
+2330 (docker) with volumes vols and command "sh -c 'echo Data persists > /app/data/file.txt'"
+2340 print "Data written to volume"
+2350
+2360 (docker) remove volume "persistent-data"
+2370 print "Volume removed"
+
+# =============================================================================
+# Example 13: System Information and Cleanup
+# =============================================================================
+# Description: Get Docker system info and cleanup
+# Use case: Monitoring and maintenance
+
+2400 print "=== Example 13: System Information and Cleanup ==="
+2410 (docker) get system info
+2420 print "Docker info:" and _result
+2430
+2440 (docker) get docker version
+2450 print "Docker version:" and _result
+2460
+2470 (docker) get disk usage
+2480 print "Disk usage:" and _result
+2490
+2500 (docker) ping docker daemon
+2510 print "Docker daemon is running:" and _result
+2520
+2530 # Prune unused resources
+2540 (docker) prune unused images
+2550 print "Images pruned:" and _result
+2560
+2570 (docker) prune unused volumes
+2580 print "Volumes pruned:" and _result
+2590
+2600 (docker) prune unused networks
+2610 print "Networks pruned:" and _result
+
+# =============================================================================
+# Example 14: Container Lifecycle with Error Handling
+# =============================================================================
+# Description: Complete container lifecycle with error handling
+# Use case: Production-ready container management
+
+2700 print "=== Example 14: Container Lifecycle with Error Handling ==="
+2710 on error goto 2900
+2720
+2730 # Run container
+2740 set ports to dict with "80/tcp" as 8081
+2750 (docker) run container from image "nginx:latest" named "production-nginx"
+2760 (docker) with ports ports in detached mode
+2770 print "Container started successfully"
+2780
+2790 # Monitor for a bit
+2800 (docker) get stats from container "production-nginx"
+2810 print "Container is healthy"
+2820
+2830 # Graceful shutdown
+2840 print "Shutting down container..."
+2850 (docker) stop container "production-nginx" with timeout 30
+2860 (docker) remove container "production-nginx"
+2870 print "Container stopped and removed cleanly"
+2880 goto 2999
+2900 print "ERROR:" and _last_error
+2910 print "Attempting cleanup..."
+2920 (docker) stop container "production-nginx" force
+2930 (docker) remove container "production-nginx" force
+2999 print "Lifecycle complete"
+
+# =============================================================================
+# Example 15: Container Restart Policies
+# =============================================================================
+# Description: Run container with restart policy
+# Use case: Always-on services
+
+3000 print "=== Example 15: Container Restart Policies ==="
+3010 (docker) run container from image "redis:latest" named "redis-always"
+3020 (docker) with restart policy "always" in detached mode
+3030 print "Redis container with always restart"
+3040
+3050 (docker) run container from image "redis:latest" named "redis-on-failure"
+3060 (docker) with restart policy "on-failure" max retries 5 in detached mode
+3070 print "Redis container with on-failure restart"
+3080
+3090 # Cleanup
+3100 (docker) stop and remove container "redis-always"
+3110 (docker) stop and remove container "redis-on-failure"
+
+# =============================================================================
+# Example 16: Container Resource Limits
+# =============================================================================
+# Description: Run container with resource constraints
+# Use case: Resource management
+
+3200 print "=== Example 16: Container Resource Limits ==="
+3210 (docker) run container from image "nginx:latest" named "nginx-limited"
+3220 (docker) with memory limit "256m" and cpu shares 512 in detached mode
+3230 print "Container started with resource limits"
+3240
+3250 (docker) get stats from container "nginx-limited"
+3260 print "Resource usage:" and _result
+3270
+3280 (docker) stop and remove container "nginx-limited"
+
+# =============================================================================
+# Example 17: Container Health Checks
+# =============================================================================
+# Description: Run container with health check
+# Use case: Service health monitoring
+
+3300 print "=== Example 17: Container Health Checks ==="
+3310 set ports to dict with "80/tcp" as 8082
+3320 (docker) run container from image "nginx:latest" named "nginx-health"
+3330 (docker) with ports ports and healthcheck "curl -f http://localhost/ || exit 1"
+3340 (docker) interval 30s timeout 3s retries 3 in detached mode
+3350 print "Container started with health check"
+3360
+3370 (docker) inspect container "nginx-health"
+3380 print "Health status:" and _result["State"]["Health"]["Status"]
+3390
+3400 (docker) stop and remove container "nginx-health"
+
+# =============================================================================
+# Example 18: Docker Registry Operations
+# =============================================================================
+# Description: Login to registry and push/pull images
+# Use case: Private registry management
+
+3500 print "=== Example 18: Docker Registry Operations ==="
+3510 # Note: Requires registry credentials in config
+3520 (docker) login to registry "docker.io" with username and password
+3530 print "Logged in to registry"
+3540
+3550 (docker) pull image "alpine:latest"
+3560 (docker) tag image "alpine:latest" as "myuser/alpine:custom"
+3570 # (docker) push image "myuser/alpine:custom"  # Requires valid credentials
+3580 print "Image tagged for push"
+3590
+3600 (docker) remove image "myuser/alpine:custom"
+
+# =============================================================================
+# Example 19: Container Logs Management
+# =============================================================================
+# Description: Comprehensive log operations
+# Use case: Debugging and monitoring
+
+3700 print "=== Example 19: Container Logs Management ==="
+3710 (docker) run container from image "nginx:latest" named "nginx-logs" in detached mode
+3720
+3730 # Generate some logs (make request)
+3740 print "Waiting for logs..."
+3750
+3760 (docker) get logs from container "nginx-logs" tail 50 lines
+3770 print "Recent logs:" and _result
+3780
+3790 (docker) get logs from container "nginx-logs" with timestamps tail 20 lines
+3800 print "Logs with timestamps:" and _result
+3810
+3820 (docker) get logs from container "nginx-logs" follow mode
+3830 print "Following logs (stream):" and _result
+3840
+3850 (docker) stop and remove container "nginx-logs"
+
+# =============================================================================
+# Example 20: Advanced Network Configuration
+# =============================================================================
+# Description: Advanced network features
+# Use case: Complex networking scenarios
+
+3900 print "=== Example 20: Advanced Network Configuration ==="
+3910 (docker) create network "custom-network" with driver "bridge"
+3920 (docker) subnet "172.28.0.0/16" gateway "172.28.0.1"
+3930 print "Custom network created"
+3940
+3950 (docker) run container from image "alpine:latest" named "net-test1"
+3960 (docker) in network "custom-network" with ip "172.28.0.10" in detached mode
+3970 (docker) with command "sleep 60"
+3980 print "Container 1 started with static IP"
+3990
+4000 (docker) run container from image "alpine:latest" named "net-test2"
+4010 (docker) in network "custom-network" in detached mode
+4020 (docker) with command "sleep 60"
+4030 print "Container 2 started"
+4040
+4050 # Connect container to additional network
+4060 (docker) create network "bridge-network"
+4070 (docker) connect container "net-test2" to network "bridge-network"
+4080 print "Container connected to multiple networks"
+4090
+4100 # Disconnect and cleanup
+4110 (docker) disconnect container "net-test2" from network "bridge-network"
+4120 (docker) stop and remove container "net-test1"
+4130 (docker) stop and remove container "net-test2"
+4140 (docker) remove network "custom-network"
+4150 (docker) remove network "bridge-network"
+4160 print "Networks cleaned up"
+
+# =============================================================================
+# Example 21: Container Import/Export
+# =============================================================================
+# Description: Export and import container filesystems
+# Use case: Container migration, backup
+
+4200 print "=== Example 21: Container Import/Export ==="
+4210 (docker) run container from image "alpine:latest" named "export-test"
+4220 (docker) with command "sh -c 'echo test > /tmp/data.txt'"
+4230 print "Container created with data"
+4240
+4250 (docker) export container "export-test" to file "container-backup.tar"
+4260 print "Container exported"
+4270
+4280 (docker) import tarball "container-backup.tar" as image "imported-alpine:latest"
+4290 print "Container imported as image"
+4300
+4310 (docker) remove image "imported-alpine:latest"
+
+# =============================================================================
+# Example 22: System-Wide Cleanup
+# =============================================================================
+# Description: Complete system cleanup
+# Use case: Free up disk space
+
+4400 print "=== Example 22: System-Wide Cleanup ==="
+4410 (docker) get disk usage
+4420 set before_cleanup to _result
+4430 print "Disk usage before cleanup:" and before_cleanup
+4440
+4450 (docker) prune all system resources including volumes
+4460 print "Pruned resources:" and _result
+4470
+4480 (docker) get disk usage
+4490 print "Disk usage after cleanup:" and _result
+
+# =============================================================================
+# Best Practices Demonstrated
+# =============================================================================
+# 1. Always use detached mode for long-running containers
+# 2. Name containers for easy management
+# 3. Use environment variables for configuration
+# 4. Map ports explicitly
+# 5. Use volumes for persistent data
+# 6. Create networks for container communication
+# 7. Implement health checks for critical services
+# 8. Set resource limits to prevent resource exhaustion
+# 9. Use restart policies for high availability
+# 10. Regular cleanup of unused resources
+
+# =============================================================================
+# Configuration Notes
+# =============================================================================
+# aibasic.conf [docker] section:
+#
+# [docker]
+# DOCKER_HOST = unix:///var/run/docker.sock
+# TLS_VERIFY = false
+# TIMEOUT = 60
+# DEFAULT_REGISTRY = docker.io
+# REGISTRY_USERNAME = your_username
+# REGISTRY_PASSWORD = your_password
+#
+# =============================================================================
+
+9999 print "All Docker examples completed successfully!"
