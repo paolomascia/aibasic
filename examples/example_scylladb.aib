@@ -1,0 +1,549 @@
+REM ============================================================================
+REM ScyllaDB Module - Comprehensive Examples
+REM ============================================================================
+REM
+REM This file demonstrates all capabilities of the ScyllaDB module for
+REM high-performance NoSQL database operations.
+REM
+REM Module: ScyllaDBModule
+REM Task Type: (scylladb)
+REM
+REM Topics covered:
+REM - Keyspace management
+REM - Table operations
+REM - Data CRUD operations
+REM - Batch operations
+REM - Prepared statements
+REM - Secondary indexes
+REM - Materialized views
+REM - Counter columns
+REM - Consistency levels
+REM - Time-series data
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Keyspace and Table Creation
+REM ============================================================================
+REM Create a keyspace and simple table
+
+10 REM Create keyspace with SimpleStrategy
+20 (scylladb) create keyspace "test_keyspace" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+30 REM Use the keyspace
+40 (scylladb) use keyspace "test_keyspace"
+
+50 REM Create a simple users table
+60 (scylladb) create table "users" with schema "id UUID PRIMARY KEY, name TEXT, email TEXT, age INT, created_at TIMESTAMP"
+
+70 PRINT "Keyspace and table created successfully"
+
+REM ============================================================================
+REM Example 2: Insert Data
+REM ============================================================================
+REM Insert records into ScyllaDB table
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Insert single user
+30 (scylladb) insert into "users" data {"id": "uuid()", "name": "John Doe", "email": "john@example.com", "age": 30, "created_at": "now()"}
+
+40 REM Insert with TTL (time to live)
+50 (scylladb) insert into "users" data {"id": "uuid()", "name": "Jane Smith", "email": "jane@example.com", "age": 25} with ttl 86400
+
+60 PRINT "Users inserted successfully"
+
+REM ============================================================================
+REM Example 3: Select and Query Data
+REM ============================================================================
+REM Query data from ScyllaDB
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Select all users
+30 (scylladb) select * from "users"
+40 PRINT "All users:"
+50 PRINT RESULT
+
+60 REM Select specific columns
+70 (scylladb) select "name, email" from "users"
+
+80 REM Select with WHERE clause
+90 LET user_id = "123e4567-e89b-12d3-a456-426614174000"
+100 (scylladb) select * from "users" where {"id": user_id}
+
+110 REM Select with LIMIT
+120 (scylladb) select * from "users" limit 10
+
+REM ============================================================================
+REM Example 4: Update and Delete Operations
+REM ============================================================================
+REM Modify existing data
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Update user data
+30 LET user_id = "123e4567-e89b-12d3-a456-426614174000"
+40 (scylladb) update "users" set {"name": "John Updated", "age": 31} where {"id": user_id}
+
+50 REM Update with TTL
+60 (scylladb) update "users" set {"email": "newemail@example.com"} where {"id": user_id} with ttl 3600
+
+70 REM Delete a user
+80 (scylladb) delete from "users" where {"id": user_id}
+
+90 PRINT "Data updated and deleted"
+
+REM ============================================================================
+REM Example 5: Batch Operations
+REM ============================================================================
+REM Perform multiple operations atomically
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Create list of users for batch insert
+30 LET users = [
+40   {"id": "uuid()", "name": "Alice Johnson", "email": "alice@example.com", "age": 28},
+50   {"id": "uuid()", "name": "Bob Williams", "email": "bob@example.com", "age": 35},
+60   {"id": "uuid()", "name": "Carol Davis", "email": "carol@example.com", "age": 42}
+70 ]
+
+80 REM Batch insert (LOGGED batch for atomicity)
+90 (scylladb) batch insert into "users" data users with batch_type "LOGGED"
+
+100 PRINT "Batch insert completed"
+
+110 REM UNLOGGED batch for better performance (no atomicity)
+120 (scylladb) batch insert into "users" data users with batch_type "UNLOGGED"
+
+REM ============================================================================
+REM Example 6: Consistency Levels
+REM ============================================================================
+REM Control read/write consistency
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Insert with ONE consistency (fastest, least consistent)
+30 (scylladb) insert into "users" data {"id": "uuid()", "name": "Fast Write", "email": "fast@example.com", "age": 20} with consistency "ONE"
+
+40 REM Insert with QUORUM consistency (balanced)
+50 (scylladb) insert into "users" data {"id": "uuid()", "name": "Balanced Write", "email": "balanced@example.com", "age": 25} with consistency "QUORUM"
+
+60 REM Insert with ALL consistency (slowest, most consistent)
+70 (scylladb) insert into "users" data {"id": "uuid()", "name": "Strong Write", "email": "strong@example.com", "age": 30} with consistency "ALL"
+
+80 REM Select with LOCAL_QUORUM (datacenter-aware)
+90 (scylladb) select * from "users" with consistency "LOCAL_QUORUM"
+
+REM ============================================================================
+REM Example 7: Secondary Indexes
+REM ============================================================================
+REM Create indexes for efficient queries
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Create index on email column
+30 (scylladb) create index "users_email_idx" on "users" column "email"
+
+40 REM Create index on age column
+50 (scylladb) create index "users_age_idx" on "users" column "age"
+
+60 REM Now we can query by indexed columns
+70 (scylladb) execute "SELECT * FROM users WHERE email = 'john@example.com'"
+
+80 (scylladb) execute "SELECT * FROM users WHERE age = 30"
+
+90 REM Drop index when no longer needed
+100 (scylladb) drop index "users_email_idx"
+
+REM ============================================================================
+REM Example 8: Prepared Statements
+REM ============================================================================
+REM Use prepared statements for better performance
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Prepare an insert statement
+30 LET stmt_id = (scylladb) prepare "INSERT INTO users (id, name, email, age) VALUES (?, ?, ?, ?)"
+
+40 REM Execute prepared statement multiple times
+50 FOR i = 1 TO 100
+60   LET user_data = ["uuid()", "User " + STR(i), "user" + STR(i) + "@example.com", 20 + i]
+70   (scylladb) execute prepared stmt_id with values user_data
+80 NEXT i
+
+90 PRINT "Inserted 100 users using prepared statement"
+
+REM ============================================================================
+REM Example 9: Time-Series Data
+REM ============================================================================
+REM Store and query time-series sensor data
+
+10 (scylladb) create keyspace "iot_data" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "iot_data"
+
+30 REM Create time-series table with time-based partitioning
+40 (scylladb) create table "sensor_readings" with schema "sensor_id TEXT, reading_date DATE, reading_time TIMESTAMP, temperature DOUBLE, humidity DOUBLE, PRIMARY KEY ((sensor_id, reading_date), reading_time)"
+
+50 REM Insert sensor readings
+60 FOR i = 1 TO 1000
+70   LET reading = {
+80     "sensor_id": "SENSOR_001",
+90     "reading_date": "2025-01-15",
+100    "reading_time": "now()",
+110    "temperature": 20 + (i MOD 10),
+120    "humidity": 50 + (i MOD 20)
+130  }
+140  (scylladb) insert into "sensor_readings" data reading
+150 NEXT i
+
+160 REM Query sensor readings for specific date
+170 (scylladb) select * from "sensor_readings" where {"sensor_id": "SENSOR_001", "reading_date": "2025-01-15"} limit 100
+
+180 PRINT "Time-series data inserted and queried"
+
+REM ============================================================================
+REM Example 10: Counter Columns
+REM ============================================================================
+REM Use counter columns for distributed counting
+
+10 (scylladb) create keyspace "analytics" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "analytics"
+
+30 REM Create counter table
+40 (scylladb) create table "page_views" with schema "page_url TEXT PRIMARY KEY, view_count COUNTER"
+
+50 REM Increment page view counter
+60 (scylladb) increment counter in "page_views" column "view_count" by 1 where {"page_url": "/home"}
+
+70 (scylladb) increment counter in "page_views" column "view_count" by 5 where {"page_url": "/products"}
+
+80 (scylladb) increment counter in "page_views" column "view_count" by 1 where {"page_url": "/home"}
+
+90 REM Query counter values
+100 (scylladb) select * from "page_views"
+110 PRINT "Page view counters:"
+120 PRINT RESULT
+
+REM ============================================================================
+REM Example 11: Materialized Views
+REM ============================================================================
+REM Create materialized views for alternative query patterns
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Create materialized view to query users by email
+30 (scylladb) create materialized view "users_by_email" from table "users" select "id, name, email, age, created_at" where "email IS NOT NULL AND id IS NOT NULL" with primary_key "(email, id)"
+
+40 REM Query using materialized view
+50 (scylladb) execute "SELECT * FROM users_by_email WHERE email = 'john@example.com'"
+
+60 REM Create view to query users by age
+70 (scylladb) create materialized view "users_by_age" from table "users" select "id, name, email, age" where "age IS NOT NULL AND id IS NOT NULL" with primary_key "(age, id)"
+
+80 (scylladb) execute "SELECT * FROM users_by_age WHERE age = 30"
+
+90 REM Drop materialized view
+100 (scylladb) drop materialized view "users_by_email"
+
+REM ============================================================================
+REM Example 12: E-commerce Product Catalog
+REM ============================================================================
+REM Complete e-commerce product management
+
+10 (scylladb) create keyspace "ecommerce" with replication_strategy "NetworkTopologyStrategy" and replication_factor 3
+
+20 (scylladb) use keyspace "ecommerce"
+
+30 REM Create products table
+40 (scylladb) create table "products" with schema "product_id UUID PRIMARY KEY, name TEXT, description TEXT, price DECIMAL, category TEXT, stock INT, created_at TIMESTAMP"
+
+50 REM Create products by category table
+60 (scylladb) create table "products_by_category" with schema "category TEXT, product_id UUID, name TEXT, price DECIMAL, PRIMARY KEY (category, product_id)"
+
+70 REM Insert products
+80 LET products = [
+90   {"product_id": "uuid()", "name": "Laptop", "description": "High-performance laptop", "price": 999.99, "category": "Electronics", "stock": 50, "created_at": "now()"},
+100  {"product_id": "uuid()", "name": "Smartphone", "description": "Latest smartphone", "price": 699.99, "category": "Electronics", "stock": 100, "created_at": "now()"},
+110  {"product_id": "uuid()", "name": "Desk Chair", "description": "Ergonomic office chair", "price": 299.99, "category": "Furniture", "stock": 25, "created_at": "now()"}
+120 ]
+
+130 (scylladb) batch insert into "products" data products
+
+140 REM Also insert into category table
+150 FOR EACH product IN products
+160   LET category_data = {"category": product["category"], "product_id": product["product_id"], "name": product["name"], "price": product["price"]}
+170   (scylladb) insert into "products_by_category" data category_data
+180 NEXT product
+
+190 REM Query products by category
+200 (scylladb) select * from "products_by_category" where {"category": "Electronics"}
+
+210 PRINT "E-commerce catalog setup complete"
+
+REM ============================================================================
+REM Example 13: User Session Management
+REM ============================================================================
+REM Manage user sessions with TTL
+
+10 (scylladb) create keyspace "sessions" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "sessions"
+
+30 REM Create sessions table
+40 (scylladb) create table "user_sessions" with schema "session_id UUID PRIMARY KEY, user_id UUID, ip_address TEXT, user_agent TEXT, created_at TIMESTAMP"
+
+50 REM Insert session with 1-hour TTL (auto-expires)
+60 LET session = {
+70   "session_id": "uuid()",
+80   "user_id": "uuid()",
+90   "ip_address": "192.168.1.100",
+100  "user_agent": "Mozilla/5.0",
+110  "created_at": "now()"
+120 }
+
+130 (scylladb) insert into "user_sessions" data session with ttl 3600
+
+140 REM Session will automatically expire after 1 hour
+150 PRINT "Session created with 1-hour TTL"
+
+REM ============================================================================
+REM Example 14: Social Media Activity Feed
+REM ============================================================================
+REM Store user activity feed with time-based queries
+
+10 (scylladb) create keyspace "social" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "social"
+
+30 REM Create activity feed table
+40 (scylladb) create table "user_feed" with schema "user_id UUID, activity_time TIMESTAMP, activity_id UUID, activity_type TEXT, content TEXT, PRIMARY KEY (user_id, activity_time, activity_id) WITH CLUSTERING ORDER BY (activity_time DESC)"
+
+50 REM Insert activities
+60 LET user_id = "uuid()"
+
+70 FOR i = 1 TO 20
+80   LET activity = {
+90     "user_id": user_id,
+100    "activity_time": "now()",
+110    "activity_id": "uuid()",
+120    "activity_type": "post",
+130    "content": "User post number " + STR(i)
+140  }
+150  (scylladb) insert into "user_feed" data activity
+160 NEXT i
+
+170 REM Get latest 10 activities (automatically ordered by time DESC)
+180 (scylladb) select * from "user_feed" where {"user_id": user_id} limit 10
+
+190 PRINT "Activity feed created"
+
+REM ============================================================================
+REM Example 15: Multi-Datacenter Replication
+REM ============================================================================
+REM Configure for multi-datacenter deployment
+
+10 REM Create keyspace with NetworkTopologyStrategy for multiple DCs
+20 (scylladb) execute "CREATE KEYSPACE IF NOT EXISTS global_app WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 3, 'datacenter2': 3}"
+
+30 (scylladb) use keyspace "global_app"
+
+40 REM Create table for global data
+50 (scylladb) create table "global_users" with schema "user_id UUID PRIMARY KEY, username TEXT, country TEXT, last_login TIMESTAMP"
+
+60 REM Insert with LOCAL_QUORUM (datacenter-local consensus)
+70 (scylladb) insert into "global_users" data {"user_id": "uuid()", "username": "global_user", "country": "US", "last_login": "now()"} with consistency "LOCAL_QUORUM"
+
+80 REM Query with LOCAL_QUORUM
+90 (scylladb) select * from "global_users" with consistency "LOCAL_QUORUM"
+
+REM ============================================================================
+REM Example 16: Log Aggregation System
+REM ============================================================================
+REM Store and query application logs
+
+10 (scylladb) create keyspace "logs" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "logs"
+
+30 REM Create logs table with time-based partitioning
+40 (scylladb) create table "application_logs" with schema "application TEXT, log_date DATE, log_time TIMESTAMP, log_id UUID, level TEXT, message TEXT, PRIMARY KEY ((application, log_date), log_time, log_id) WITH CLUSTERING ORDER BY (log_time DESC)"
+
+50 REM Insert logs
+60 LET log_levels = ["INFO", "WARNING", "ERROR"]
+
+70 FOR i = 1 TO 1000
+80   LET log = {
+90     "application": "web_app",
+100    "log_date": "2025-01-15",
+110    "log_time": "now()",
+120    "log_id": "uuid()",
+130    "level": log_levels[i MOD 3],
+140    "message": "Log message number " + STR(i)
+150  }
+160  (scylladb) insert into "application_logs" data log
+170 NEXT i
+
+180 REM Query logs for specific application and date
+190 (scylladb) select * from "application_logs" where {"application": "web_app", "log_date": "2025-01-15"} limit 50
+
+200 PRINT "Log aggregation system ready"
+
+REM ============================================================================
+REM Example 17: Metrics and Time-Series Analytics
+REM ============================================================================
+REM Store application metrics for monitoring
+
+10 (scylladb) create keyspace "metrics" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "metrics"
+
+30 REM Create metrics table
+40 (scylladb) create table "server_metrics" with schema "server_id TEXT, metric_date DATE, metric_time TIMESTAMP, cpu_percent DOUBLE, memory_percent DOUBLE, disk_percent DOUBLE, PRIMARY KEY ((server_id, metric_date), metric_time) WITH CLUSTERING ORDER BY (metric_time DESC)"
+
+50 REM Insert metrics every second
+60 FOR i = 1 TO 3600
+70   LET metric = {
+80     "server_id": "server-001",
+90     "metric_date": "2025-01-15",
+100    "metric_time": "now()",
+110    "cpu_percent": 30 + (i MOD 40),
+120    "memory_percent": 50 + (i MOD 30),
+130    "disk_percent": 60 + (i MOD 20)
+140  }
+150  (scylladb) insert into "server_metrics" data metric
+160 NEXT i
+
+170 REM Query last hour of metrics
+180 (scylladb) select * from "server_metrics" where {"server_id": "server-001", "metric_date": "2025-01-15"}
+
+190 PRINT "Metrics collection complete"
+
+REM ============================================================================
+REM Example 18: Shopping Cart System
+REM ============================================================================
+REM E-commerce shopping cart with TTL
+
+10 (scylladb) use keyspace "ecommerce"
+
+20 REM Create cart table
+30 (scylladb) create table "shopping_carts" with schema "cart_id UUID, user_id UUID, product_id UUID, quantity INT, added_at TIMESTAMP, PRIMARY KEY (cart_id, product_id)"
+
+40 REM Add items to cart with 24-hour TTL
+50 LET cart_id = "uuid()"
+60 LET user_id = "uuid()"
+
+70 LET cart_items = [
+80   {"cart_id": cart_id, "user_id": user_id, "product_id": "uuid()", "quantity": 2, "added_at": "now()"},
+90   {"cart_id": cart_id, "user_id": user_id, "product_id": "uuid()", "quantity": 1, "added_at": "now()"},
+100  {"cart_id": cart_id, "user_id": user_id, "product_id": "uuid()", "quantity": 3, "added_at": "now()"}
+110 ]
+
+120 FOR EACH item IN cart_items
+130   (scylladb) insert into "shopping_carts" data item with ttl 86400
+140 NEXT item
+
+150 REM Query cart items
+160 (scylladb) select * from "shopping_carts" where {"cart_id": cart_id}
+
+170 PRINT "Shopping cart created with 24-hour expiration"
+
+REM ============================================================================
+REM Example 19: Cluster Metadata and Monitoring
+REM ============================================================================
+REM Get cluster information
+
+10 REM Get cluster metadata
+20 (scylladb) get cluster metadata
+30 PRINT "Cluster Information:"
+40 PRINT RESULT
+
+50 REM List all keyspaces
+60 (scylladb) list keyspaces
+70 PRINT "Available Keyspaces:"
+80 PRINT RESULT
+
+90 REM List tables in keyspace
+100 (scylladb) use keyspace "test_keyspace"
+110 (scylladb) list tables
+120 PRINT "Tables in test_keyspace:"
+130 PRINT RESULT
+
+REM ============================================================================
+REM Example 20: Data Migration and Truncation
+REM ============================================================================
+REM Manage data lifecycle
+
+10 (scylladb) use keyspace "test_keyspace"
+
+20 REM Truncate table (remove all data but keep schema)
+30 (scylladb) truncate table "users"
+40 PRINT "Users table truncated"
+
+50 REM Drop table
+60 (scylladb) drop table "users"
+70 PRINT "Users table dropped"
+
+80 REM Drop keyspace
+90 (scylladb) drop keyspace "test_keyspace"
+100 PRINT "Keyspace dropped"
+
+REM ============================================================================
+REM Example 21: High-Performance Batch Processing
+REM ============================================================================
+REM Process large datasets efficiently
+
+10 (scylladb) create keyspace "batch_processing" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "batch_processing"
+
+30 (scylladb) create table "events" with schema "event_id UUID PRIMARY KEY, event_type TEXT, timestamp TIMESTAMP, data TEXT"
+
+40 REM Process 10,000 events in batches of 100
+50 FOR batch_num = 1 TO 100
+60   LET batch_data = []
+70   FOR i = 1 TO 100
+80     LET event = {"event_id": "uuid()", "event_type": "click", "timestamp": "now()", "data": "event data"}
+90     APPEND batch_data WITH event
+100  NEXT i
+110
+120  REM Use UNLOGGED batch for maximum performance (no atomicity needed)
+130  (scylladb) batch insert into "events" data batch_data with batch_type "UNLOGGED"
+140
+150  PRINT "Processed batch " + STR(batch_num) + "/100"
+160 NEXT batch_num
+
+170 PRINT "Batch processing complete: 10,000 events inserted"
+
+REM ============================================================================
+REM Example 22: Real-Time Leaderboard
+REM ============================================================================
+REM Gaming leaderboard with counter columns
+
+10 (scylladb) create keyspace "gaming" with replication_strategy "SimpleStrategy" and replication_factor 1
+
+20 (scylladb) use keyspace "gaming"
+
+30 REM Create leaderboard table
+40 (scylladb) create table "player_scores" with schema "player_id UUID PRIMARY KEY, username TEXT, total_score COUNTER"
+
+50 REM Players earn points
+60 LET player1 = "uuid()"
+70 LET player2 = "uuid()"
+
+80 REM Increment scores
+90 (scylladb) increment counter in "player_scores" column "total_score" by 100 where {"player_id": player1}
+
+100 (scylladb) increment counter in "player_scores" column "total_score" by 250 where {"player_id": player2}
+
+110 (scylladb) increment counter in "player_scores" column "total_score" by 50 where {"player_id": player1}
+
+120 REM Query leaderboard
+130 (scylladb) select * from "player_scores"
+140 PRINT "Leaderboard:"
+150 PRINT RESULT
+
+REM ============================================================================
+REM End of Examples
+REM ============================================================================

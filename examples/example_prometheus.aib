@@ -1,0 +1,712 @@
+REM ============================================================================
+REM Prometheus Module - Comprehensive Examples
+REM ============================================================================
+REM
+REM This file demonstrates all capabilities of the Prometheus module for
+REM monitoring, observability, and metrics collection.
+REM
+REM Module: PrometheusModule
+REM Task Type: (prometheus)
+REM
+REM Topics covered:
+REM - Creating metrics (Counter, Gauge, Histogram, Summary)
+REM - Metric operations (increment, set, observe)
+REM - Labels and multi-dimensional metrics
+REM - HTTP exposition for Prometheus scraping
+REM - Pushgateway integration
+REM - PromQL queries
+REM - Application monitoring
+REM - Infrastructure monitoring
+REM - Business metrics
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Counter Metric
+REM ============================================================================
+REM Create and increment a simple counter
+
+10 REM Create HTTP requests counter
+20 (prometheus) create counter "http_requests_total" with description "Total HTTP requests"
+
+30 REM Increment counter
+40 (prometheus) increment counter "aibasic_http_requests_total"
+
+50 REM Increment by specific value
+60 (prometheus) increment counter "aibasic_http_requests_total" by 5
+
+70 REM Get metrics in Prometheus format
+80 (prometheus) get metrics
+90 PRINT "Metrics exposed:"
+100 PRINT RESULT
+
+REM ============================================================================
+REM Example 2: Counter with Labels
+REM ============================================================================
+REM Create multi-dimensional counter with labels
+
+10 REM Create counter with labels for method and status
+20 (prometheus) create counter "http_requests_total" with description "Total HTTP requests" and labels ["method", "status", "endpoint"]
+
+30 REM Increment with label values
+40 (prometheus) increment counter "aibasic_http_requests_total" with labels {"method": "GET", "status": "200", "endpoint": "/api/users"}
+
+50 (prometheus) increment counter "aibasic_http_requests_total" with labels {"method": "POST", "status": "201", "endpoint": "/api/users"}
+
+60 (prometheus) increment counter "aibasic_http_requests_total" with labels {"method": "GET", "status": "404", "endpoint": "/api/products"}
+
+70 REM Track errors
+80 (prometheus) increment counter "aibasic_http_requests_total" with labels {"method": "GET", "status": "500", "endpoint": "/api/orders"}
+
+REM ============================================================================
+REM Example 3: Gauge Metrics
+REM ============================================================================
+REM Create and manage gauge metrics for current values
+
+10 REM Create gauge for active connections
+20 (prometheus) create gauge "active_connections" with description "Number of active connections"
+
+30 REM Set gauge value
+40 (prometheus) set gauge "aibasic_active_connections" to 42
+
+50 REM Increment gauge
+60 (prometheus) increment gauge "aibasic_active_connections" by 1
+
+70 REM Decrement gauge
+80 (prometheus) decrement gauge "aibasic_active_connections" by 1
+
+90 REM Create gauge with labels
+100 (prometheus) create gauge "queue_size" with description "Queue size by type" and labels ["queue_type"]
+
+110 (prometheus) set gauge "aibasic_queue_size" to 100 with labels {"queue_type": "email"}
+120 (prometheus) set gauge "aibasic_queue_size" to 50 with labels {"queue_type": "sms"}
+
+REM ============================================================================
+REM Example 4: Histogram Metrics
+REM ============================================================================
+REM Create histogram for response time tracking
+
+10 REM Create histogram with default buckets
+20 (prometheus) create histogram "request_duration_seconds" with description "HTTP request duration in seconds"
+
+30 REM Observe values
+40 (prometheus) observe histogram "aibasic_request_duration_seconds" value 0.123
+50 (prometheus) observe histogram "aibasic_request_duration_seconds" value 0.456
+60 (prometheus) observe histogram "aibasic_request_duration_seconds" value 1.234
+
+70 REM Create histogram with custom buckets
+80 (prometheus) create histogram "payment_amount" with description "Payment amounts" and buckets [10, 50, 100, 500, 1000, 5000]
+
+90 REM Observe payment amounts
+100 (prometheus) observe histogram "aibasic_payment_amount" value 75.50
+110 (prometheus) observe histogram "aibasic_payment_amount" value 250.00
+120 (prometheus) observe histogram "aibasic_payment_amount" value 1500.00
+
+REM ============================================================================
+REM Example 5: Histogram with Labels
+REM ============================================================================
+REM Track request duration by endpoint
+
+10 REM Create histogram with labels
+20 (prometheus) create histogram "http_request_duration_seconds" with description "HTTP request duration" and labels ["method", "endpoint"]
+
+30 REM Observe values with labels
+40 (prometheus) observe histogram "aibasic_http_request_duration_seconds" value 0.045 with labels {"method": "GET", "endpoint": "/api/users"}
+
+50 (prometheus) observe histogram "aibasic_http_request_duration_seconds" value 0.234 with labels {"method": "POST", "endpoint": "/api/orders"}
+
+60 (prometheus) observe histogram "aibasic_http_request_duration_seconds" value 1.567 with labels {"method": "GET", "endpoint": "/api/reports"}
+
+REM ============================================================================
+REM Example 6: Summary Metrics
+REM ============================================================================
+REM Create summary for statistical distributions
+
+10 REM Create summary
+20 (prometheus) create summary "response_size_bytes" with description "HTTP response size in bytes"
+
+30 REM Observe values
+40 (prometheus) observe summary "aibasic_response_size_bytes" value 1024
+50 (prometheus) observe summary "aibasic_response_size_bytes" value 2048
+60 (prometheus) observe summary "aibasic_response_size_bytes" value 4096
+
+70 REM Summary with labels
+80 (prometheus) create summary "database_query_duration" with description "Database query duration" and labels ["operation", "table"]
+
+90 (prometheus) observe summary "aibasic_database_query_duration" value 0.012 with labels {"operation": "SELECT", "table": "users"}
+
+100 (prometheus) observe summary "aibasic_database_query_duration" value 0.234 with labels {"operation": "INSERT", "table": "orders"}
+
+REM ============================================================================
+REM Example 7: Start HTTP Server for Metric Exposition
+REM ============================================================================
+REM Expose metrics for Prometheus scraping
+
+10 REM Create some metrics
+20 (prometheus) create counter "app_requests" with description "Application requests"
+30 (prometheus) create gauge "app_memory_bytes" with description "Application memory usage"
+
+40 REM Start HTTP server on port 8000
+50 (prometheus) start http server on port 8000
+
+60 PRINT "Metrics available at http://localhost:8000/metrics"
+
+70 REM Prometheus can now scrape metrics from this endpoint
+REM Add to prometheus.yml:
+REM scrape_configs:
+REM   - job_name: 'aibasic'
+REM     static_configs:
+REM       - targets: ['localhost:8000']
+
+REM ============================================================================
+REM Example 8: Pushgateway Integration
+REM ============================================================================
+REM Push metrics to Prometheus Pushgateway for batch jobs
+
+10 REM Create batch job metrics
+20 (prometheus) create counter "batch_records_processed" with description "Records processed in batch job"
+30 (prometheus) create gauge "batch_duration_seconds" with description "Batch job duration"
+
+40 REM Process batch
+50 LET start_time = TIME()
+60 FOR i = 1 TO 1000
+70   (prometheus) increment counter "aibasic_batch_records_processed"
+80 NEXT i
+90 LET duration = TIME() - start_time
+
+100 (prometheus) set gauge "aibasic_batch_duration_seconds" to duration
+
+110 REM Push to Pushgateway
+120 (prometheus) push to gateway with job "nightly_batch"
+
+130 PRINT "Metrics pushed to Pushgateway"
+
+REM ============================================================================
+REM Example 9: Pushgateway with Grouping Labels
+REM ============================================================================
+REM Use grouping labels for job identification
+
+10 REM Create metrics
+20 (prometheus) create counter "backup_files_total" with description "Files backed up"
+30 (prometheus) create gauge "backup_size_bytes" with description "Backup size"
+
+40 REM Perform backup
+50 (prometheus) increment counter "aibasic_backup_files_total" by 1500
+60 (prometheus) set gauge "aibasic_backup_size_bytes" to 1073741824
+
+70 REM Push with grouping labels
+80 (prometheus) push to gateway with job "backup" and grouping {"instance": "server1", "type": "daily"}
+
+90 REM Delete old metrics
+100 (prometheus) delete from gateway with job "backup" and grouping {"instance": "server1", "type": "weekly"}
+
+REM ============================================================================
+REM Example 10: PromQL Instant Queries
+REM ============================================================================
+REM Query Prometheus server with PromQL
+
+10 REM Query current CPU usage
+20 (prometheus) query "node_cpu_seconds_total"
+30 PRINT "CPU metrics:"
+40 PRINT RESULT
+
+50 REM Query with label selector
+60 (prometheus) query "http_requests_total{method='GET',status='200'}"
+
+70 REM Query with functions
+80 (prometheus) query "rate(http_requests_total[5m])"
+
+90 REM Query with aggregation
+100 (prometheus) query "sum(rate(http_requests_total[5m])) by (endpoint)"
+
+REM ============================================================================
+REM Example 11: PromQL Range Queries
+REM ============================================================================
+REM Query time series data over a range
+
+10 REM Query last hour of data
+20 LET end_time = TIME()
+30 LET start_time = end_time - 3600
+
+40 (prometheus) query range "rate(http_requests_total[5m])" from start_time to end_time step "1m"
+
+50 PRINT "Request rate over last hour:"
+60 PRINT RESULT
+
+REM ============================================================================
+REM Example 12: Get Specific Metric Values
+REM ============================================================================
+REM Retrieve current and historical metric values
+
+10 REM Get current value
+20 (prometheus) get current value of "http_requests_total" with labels {"endpoint": "/api/users"}
+
+30 PRINT "Current request count:"
+40 PRINT RESULT
+
+50 REM Get range data
+60 (prometheus) get range data for "cpu_usage_percent" from "-1h" to "now" step "5m"
+
+70 PRINT "CPU usage over last hour:"
+80 PRINT RESULT
+
+REM ============================================================================
+REM Example 13: Web Application Monitoring
+REM ============================================================================
+REM Complete web application monitoring setup
+
+10 REM Create application metrics
+20 (prometheus) create counter "http_requests_total" with description "Total HTTP requests" and labels ["method", "endpoint", "status"]
+
+30 (prometheus) create histogram "http_request_duration_seconds" with description "Request duration" and labels ["method", "endpoint"] and buckets [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5]
+
+40 (prometheus) create gauge "http_requests_in_progress" with description "Requests in progress" and labels ["method", "endpoint"]
+
+50 (prometheus) create counter "http_request_errors_total" with description "Request errors" and labels ["method", "endpoint", "error_type"]
+
+60 REM Simulate request handling
+70 (prometheus) increment gauge "aibasic_http_requests_in_progress" with labels {"method": "GET", "endpoint": "/api/users"}
+
+80 LET request_start = TIME()
+
+90 REM Process request...
+100 SLEEP 0.123
+
+110 LET request_duration = TIME() - request_start
+
+120 REM Record metrics
+130 (prometheus) observe histogram "aibasic_http_request_duration_seconds" value request_duration with labels {"method": "GET", "endpoint": "/api/users"}
+
+140 (prometheus) increment counter "aibasic_http_requests_total" with labels {"method": "GET", "endpoint": "/api/users", "status": "200"}
+
+150 (prometheus) decrement gauge "aibasic_http_requests_in_progress" with labels {"method": "GET", "endpoint": "/api/users"}
+
+160 REM Start exposition server
+170 (prometheus) start http server on port 8000
+
+REM ============================================================================
+REM Example 14: Database Performance Monitoring
+REM ============================================================================
+REM Monitor database queries and connection pool
+
+10 REM Create database metrics
+20 (prometheus) create histogram "db_query_duration_seconds" with description "Database query duration" and labels ["operation", "table"] and buckets [0.001, 0.01, 0.1, 1, 10]
+
+30 (prometheus) create counter "db_queries_total" with description "Total database queries" and labels ["operation", "table", "status"]
+
+40 (prometheus) create gauge "db_connections_active" with description "Active database connections"
+
+50 (prometheus) create gauge "db_connections_idle" with description "Idle database connections"
+
+60 (prometheus) create counter "db_errors_total" with description "Database errors" and labels ["operation", "error_type"]
+
+70 REM Simulate query execution
+80 LET query_start = TIME()
+
+90 REM Execute query...
+100 (postgres) SELECT * FROM users WHERE active = true
+
+110 LET query_duration = TIME() - query_start
+
+120 REM Record metrics
+130 (prometheus) observe histogram "aibasic_db_query_duration_seconds" value query_duration with labels {"operation": "SELECT", "table": "users"}
+
+140 (prometheus) increment counter "aibasic_db_queries_total" with labels {"operation": "SELECT", "table": "users", "status": "success"}
+
+150 REM Connection pool metrics
+160 (prometheus) set gauge "aibasic_db_connections_active" to 10
+170 (prometheus) set gauge "aibasic_db_connections_idle" to 5
+
+REM ============================================================================
+REM Example 15: API Gateway Metrics
+REM ============================================================================
+REM Monitor API gateway with rate limiting and auth
+
+10 REM Create API gateway metrics
+20 (prometheus) create counter "api_requests_total" with description "API requests" and labels ["service", "endpoint", "status"]
+
+30 (prometheus) create histogram "api_request_duration_seconds" with description "API request duration" and labels ["service", "endpoint"]
+
+40 (prometheus) create counter "api_rate_limit_exceeded_total" with description "Rate limit exceeded" and labels ["client_id", "endpoint"]
+
+50 (prometheus) create counter "api_auth_attempts_total" with description "Authentication attempts" and labels ["type", "status"]
+
+60 (prometheus) create gauge "api_active_clients" with description "Active API clients"
+
+70 REM Track API request
+80 (prometheus) increment counter "aibasic_api_requests_total" with labels {"service": "users", "endpoint": "/v1/users", "status": "200"}
+
+90 (prometheus) observe histogram "aibasic_api_request_duration_seconds" value 0.234 with labels {"service": "users", "endpoint": "/v1/users"}
+
+100 REM Track rate limiting
+110 (prometheus) increment counter "aibasic_api_rate_limit_exceeded_total" with labels {"client_id": "client-123", "endpoint": "/v1/search"}
+
+120 REM Track authentication
+130 (prometheus) increment counter "aibasic_api_auth_attempts_total" with labels {"type": "jwt", "status": "success"}
+
+REM ============================================================================
+REM Example 16: Microservices Monitoring
+REM ============================================================================
+REM Monitor distributed microservices architecture
+
+10 REM Create microservices metrics
+20 (prometheus) create counter "service_requests_total" with description "Service requests" and labels ["source_service", "target_service", "operation", "status"]
+
+30 (prometheus) create histogram "service_request_duration_seconds" with description "Service request duration" and labels ["source_service", "target_service", "operation"]
+
+40 (prometheus) create counter "service_errors_total" with description "Service errors" and labels ["service", "error_type"]
+
+50 (prometheus) create gauge "service_health_status" with description "Service health" and labels ["service"]
+
+60 REM Order service calls payment service
+70 (prometheus) increment counter "aibasic_service_requests_total" with labels {"source_service": "order", "target_service": "payment", "operation": "process_payment", "status": "200"}
+
+80 (prometheus) observe histogram "aibasic_service_request_duration_seconds" value 0.456 with labels {"source_service": "order", "target_service": "payment", "operation": "process_payment"}
+
+90 REM Payment service calls inventory service
+100 (prometheus) increment counter "aibasic_service_requests_total" with labels {"source_service": "payment", "target_service": "inventory", "operation": "reserve_items", "status": "200"}
+
+110 REM Track service health
+120 (prometheus) set gauge "aibasic_service_health_status" to 1 with labels {"service": "order"}
+130 (prometheus) set gauge "aibasic_service_health_status" to 1 with labels {"service": "payment"}
+140 (prometheus) set gauge "aibasic_service_health_status" to 0 with labels {"service": "inventory"}
+
+REM ============================================================================
+REM Example 17: Message Queue Monitoring
+REM ============================================================================
+REM Monitor message queue performance
+
+10 REM Create queue metrics
+20 (prometheus) create gauge "queue_size" with description "Messages in queue" and labels ["queue_name"]
+
+30 (prometheus) create counter "queue_messages_published_total" with description "Messages published" and labels ["queue_name"]
+
+40 (prometheus) create counter "queue_messages_consumed_total" with description "Messages consumed" and labels ["queue_name", "status"]
+
+50 (prometheus) create histogram "queue_message_processing_duration_seconds" with description "Message processing duration" and labels ["queue_name"]
+
+60 (prometheus) create gauge "queue_consumers_active" with description "Active consumers" and labels ["queue_name"]
+
+70 REM Publish messages
+80 FOR i = 1 TO 100
+90   (mqtt) publish to "orders/new" with payload {"order_id": i}
+100  (prometheus) increment counter "aibasic_queue_messages_published_total" with labels {"queue_name": "orders"}
+110 NEXT i
+
+120 REM Update queue size
+130 (prometheus) set gauge "aibasic_queue_size" to 100 with labels {"queue_name": "orders"}
+
+140 REM Process messages
+150 LET process_start = TIME()
+160 REM Process message...
+170 LET process_duration = TIME() - process_start
+
+180 (prometheus) observe histogram "aibasic_queue_message_processing_duration_seconds" value process_duration with labels {"queue_name": "orders"}
+
+190 (prometheus) increment counter "aibasic_queue_messages_consumed_total" with labels {"queue_name": "orders", "status": "success"}
+
+200 (prometheus) decrement gauge "aibasic_queue_size" with labels {"queue_name": "orders"}
+
+REM ============================================================================
+REM Example 18: Cache Performance Monitoring
+REM ============================================================================
+REM Monitor cache hit rates and performance
+
+10 REM Create cache metrics
+20 (prometheus) create counter "cache_operations_total" with description "Cache operations" and labels ["operation", "result"]
+
+30 (prometheus) create histogram "cache_operation_duration_seconds" with description "Cache operation duration" and labels ["operation"]
+
+40 (prometheus) create gauge "cache_size_bytes" with description "Cache size in bytes"
+
+50 (prometheus) create gauge "cache_items_count" with description "Number of cached items"
+
+60 (prometheus) create counter "cache_evictions_total" with description "Cache evictions" and labels ["reason"]
+
+70 REM Cache hit
+80 LET lookup_start = TIME()
+90 (redis) GET "user:12345"
+100 LET lookup_duration = TIME() - lookup_start
+
+110 IF RESULT THEN
+120   (prometheus) increment counter "aibasic_cache_operations_total" with labels {"operation": "get", "result": "hit"}
+130 ELSE
+140   (prometheus) increment counter "aibasic_cache_operations_total" with labels {"operation": "get", "result": "miss"}
+150 END IF
+
+160 (prometheus) observe histogram "aibasic_cache_operation_duration_seconds" value lookup_duration with labels {"operation": "get"}
+
+170 REM Cache statistics
+180 (prometheus) set gauge "aibasic_cache_size_bytes" to 104857600
+190 (prometheus) set gauge "aibasic_cache_items_count" to 10000
+
+REM ============================================================================
+REM Example 19: Business Metrics
+REM ============================================================================
+REM Track business KPIs and metrics
+
+10 REM Create business metrics
+20 (prometheus) create counter "orders_total" with description "Total orders" and labels ["status", "payment_method"]
+
+30 (prometheus) create counter "revenue_total" with description "Total revenue" and labels ["currency", "product_category"]
+
+40 (prometheus) create gauge "active_users" with description "Currently active users"
+
+50 (prometheus) create counter "user_signups_total" with description "User signups" and labels ["source"]
+
+60 (prometheus) create histogram "order_value" with description "Order value distribution" and buckets [10, 25, 50, 100, 250, 500, 1000]
+
+70 REM Track order
+80 (prometheus) increment counter "aibasic_orders_total" with labels {"status": "completed", "payment_method": "credit_card"}
+
+90 (prometheus) increment counter "aibasic_revenue_total" by 99.99 with labels {"currency": "USD", "product_category": "electronics"}
+
+100 (prometheus) observe histogram "aibasic_order_value" value 99.99
+
+110 REM Track active users
+120 (prometheus) set gauge "aibasic_active_users" to 1234
+
+130 REM Track signup
+140 (prometheus) increment counter "aibasic_user_signups_total" with labels {"source": "organic"}
+
+REM ============================================================================
+REM Example 20: Infrastructure Monitoring
+REM ============================================================================
+REM Monitor server and infrastructure metrics
+
+10 REM Create infrastructure metrics
+20 (prometheus) create gauge "cpu_usage_percent" with description "CPU usage" and labels ["cpu"]
+
+30 (prometheus) create gauge "memory_usage_bytes" with description "Memory usage" and labels ["type"]
+
+40 (prometheus) create gauge "disk_usage_percent" with description "Disk usage" and labels ["mount"]
+
+50 (prometheus) create gauge "network_bytes_total" with description "Network traffic" and labels ["interface", "direction"]
+
+60 (prometheus) create gauge "system_load_average" with description "System load average" and labels ["period"]
+
+70 REM Update infrastructure metrics (values from monitoring agent)
+80 (prometheus) set gauge "aibasic_cpu_usage_percent" to 45.5 with labels {"cpu": "cpu0"}
+90 (prometheus) set gauge "aibasic_cpu_usage_percent" to 42.3 with labels {"cpu": "cpu1"}
+
+100 (prometheus) set gauge "aibasic_memory_usage_bytes" to 4294967296 with labels {"type": "used"}
+110 (prometheus) set gauge "aibasic_memory_usage_bytes" to 8589934592 with labels {"type": "total"}
+
+120 (prometheus) set gauge "aibasic_disk_usage_percent" to 67.8 with labels {"mount": "/"}
+
+130 (prometheus) set gauge "aibasic_system_load_average" to 1.5 with labels {"period": "1m"}
+
+REM ============================================================================
+REM Example 21: Application Errors and Exceptions
+REM ============================================================================
+REM Track application errors for debugging
+
+10 REM Create error metrics
+20 (prometheus) create counter "exceptions_total" with description "Exceptions raised" and labels ["exception_type", "module"]
+
+30 (prometheus) create counter "errors_total" with description "Application errors" and labels ["severity", "component"]
+
+40 (prometheus) create gauge "error_rate_percent" with description "Error rate percentage" and labels ["component"]
+
+50 REM Track exception
+60 TRY
+70   REM Some code that might fail
+80   LET result = 1 / 0
+90 CATCH e
+100  (prometheus) increment counter "aibasic_exceptions_total" with labels {"exception_type": "ZeroDivisionError", "module": "calculator"}
+110  (prometheus) increment counter "aibasic_errors_total" with labels {"severity": "error", "component": "api"}
+120 END TRY
+
+130 REM Calculate and update error rate
+140 LET error_rate = (errors / total_requests) * 100
+150 (prometheus) set gauge "aibasic_error_rate_percent" to error_rate with labels {"component": "api"}
+
+REM ============================================================================
+REM Example 22: Background Job Monitoring
+REM ============================================================================
+REM Monitor batch jobs and scheduled tasks
+
+10 REM Create job metrics
+20 (prometheus) create counter "jobs_total" with description "Jobs executed" and labels ["job_name", "status"]
+
+30 (prometheus) create histogram "job_duration_seconds" with description "Job duration" and labels ["job_name"]
+
+40 (prometheus) create gauge "job_last_success_timestamp" with description "Last successful run" and labels ["job_name"]
+
+50 (prometheus) create gauge "job_running" with description "Job currently running" and labels ["job_name"]
+
+60 REM Execute job
+70 LET job_name = "email_digest"
+80 (prometheus) set gauge "aibasic_job_running" to 1 with labels {"job_name": job_name}
+
+90 LET job_start = TIME()
+
+100 REM Perform job tasks...
+110 FOR i = 1 TO 1000
+120   REM Send email...
+130 NEXT i
+
+140 LET job_duration = TIME() - job_start
+
+150 REM Record completion
+160 (prometheus) increment counter "aibasic_jobs_total" with labels {"job_name": job_name, "status": "success"}
+
+170 (prometheus) observe histogram "aibasic_job_duration_seconds" value job_duration with labels {"job_name": job_name}
+
+180 (prometheus) set gauge "aibasic_job_last_success_timestamp" to TIME() with labels {"job_name": job_name}
+
+190 (prometheus) set gauge "aibasic_job_running" to 0 with labels {"job_name": job_name}
+
+200 REM Push to gateway (for batch jobs)
+210 (prometheus) push to gateway with job job_name
+
+REM ============================================================================
+REM Example 23: SLA and Availability Monitoring
+REM ============================================================================
+REM Track SLA compliance and service availability
+
+10 REM Create SLA metrics
+20 (prometheus) create gauge "service_availability_percent" with description "Service availability" and labels ["service"]
+
+30 (prometheus) create counter "sla_violations_total" with description "SLA violations" and labels ["service", "sla_type"]
+
+40 (prometheus) create histogram "response_time_sla_seconds" with description "Response time vs SLA" and labels ["endpoint"]
+
+50 (prometheus) create gauge "uptime_seconds" with description "Service uptime"
+
+60 REM Check response time against SLA
+70 LET response_time = 0.456
+80 LET sla_threshold = 0.500
+
+90 IF response_time > sla_threshold THEN
+100  (prometheus) increment counter "aibasic_sla_violations_total" with labels {"service": "api", "sla_type": "response_time"}
+110 END IF
+
+120 (prometheus) observe histogram "aibasic_response_time_sla_seconds" value response_time with labels {"endpoint": "/api/search"}
+
+130 REM Calculate availability (uptime / total_time * 100)
+140 LET availability = 99.95
+150 (prometheus) set gauge "aibasic_service_availability_percent" to availability with labels {"service": "api"}
+
+REM ============================================================================
+REM Example 24: Custom Collector Example
+REM ============================================================================
+REM Advanced: Create custom metrics logic
+
+10 REM Create metrics for custom business logic
+20 (prometheus) create gauge "shopping_cart_abandonment_rate" with description "Cart abandonment rate"
+
+30 (prometheus) create gauge "average_session_duration_seconds" with description "Average session duration"
+
+40 (prometheus) create counter "feature_usage_total" with description "Feature usage" and labels ["feature_name", "user_type"]
+
+50 REM Calculate custom metrics
+60 LET total_carts = 1000
+70 LET abandoned_carts = 350
+80 LET abandonment_rate = (abandoned_carts / total_carts) * 100
+
+90 (prometheus) set gauge "aibasic_shopping_cart_abandonment_rate" to abandonment_rate
+
+100 REM Track feature usage
+110 (prometheus) increment counter "aibasic_feature_usage_total" with labels {"feature_name": "dark_mode", "user_type": "premium"}
+
+REM ============================================================================
+REM Example 25: Complete E-commerce Platform Monitoring
+REM ============================================================================
+REM End-to-end monitoring for e-commerce application
+
+10 REM Create comprehensive e-commerce metrics
+20 (prometheus) create counter "orders_total" with description "Total orders" and labels ["status"]
+30 (prometheus) create histogram "order_processing_duration_seconds" with description "Order processing time"
+40 (prometheus) create counter "payments_total" with description "Payments" and labels ["method", "status"]
+50 (prometheus) create gauge "inventory_stock_level" with description "Stock level" and labels ["product_id"]
+60 (prometheus) create counter "search_queries_total" with description "Search queries" and labels ["result_count"]
+70 (prometheus) create histogram "checkout_duration_seconds" with description "Checkout flow duration"
+
+80 REM Simulate order flow
+90 PRINT "Processing customer order..."
+
+100 REM 1. Customer searches for product
+110 LET search_start = TIME()
+120 REM Search logic...
+130 (prometheus) increment counter "aibasic_search_queries_total" with labels {"result_count": "10"}
+
+140 REM 2. Add to cart and checkout
+150 LET checkout_start = TIME()
+160 REM Checkout logic...
+
+170 REM 3. Process payment
+180 LET payment_start = TIME()
+190 (prometheus) increment counter "aibasic_payments_total" with labels {"method": "credit_card", "status": "approved"}
+
+200 REM 4. Create order
+210 LET order_start = TIME()
+220 REM Order creation logic...
+230 LET order_duration = TIME() - order_start
+
+240 (prometheus) increment counter "aibasic_orders_total" with labels {"status": "confirmed"}
+250 (prometheus) observe histogram "aibasic_order_processing_duration_seconds" value order_duration
+
+260 REM 5. Update inventory
+270 (prometheus) set gauge "aibasic_inventory_stock_level" to 45 with labels {"product_id": "PROD-12345"}
+
+280 REM 6. Record checkout completion
+290 LET checkout_duration = TIME() - checkout_start
+300 (prometheus) observe histogram "aibasic_checkout_duration_seconds" value checkout_duration
+
+310 REM 7. Expose metrics
+320 (prometheus) start http server on port 8000
+
+330 PRINT "Order processed successfully!"
+340 PRINT "Metrics available at http://localhost:8000/metrics"
+
+REM ============================================================================
+REM Example 26: Query and Alerting
+REM ============================================================================
+REM Query metrics for alerting and dashboards
+
+10 REM Query error rate
+20 (prometheus) query "rate(http_requests_total{status=~'5..'}[5m])"
+30 LET error_rate = RESULT
+
+40 REM Check if error rate exceeds threshold
+50 IF error_rate > 0.01 THEN
+60   PRINT "ALERT: Error rate too high!"
+70   REM Send alert notification...
+80 END IF
+
+90 REM Query p95 response time
+100 (prometheus) query "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+110 LET p95_latency = RESULT
+
+120 IF p95_latency > 1.0 THEN
+130   PRINT "ALERT: P95 latency exceeds 1 second"
+140 END IF
+
+150 REM Query CPU usage
+160 (prometheus) query "avg(cpu_usage_percent)"
+170 PRINT "Average CPU usage:", RESULT, "%"
+
+REM ============================================================================
+REM Example 27: Multi-Tenant SaaS Monitoring
+REM ============================================================================
+REM Monitor multi-tenant application
+
+10 REM Create tenant metrics
+20 (prometheus) create counter "tenant_requests_total" with description "Tenant requests" and labels ["tenant_id", "endpoint"]
+
+30 (prometheus) create gauge "tenant_active_users" with description "Active users per tenant" and labels ["tenant_id"]
+
+40 (prometheus) create counter "tenant_storage_bytes" with description "Storage used" and labels ["tenant_id"]
+
+50 (prometheus) create histogram "tenant_request_duration_seconds" with description "Request duration" and labels ["tenant_id", "endpoint"]
+
+60 REM Track tenant activity
+70 (prometheus) increment counter "aibasic_tenant_requests_total" with labels {"tenant_id": "tenant-001", "endpoint": "/api/dashboard"}
+
+80 (prometheus) set gauge "aibasic_tenant_active_users" to 45 with labels {"tenant_id": "tenant-001"}
+
+90 (prometheus) observe histogram "aibasic_tenant_request_duration_seconds" value 0.234 with labels {"tenant_id": "tenant-001", "endpoint": "/api/dashboard"}
+
+REM ============================================================================
+REM End of Examples
+REM ============================================================================

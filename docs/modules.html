@@ -36,11 +36,12 @@
 
 <div class="container grid">
   <aside class="sidebar">
-    <strong>Modules (30)</strong>
+    <strong>Modules (33)</strong>
     <a href="#postgres">PostgreSQL</a>
     <a href="#mysql">MySQL</a>
     <a href="#mongodb">MongoDB</a>
     <a href="#cassandra">Cassandra</a>
+    <a href="#scylladb">ScyllaDB</a>
     <a href="#clickhouse">ClickHouse</a>
     <a href="#neo4j">Neo4j</a>
     <a href="#timescaledb">TimescaleDB</a>
@@ -67,10 +68,12 @@
     <a href="#keycloak">Keycloak</a>
     <a href="#jwt">JWT</a>
     <a href="#mqtt">MQTT</a>
+    <a href="#prometheus">Prometheus</a>
+    <a href="#selenium">Selenium</a>
   </aside>
   <main>
     <h1>Modules Reference</h1>
-    <p class="muted">AIbasic includes 30 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, cloud, IaC, containers, orchestration, security, identity management, token authentication, and IoT messaging.</p>
+    <p class="muted">AIbasic includes 33 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, cloud, IaC, containers, orchestration, security, identity management, token authentication, IoT messaging, monitoring, and web browser automation.</p>
 
     <h2 id="postgres">1. PostgreSQL Module</h2>
     <div class="panel">
@@ -192,7 +195,52 @@ KEYSPACE = analytics</code></pre>
       </ul>
     </div>
 
-    <h2 id="clickhouse">5. ClickHouse Module</h2>
+    <h2 id="scylladb">5. ScyllaDB Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(scylladb)</code></p>
+      <p><strong>Purpose:</strong> High-performance NoSQL database compatible with Cassandra (10x faster, written in C++)</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[scylladb]
+CONTACT_POINTS = localhost
+PORT = 9042
+KEYSPACE = aibasic_keyspace
+CONSISTENCY_LEVEL = LOCAL_QUORUM
+REPLICATION_STRATEGY = NetworkTopologyStrategy
+REPLICATION_FACTOR = 3</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 (scylladb) create keyspace "ecommerce" with replication_factor 3
+20 (scylladb) use keyspace "ecommerce"
+30 (scylladb) create table "products" with schema "product_id UUID PRIMARY KEY, name TEXT, price DECIMAL"
+
+40 (scylladb) insert into "products" data {"product_id": "uuid()", "name": "Laptop", "price": 999.99}
+50 (scylladb) select * from "products" where {"product_id": product_id}
+
+60 (scylladb) batch insert into "products" data products_list with batch_type "UNLOGGED"
+70 (scylladb) increment counter in "page_views" column "view_count" by 1 where {"page_url": "/home"}
+
+80 (scylladb) create index "products_name_idx" on "products" column "name"
+90 (scylladb) create materialized view "products_by_price" from table "products"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>10x Better Performance: C++ implementation vs Java (Cassandra)</li>
+        <li>Low Latency: Sub-millisecond p99 latencies</li>
+        <li>Cassandra-Compatible: Same CQL API and drivers</li>
+        <li>Tunable Consistency: ONE, QUORUM, LOCAL_QUORUM, ALL</li>
+        <li>Batch Operations: Logged, unlogged, and counter batches</li>
+        <li>Prepared Statements: 2-3x performance improvement</li>
+        <li>Secondary Indexes: Additional query patterns</li>
+        <li>Materialized Views: Auto-maintained query optimization</li>
+        <li>Counter Columns: Distributed counting</li>
+        <li>TTL Support: Automatic data expiration</li>
+        <li>Time-Series Optimized: Partition + clustering key design</li>
+        <li>Perfect for: IoT, time-series, high-throughput apps, real-time analytics</li>
+      </ul>
+    </div>
+
+    <h2 id="clickhouse">6. ClickHouse Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(clickhouse)</code></p>
       <p><strong>Purpose:</strong> High-performance column-oriented analytics database for OLAP workloads</p>
@@ -227,7 +275,7 @@ COMPRESSION = lz4</code></pre>
       </ul>
     </div>
 
-    <h2 id="neo4j">6. Neo4j Module</h2>
+    <h2 id="neo4j">7. Neo4j Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(neo4j)</code></p>
       <p><strong>Purpose:</strong> Native graph database for highly connected data</p>
@@ -261,7 +309,7 @@ DATABASE = neo4j</code></pre>
       </ul>
     </div>
 
-    <h2 id="timescaledb">7. TimescaleDB Module</h2>
+    <h2 id="timescaledb">8. TimescaleDB Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(timescaledb)</code></p>
       <p><strong>Purpose:</strong> Time-series database (PostgreSQL extension) for IoT, monitoring, and analytics</p>
@@ -299,7 +347,7 @@ POOL_SIZE = 5</code></pre>
       </ul>
     </div>
 
-    <h2 id="redis">8. Redis Module</h2>
+    <h2 id="redis">9. Redis Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(redis)</code></p>
       <p><strong>Purpose:</strong> In-memory cache and data structure store</p>
@@ -335,7 +383,7 @@ PASSWORD = optional</code></pre>
       </ul>
     </div>
 
-    <h2 id="rabbitmq">9. RabbitMQ Module</h2>
+    <h2 id="rabbitmq">10. RabbitMQ Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(rabbitmq)</code></p>
       <p><strong>Purpose:</strong> Message queue for asynchronous processing</p>
@@ -366,7 +414,7 @@ VIRTUAL_HOST = /</code></pre>
       </ul>
     </div>
 
-    <h2 id="kafka">10. Apache Kafka Module</h2>
+    <h2 id="kafka">11. Apache Kafka Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(kafka)</code></p>
       <p><strong>Purpose:</strong> Distributed streaming platform</p>
@@ -394,7 +442,7 @@ GROUP_ID = my-consumer-group</code></pre>
       </ul>
     </div>
 
-    <h2 id="opensearch">11. OpenSearch Module</h2>
+    <h2 id="opensearch">12. OpenSearch Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(opensearch)</code></p>
       <p><strong>Purpose:</strong> Full-text search and analytics (OpenSearch/Elasticsearch compatible)</p>
@@ -425,7 +473,7 @@ VERIFY_CERTS = false</code></pre>
       </ul>
     </div>
 
-    <h2 id="elasticsearch">12. Elasticsearch Module</h2>
+    <h2 id="elasticsearch">13. Elasticsearch Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(elasticsearch)</code></p>
       <p><strong>Purpose:</strong> Distributed search and analytics engine for full-text search and real-time data</p>
@@ -467,7 +515,7 @@ TIMEOUT = 30</code></pre>
       </ul>
     </div>
 
-    <h2 id="email">13. Email Module</h2>
+    <h2 id="email">14. Email Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(email)</code></p>
       <p><strong>Purpose:</strong> Send emails with attachments</p>
@@ -500,7 +548,7 @@ USE_TLS = true</code></pre>
       </ul>
     </div>
 
-    <h2 id="s3">14. S3/MinIO Module</h2>
+    <h2 id="s3">15. S3/MinIO Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(s3)</code></p>
       <p><strong>Purpose:</strong> Object storage (AWS S3, MinIO, DigitalOcean Spaces, Wasabi)</p>
@@ -535,7 +583,7 @@ REGION = us-east-1
       </ul>
     </div>
 
-    <h2 id="aws">15. AWS Module</h2>
+    <h2 id="aws">16. AWS Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(aws)</code></p>
       <p><strong>Purpose:</strong> Comprehensive Amazon Web Services integration (S3, DynamoDB, SQS, SNS, Lambda, Secrets Manager, CloudWatch)</p>
@@ -591,7 +639,7 @@ DEFAULT_DYNAMODB_TABLE = my-table</code></pre>
       </ul>
     </div>
 
-    <h2 id="ssh">16. SSH/SFTP Module</h2>
+    <h2 id="ssh">17. SSH/SFTP Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(ssh)</code></p>
       <p><strong>Purpose:</strong> Remote server access and file transfer</p>
@@ -625,7 +673,7 @@ PASSWORD = password
       </ul>
     </div>
 
-    <h2 id="vault">17. HashiCorp Vault Module</h2>
+    <h2 id="vault">18. HashiCorp Vault Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(vault)</code></p>
       <p><strong>Purpose:</strong> Secure secrets management</p>
@@ -657,7 +705,7 @@ VAULT_TOKEN = your-vault-token
       </ul>
     </div>
 
-    <h2 id="compress">18. Compression Module</h2>
+    <h2 id="compress">19. Compression Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(compress)</code></p>
       <p><strong>Purpose:</strong> File compression and extraction</p>
@@ -683,7 +731,7 @@ VAULT_TOKEN = your-vault-token
       </ul>
     </div>
 
-    <h2 id="api">19. REST API Module</h2>
+    <h2 id="api">20. REST API Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(api)</code></p>
       <p><strong>Purpose:</strong> HTTP client for REST API calls</p>
@@ -720,7 +768,7 @@ BEARER_TOKEN = your-token
       </ul>
     </div>
 
-    <h2 id="teams">20. Microsoft Teams Module</h2>
+    <h2 id="teams">21. Microsoft Teams Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(teams)</code></p>
       <p><strong>Purpose:</strong> Send messages, alerts, and adaptive cards to Microsoft Teams channels</p>
@@ -767,7 +815,7 @@ CHANNEL_ID = 19:xxx@thread.tacv2</code></pre>
       </ul>
     </div>
 
-    <h2 id="slack">21. Slack Module</h2>
+    <h2 id="slack">22. Slack Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(slack)</code></p>
       <p><strong>Purpose:</strong> Send messages, alerts, blocks, and files to Slack channels</p>
@@ -822,7 +870,7 @@ DEFAULT_CHANNEL = #general</code></pre>
       </ul>
     </div>
 
-    <h2 id="terraform">22. Terraform Module</h2>
+    <h2 id="terraform">23. Terraform Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(terraform)</code></p>
       <p><strong>Purpose:</strong> Manage infrastructure as code (IaC) using HashiCorp Terraform</p>
@@ -873,7 +921,7 @@ BACKEND_CONFIG = {"bucket": "my-tf-state", "key": "terraform.tfstate", "region":
       </ul>
     </div>
 
-    <h2 id="docker">23. Docker Module</h2>
+    <h2 id="docker">24. Docker Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(docker)</code></p>
       <p><strong>Purpose:</strong> Manage Docker containers, images, volumes, and networks</p>
@@ -927,7 +975,7 @@ REGISTRY_PASSWORD = your_password</code></pre>
       </ul>
     </div>
 
-    <h2 id="kubernetes">24. Kubernetes Module</h2>
+    <h2 id="kubernetes">25. Kubernetes Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(kubernetes)</code></p>
       <p><strong>Purpose:</strong> Manage Kubernetes cluster resources (pods, deployments, services, etc.)</p>
@@ -983,7 +1031,7 @@ VERIFY_SSL = true</code></pre>
       </ul>
     </div>
 
-    <h2 id="azure">25. Azure Module</h2>
+    <h2 id="azure">26. Azure Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(azure)</code></p>
       <p><strong>Purpose:</strong> Manage Microsoft Azure cloud resources (VMs, Storage, SQL, Cosmos DB, etc.)</p>
@@ -1043,7 +1091,7 @@ DEFAULT_RESOURCE_GROUP = aibasic-rg</code></pre>
       </ul>
     </div>
 
-    <h2 id="gcp">26. GCP (Google Cloud Platform) Module</h2>
+    <h2 id="gcp">27. GCP (Google Cloud Platform) Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(gcp)</code></p>
       <p><strong>Purpose:</strong> Manage Google Cloud Platform resources (Compute Engine, Cloud Storage, Cloud SQL, BigQuery, etc.)</p>
@@ -1099,7 +1147,7 @@ ZONE = us-central1-a</code></pre>
       </ul>
     </div>
 
-    <h2 id="ldap">27. LDAP/Active Directory Module</h2>
+    <h2 id="ldap">28. LDAP/Active Directory Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(ldap)</code></p>
       <p><strong>Purpose:</strong> Manage LDAP/Active Directory users, groups, organizational units, and authentication</p>
@@ -1151,7 +1199,7 @@ GROUP_OU = ou=groups</code></pre>
       </ul>
     </div>
 
-    <h2 id="keycloak">28. Keycloak IAM Module</h2>
+    <h2 id="keycloak">29. Keycloak IAM Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(keycloak)</code></p>
       <p><strong>Purpose:</strong> Identity and Access Management with Keycloak (realms, users, roles, groups, clients, OAuth2/OIDC)</p>
@@ -1210,7 +1258,7 @@ TIMEOUT = 30</code></pre>
       </ul>
     </div>
 
-    <h2 id="jwt">29. JWT (JSON Web Token) Module</h2>
+    <h2 id="jwt">30. JWT (JSON Web Token) Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(jwt)</code></p>
       <p><strong>Purpose:</strong> Token-based authentication with JWT (create, verify, refresh tokens)</p>
@@ -1258,7 +1306,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7</code></pre>
       </ul>
     </div>
 
-    <h2 id="mqtt">30. MQTT (Message Queuing Telemetry Transport) Module</h2>
+    <h2 id="mqtt">31. MQTT (Message Queuing Telemetry Transport) Module</h2>
     <div class="panel">
       <p><strong>Task Type:</strong> <code>(mqtt)</code></p>
       <p><strong>Purpose:</strong> IoT messaging and pub/sub communication (lightweight message protocol for sensors and devices)</p>
@@ -1311,12 +1359,130 @@ USE_TLS = false</code></pre>
       </ul>
     </div>
 
+    <h2 id="prometheus">32. Prometheus Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(prometheus)</code></p>
+      <p><strong>Purpose:</strong> Monitoring and observability with metrics collection, exposition, and PromQL queries</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[prometheus]
+PROMETHEUS_URL = http://localhost:9090
+EXPOSITION_PORT = 8000
+EXPOSITION_ADDR = 0.0.0.0
+PUSHGATEWAY_URL = localhost:9091
+PUSHGATEWAY_JOB = aibasic
+NAMESPACE = aibasic
+CUSTOM_REGISTRY = false</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 REM Create metrics
+20 (prometheus) create counter "http_requests_total" with description "Total HTTP requests" and labels ["method", "status"]
+30 (prometheus) create gauge "active_connections" with description "Active connections"
+40 (prometheus) create histogram "request_duration_seconds" with description "Request duration"
+
+50 REM Record metrics
+60 (prometheus) increment counter "aibasic_http_requests_total" with labels {"method": "GET", "status": "200"}
+70 (prometheus) set gauge "aibasic_active_connections" to 42
+80 (prometheus) observe histogram "aibasic_request_duration_seconds" value 0.234
+
+90 REM Expose metrics for Prometheus scraping
+100 (prometheus) start http server on port 8000
+
+110 REM Push to Pushgateway (for batch jobs)
+120 (prometheus) push to gateway with job "nightly_batch"
+
+130 REM Query Prometheus server
+140 (prometheus) query "rate(http_requests_total[5m])"
+150 (prometheus) query range "cpu_usage_percent" from "-1h" to "now" step "5m"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Metric Types: Counter (monotonic), Gauge (up/down), Histogram (distributions), Summary (percentiles)</li>
+        <li>Multi-Dimensional Metrics: Labels for detailed breakdowns</li>
+        <li>HTTP Exposition: Expose metrics for Prometheus scraping</li>
+        <li>Pushgateway: Push metrics for short-lived jobs</li>
+        <li>PromQL Queries: Query and aggregate metrics from Prometheus server</li>
+        <li>Time-Series Data: Range queries for historical analysis</li>
+        <li>Custom Registries: Isolate metrics for different purposes</li>
+        <li>Best Practices: Automatic metric naming conventions</li>
+        <li>Production Ready: Thread-safe, singleton pattern</li>
+      </ul>
+    </div>
+
+    <h2 id="selenium">33. Selenium Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(selenium)</code> or <code>(browser)</code></p>
+      <p><strong>Purpose:</strong> Web browser automation, testing, and scraping with multi-browser support</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[selenium]
+BROWSER = chrome
+HEADLESS = false
+WINDOW_SIZE = 1920x1080
+IMPLICIT_WAIT = 10
+PAGE_LOAD_TIMEOUT = 30
+DOWNLOAD_DIR = ./downloads
+CHROME_DRIVER_PATH =
+FIREFOX_DRIVER_PATH =</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 REM Navigate and interact
+20 (selenium) navigate to "https://example.com"
+30 (selenium) click element "#login-button" by "css"
+40 (selenium) type "user@example.com" into "#email" by "css"
+50 (selenium) type "password123" into "#password" by "css"
+60 (selenium) click element "#submit" by "css"
+
+70 REM Wait for elements
+80 (selenium) wait for element ".dashboard" to be "visible" with timeout 10
+
+90 REM Extract data
+100 LET title = (selenium) get text from "h1" by "css"
+110 LET href = (selenium) get attribute "href" from "a.link" by "css"
+
+120 REM Screenshots and page source
+130 (selenium) screenshot "page.png"
+140 LET html = (selenium) get page source
+
+150 REM Form handling
+160 (selenium) select "USA" from "#country" by "css" using "text"
+170 (selenium) upload file "document.pdf" to "#file-input" by "css"
+
+180 REM JavaScript execution
+190 (selenium) execute script "window.scrollTo(0, document.body.scrollHeight);"
+
+200 REM Window management
+210 (selenium) switch to window 1
+220 (selenium) close window
+
+230 REM Cleanup
+240 (selenium) quit</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Multi-Browser: Chrome, Firefox, Edge, Safari (macOS)</li>
+        <li>Headless Mode: Run without visible browser window</li>
+        <li>Element Locators: CSS, XPath, ID, Name, Class, Link Text</li>
+        <li>Wait Strategies: Implicit, Explicit (visible, clickable, present)</li>
+        <li>Form Automation: Input, select dropdowns, file uploads</li>
+        <li>JavaScript Execution: Direct DOM manipulation</li>
+        <li>Screenshots: Full page and element screenshots</li>
+        <li>Cookie Management: Add, get, delete cookies</li>
+        <li>Window/Frame Handling: Multiple windows and iframes</li>
+        <li>Alert Handling: Accept, dismiss, get text, send text</li>
+        <li>Mouse Actions: Hover, drag-and-drop, scroll</li>
+        <li>Web Scraping: Extract data from dynamic pages</li>
+        <li>Automated Testing: E2E testing, form validation</li>
+        <li>WebDriver Manager: Automatic driver installation</li>
+      </ul>
+    </div>
+
     <div class="panel">
       <h3>Module Usage Tips</h3>
       <ul>
         <li>Configure modules in <code>aibasic.conf</code> before use</li>
-        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(s3)</code>, <code>(terraform)</code>, <code>(docker)</code>, <code>(kubernetes)</code>, <code>(azure)</code>, <code>(gcp)</code>, <code>(ldap)</code>, <code>(keycloak)</code>, <code>(jwt)</code>, <code>(mqtt)</code></li>
-        <li>Combine modules for powerful workflows (e.g., Postgres → DataFrame → S3)</li>
+        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(scylladb)</code>, <code>(s3)</code>, <code>(terraform)</code>, <code>(docker)</code>, <code>(kubernetes)</code>, <code>(azure)</code>, <code>(gcp)</code>, <code>(ldap)</code>, <code>(keycloak)</code>, <code>(jwt)</code>, <code>(mqtt)</code>, <code>(prometheus)</code>, <code>(selenium)</code></li>
+        <li>Combine modules for powerful workflows (e.g., Postgres → DataFrame → S3 or Selenium → MongoDB)</li>
         <li>Use error handling (<code>ON ERROR GOTO</code>) with I/O operations</li>
         <li>Close connections explicitly or rely on automatic cleanup</li>
       </ul>
@@ -1325,7 +1491,7 @@ USE_TLS = false</code></pre>
 </div>
 
 <div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
-  © 2025 AIbasic v1.0 — Complete documentation with 30 integrated modules
+  © 2025 AIbasic v1.0 — Complete documentation with 33 integrated modules
 </div>
 <script src="script.js"></script>
 </body></html>

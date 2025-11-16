@@ -1,0 +1,1117 @@
+REM ============================================================================
+REM AIbasic - Selenium Module Examples
+REM ============================================================================
+REM
+REM This file demonstrates the comprehensive capabilities of the Selenium module
+REM for web browser automation, testing, and scraping.
+REM
+REM Module: (selenium) or (browser)
+REM Dependencies: selenium>=4.15.0, webdriver-manager>=4.0.0
+REM
+REM Table of Contents:
+REM   1. Basic Navigation
+REM   2. Element Location and Interaction
+REM   3. Form Automation
+REM   4. Wait Strategies
+REM   5. JavaScript Execution
+REM   6. Screenshots and Page Source
+REM   7. Cookie Management
+REM   8. Window and Frame Management
+REM   9. Alert Handling
+REM  10. Mouse and Keyboard Actions
+REM  11. File Upload
+REM  12. Web Scraping
+REM  13. Form Validation Testing
+REM  14. Login Automation
+REM  15. E-commerce Testing
+REM  16. Dynamic Content Handling
+REM  17. Table Data Extraction
+REM  18. Dropdown Handling
+REM  19. Multi-Window Handling
+REM  20. Responsive Testing
+REM  21. Accessibility Testing
+REM  22. Performance Testing
+REM  23. Cross-Browser Testing
+REM  24. Parallel Test Execution
+REM  25. Data-Driven Testing
+REM
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Navigation
+REM ============================================================================
+REM Demonstrates basic browser navigation operations
+REM ============================================================================
+
+10 PRINT "=== Example 1: Basic Navigation ==="
+20 REM Open a website
+30 (selenium) navigate to "https://www.example.com"
+40 PRINT "Navigated to example.com"
+
+50 REM Get current URL and title
+60 LET current_url = (selenium) get current url
+70 LET page_title = (selenium) get title
+80 PRINT "Current URL: " + current_url
+90 PRINT "Page title: " + page_title
+
+100 REM Navigate to another page
+110 (selenium) navigate to "https://www.example.com/about"
+120 PRINT "Navigated to about page"
+
+130 REM Go back
+140 (selenium) back
+150 PRINT "Went back to previous page"
+
+160 REM Go forward
+170 (selenium) forward
+180 PRINT "Went forward"
+
+190 REM Refresh the page
+200 (selenium) refresh
+210 PRINT "Page refreshed"
+
+220 REM Take a screenshot
+230 (selenium) screenshot "navigation_test.png"
+240 PRINT "Screenshot saved"
+250 PRINT ""
+
+REM ============================================================================
+REM Example 2: Element Location and Interaction
+REM ============================================================================
+REM Demonstrates different element location strategies and basic interactions
+REM ============================================================================
+
+300 PRINT "=== Example 2: Element Location and Interaction ==="
+310 (selenium) navigate to "https://www.example.com"
+
+320 REM Click element by CSS selector
+330 (selenium) click element "a.more-info" by "css"
+340 PRINT "Clicked link using CSS selector"
+
+350 REM Click element by XPath
+360 (selenium) click element "//button[@id='submit']" by "xpath"
+370 PRINT "Clicked button using XPath"
+
+380 REM Click element by ID
+390 (selenium) click element "login-button" by "id"
+400 PRINT "Clicked button using ID"
+
+410 REM Click element by class name
+420 (selenium) click element "btn-primary" by "class"
+430 PRINT "Clicked button using class name"
+
+440 REM Click element by link text
+450 (selenium) click element "Click here" by "link_text"
+460 PRINT "Clicked link using exact text"
+
+470 REM Click element by partial link text
+480 (selenium) click element "Click" by "partial_link_text"
+490 PRINT "Clicked link using partial text"
+
+500 REM Get element text
+510 LET heading = (selenium) get text from "#main-heading" by "css"
+520 PRINT "Heading text: " + heading
+
+530 REM Get element attribute
+540 LET href = (selenium) get attribute "href" from "a.link" by "css"
+550 PRINT "Link href: " + href
+
+560 REM Check if element is displayed
+570 LET is_visible = (selenium) is element "#banner" displayed by "css"
+580 IF is_visible THEN
+590   PRINT "Banner is visible"
+600 ELSE
+610   PRINT "Banner is not visible"
+620 END IF
+630 PRINT ""
+
+REM ============================================================================
+REM Example 3: Form Automation
+REM ============================================================================
+REM Demonstrates form filling and submission
+REM ============================================================================
+
+700 PRINT "=== Example 3: Form Automation ==="
+710 (selenium) navigate to "https://www.example.com/contact"
+
+720 REM Fill text input
+730 (selenium) type "John Doe" into "#name" by "css"
+740 PRINT "Entered name"
+
+750 REM Fill email input
+760 (selenium) type "john.doe@example.com" into "#email" by "css"
+770 PRINT "Entered email"
+
+780 REM Fill textarea
+790 (selenium) type "This is my message" into "#message" by "css"
+800 PRINT "Entered message"
+
+810 REM Clear input and type new text
+820 (selenium) type "New name" into "#name" by "css" with clear true
+830 PRINT "Cleared and entered new name"
+
+840 REM Select from dropdown by value
+850 (selenium) select "usa" from "#country" by "css" using "value"
+860 PRINT "Selected country by value"
+
+870 REM Select from dropdown by text
+880 (selenium) select "United States" from "#country" by "css" using "text"
+890 PRINT "Selected country by visible text"
+
+900 REM Select from dropdown by index
+910 (selenium) select "2" from "#country" by "css" using "index"
+920 PRINT "Selected country by index"
+
+930 REM Check checkbox
+940 (selenium) click element "#agree-terms" by "css"
+950 PRINT "Checked terms checkbox"
+
+960 REM Submit form
+970 (selenium) click element "#submit-button" by "css"
+980 PRINT "Submitted form"
+990 PRINT ""
+
+REM ============================================================================
+REM Example 4: Wait Strategies
+REM ============================================================================
+REM Demonstrates explicit waits for dynamic content
+REM ============================================================================
+
+1000 PRINT "=== Example 4: Wait Strategies ==="
+1010 (selenium) navigate to "https://www.example.com/ajax"
+
+1020 REM Wait for element to be visible
+1030 LET visible = (selenium) wait for element "#result" to be "visible" with timeout 10
+1040 IF visible THEN
+1050   PRINT "Element became visible"
+1060 ELSE
+1070   PRINT "Element did not appear"
+1080 END IF
+
+1090 REM Wait for element to be clickable
+1100 LET clickable = (selenium) wait for element "#button" to be "clickable" with timeout 10
+1110 IF clickable THEN
+1120   (selenium) click element "#button" by "css"
+1130   PRINT "Element was clickable and clicked"
+1140 END IF
+
+1150 REM Wait for element to be present
+1160 LET present = (selenium) wait for element "#data" to be "present" with timeout 10
+1170 IF present THEN
+1180   LET data = (selenium) get text from "#data" by "css"
+1190   PRINT "Data loaded: " + data
+1200 END IF
+
+1210 REM Click with explicit wait
+1220 (selenium) click element "#dynamic-button" by "css" with wait 5
+1230 PRINT "Clicked element after waiting"
+1240 PRINT ""
+
+REM ============================================================================
+REM Example 5: JavaScript Execution
+REM ============================================================================
+REM Demonstrates executing JavaScript in the browser
+REM ============================================================================
+
+1300 PRINT "=== Example 5: JavaScript Execution ==="
+1310 (selenium) navigate to "https://www.example.com"
+
+1320 REM Execute simple JavaScript
+1330 (selenium) execute script "alert('Hello from AIbasic!');"
+1340 PRINT "Executed alert"
+
+1350 REM Get page height using JavaScript
+1360 LET height = (selenium) execute script "return document.body.scrollHeight;"
+1370 PRINT "Page height: " + STR(height)
+
+1380 REM Scroll to bottom
+1390 (selenium) execute script "window.scrollTo(0, document.body.scrollHeight);"
+1400 PRINT "Scrolled to bottom"
+
+1410 REM Change element style
+1420 (selenium) execute script "document.querySelector('#header').style.backgroundColor = 'red';"
+1430 PRINT "Changed header background color"
+
+1440 REM Get local storage value
+1450 LET token = (selenium) execute script "return localStorage.getItem('token');"
+1460 PRINT "Token from localStorage: " + token
+
+1470 REM Set local storage value
+1480 (selenium) execute script "localStorage.setItem('user', 'john');"
+1490 PRINT "Set localStorage value"
+1500 PRINT ""
+
+REM ============================================================================
+REM Example 6: Screenshots and Page Source
+REM ============================================================================
+REM Demonstrates capturing screenshots and HTML source
+REM ============================================================================
+
+1600 PRINT "=== Example 6: Screenshots and Page Source ==="
+1610 (selenium) navigate to "https://www.example.com"
+
+1620 REM Take full page screenshot
+1630 (selenium) screenshot "full_page.png"
+1640 PRINT "Full page screenshot saved"
+
+1650 REM Get page source
+1660 LET html = (selenium) get page source
+1670 PRINT "Page source length: " + STR(LEN(html))
+
+1680 REM Save page source to file
+1690 OPEN "page_source.html" FOR OUTPUT AS #1
+1700 PRINT #1, html
+1710 CLOSE #1
+1720 PRINT "Page source saved to file"
+
+1730 REM Take screenshot after scrolling
+1740 (selenium) execute script "window.scrollTo(0, 500);"
+1750 (selenium) screenshot "scrolled_page.png"
+1760 PRINT "Scrolled screenshot saved"
+1770 PRINT ""
+
+REM ============================================================================
+REM Example 7: Cookie Management
+REM ============================================================================
+REM Demonstrates cookie operations
+REM ============================================================================
+
+1800 PRINT "=== Example 7: Cookie Management ==="
+1810 (selenium) navigate to "https://www.example.com"
+
+1820 REM Add a cookie
+1830 (selenium) add cookie "user_id" with value "12345"
+1840 PRINT "Added cookie"
+
+1850 REM Add cookie with options
+1860 (selenium) add cookie "session" with value "abc123" and domain "example.com" and path "/"
+1870 PRINT "Added session cookie with options"
+
+1880 REM Get a specific cookie
+1890 LET user_cookie = (selenium) get cookie "user_id"
+1900 PRINT "User ID cookie: " + user_cookie["value"]
+
+1910 REM Get all cookies
+1920 LET all_cookies = (selenium) get all cookies
+1930 PRINT "Total cookies: " + STR(LEN(all_cookies))
+
+1940 REM Delete a cookie
+1950 (selenium) delete cookie "user_id"
+1960 PRINT "Deleted user_id cookie"
+
+1970 REM Delete all cookies
+1980 (selenium) delete all cookies
+1990 PRINT "Deleted all cookies"
+2000 PRINT ""
+
+REM ============================================================================
+REM Example 8: Window and Frame Management
+REM ============================================================================
+REM Demonstrates handling multiple windows and iframes
+REM ============================================================================
+
+2100 PRINT "=== Example 8: Window and Frame Management ==="
+2110 (selenium) navigate to "https://www.example.com"
+
+2120 REM Get current window handle
+2130 LET main_window = (selenium) get window handles
+2140 PRINT "Main window handle: " + main_window[0]
+
+2150 REM Open new window (via link)
+2160 (selenium) click element "a[target='_blank']" by "css"
+2170 PRINT "Opened new window"
+
+2180 REM Get all window handles
+2190 LET windows = (selenium) get window handles
+2200 PRINT "Total windows: " + STR(LEN(windows))
+
+2210 REM Switch to new window
+2220 (selenium) switch to window 1
+2230 PRINT "Switched to new window"
+
+2240 REM Get title of new window
+2250 LET new_title = (selenium) get title
+2260 PRINT "New window title: " + new_title
+
+2270 REM Close current window
+2280 (selenium) close window
+2290 PRINT "Closed new window"
+
+2300 REM Switch back to main window
+2310 (selenium) switch to window 0
+2320 PRINT "Switched back to main window"
+
+2330 REM Switch to iframe by index
+2340 (selenium) switch to frame 0
+2350 PRINT "Switched to iframe"
+
+2360 REM Interact with element in iframe
+2370 (selenium) click element "#iframe-button" by "css"
+2380 PRINT "Clicked button in iframe"
+
+2390 REM Switch back to main content
+2400 (selenium) switch to default content
+2410 PRINT "Switched back to main content"
+2420 PRINT ""
+
+REM ============================================================================
+REM Example 9: Alert Handling
+REM ============================================================================
+REM Demonstrates handling JavaScript alerts, confirms, and prompts
+REM ============================================================================
+
+2500 PRINT "=== Example 9: Alert Handling ==="
+2510 (selenium) navigate to "https://www.example.com/alerts"
+
+2520 REM Trigger alert
+2530 (selenium) click element "#alert-button" by "css"
+2540 PRINT "Clicked alert button"
+
+2550 REM Get alert text
+2560 LET alert_text = (selenium) get alert text
+2570 PRINT "Alert text: " + alert_text
+
+2580 REM Accept alert
+2590 (selenium) accept alert
+2600 PRINT "Accepted alert"
+
+2610 REM Trigger confirm
+2620 (selenium) click element "#confirm-button" by "css"
+2630 PRINT "Clicked confirm button"
+
+2640 REM Dismiss confirm
+2650 (selenium) dismiss alert
+2660 PRINT "Dismissed confirm"
+
+2670 REM Trigger prompt
+2680 (selenium) click element "#prompt-button" by "css"
+2690 PRINT "Clicked prompt button"
+
+2700 REM Send text to prompt
+2710 (selenium) send text "John Doe" to alert
+2720 (selenium) accept alert
+2730 PRINT "Entered text in prompt and accepted"
+2740 PRINT ""
+
+REM ============================================================================
+REM Example 10: Mouse and Keyboard Actions
+REM ============================================================================
+REM Demonstrates advanced mouse and keyboard interactions
+REM ============================================================================
+
+2800 PRINT "=== Example 10: Mouse and Keyboard Actions ==="
+2810 (selenium) navigate to "https://www.example.com"
+
+2820 REM Hover over element
+2830 (selenium) hover over element "#menu-item" by "css"
+2840 PRINT "Hovered over menu item"
+
+2850 REM Wait for submenu to appear
+2860 (selenium) wait for element ".submenu" to be "visible" with timeout 5
+2870 PRINT "Submenu appeared"
+
+2880 REM Click submenu item
+2890 (selenium) click element ".submenu-item" by "css"
+2900 PRINT "Clicked submenu item"
+
+2910 REM Drag and drop
+2920 (selenium) drag element "#draggable" and drop to "#droppable" by "css"
+2930 PRINT "Performed drag and drop"
+
+2940 REM Scroll to element
+2950 (selenium) scroll to element "#footer" by "css"
+2960 PRINT "Scrolled to footer"
+
+2970 REM Double click (using JavaScript)
+2980 (selenium) execute script "document.querySelector('#double-click-btn').dispatchEvent(new MouseEvent('dblclick'));"
+2990 PRINT "Double clicked element"
+3000 PRINT ""
+
+REM ============================================================================
+REM Example 11: File Upload
+REM ============================================================================
+REM Demonstrates file upload functionality
+REM ============================================================================
+
+3100 PRINT "=== Example 11: File Upload ==="
+3110 (selenium) navigate to "https://www.example.com/upload"
+
+3120 REM Create a test file
+3130 OPEN "test_upload.txt" FOR OUTPUT AS #1
+3140 PRINT #1, "This is a test file for upload"
+3150 CLOSE #1
+
+3160 REM Upload file
+3170 (selenium) upload file "test_upload.txt" to "#file-input" by "css"
+3180 PRINT "File uploaded"
+
+3190 REM Submit form
+3200 (selenium) click element "#upload-button" by "css"
+3210 PRINT "Upload form submitted"
+
+3220 REM Wait for success message
+3230 LET success = (selenium) wait for element ".success-message" to be "visible" with timeout 10
+3240 IF success THEN
+3250   LET message = (selenium) get text from ".success-message" by "css"
+3260   PRINT "Upload successful: " + message
+3270 END IF
+3280 PRINT ""
+
+REM ============================================================================
+REM Example 12: Web Scraping
+REM ============================================================================
+REM Demonstrates data extraction from web pages
+REM ============================================================================
+
+3300 PRINT "=== Example 12: Web Scraping ==="
+3310 (selenium) navigate to "https://www.example.com/products"
+
+3320 REM Wait for products to load
+3330 (selenium) wait for element ".product" to be "visible" with timeout 10
+
+3340 REM Count products
+3350 LET product_count = (selenium) count elements ".product" by "css"
+3360 PRINT "Found " + STR(product_count) + " products"
+
+3370 REM Extract product data using JavaScript
+3380 LET products_json = (selenium) execute script "return Array.from(document.querySelectorAll('.product')).map(p => ({title: p.querySelector('.title').innerText, price: p.querySelector('.price').innerText}));"
+3390 PRINT "Extracted product data: " + products_json
+
+3400 REM Extract all links
+3410 LET links = (selenium) execute script "return Array.from(document.querySelectorAll('a')).map(a => a.href);"
+3420 PRINT "Found " + STR(LEN(links)) + " links"
+
+3430 REM Extract table data
+3440 (selenium) navigate to "https://www.example.com/data-table"
+3450 LET table_data = (selenium) execute script "return Array.from(document.querySelectorAll('table tr')).map(row => Array.from(row.cells).map(cell => cell.innerText));"
+3460 PRINT "Extracted table data"
+
+3470 REM Save data to file
+3480 OPEN "scraped_data.json" FOR OUTPUT AS #1
+3490 PRINT #1, products_json
+3500 CLOSE #1
+3510 PRINT "Data saved to file"
+3520 PRINT ""
+
+REM ============================================================================
+REM Example 13: Form Validation Testing
+REM ============================================================================
+REM Demonstrates testing form validation
+REM ============================================================================
+
+3600 PRINT "=== Example 13: Form Validation Testing ==="
+3610 (selenium) navigate to "https://www.example.com/register"
+
+3620 REM Test empty form submission
+3630 (selenium) click element "#submit" by "css"
+3640 PRINT "Submitted empty form"
+
+3650 REM Check for validation errors
+3660 LET error_visible = (selenium) is element ".error-message" displayed by "css"
+3670 IF error_visible THEN
+3680   LET error = (selenium) get text from ".error-message" by "css"
+3690   PRINT "Validation error: " + error
+3700 END IF
+
+3710 REM Test invalid email
+3720 (selenium) type "invalid-email" into "#email" by "css"
+3730 (selenium) click element "#submit" by "css"
+3740 PRINT "Submitted with invalid email"
+
+3750 REM Check email validation
+3760 LET email_error = (selenium) get text from "#email-error" by "css"
+3770 PRINT "Email error: " + email_error
+
+3780 REM Test password mismatch
+3790 (selenium) type "password123" into "#password" by "css"
+3800 (selenium) type "password456" into "#confirm-password" by "css"
+3810 (selenium) click element "#submit" by "css"
+3820 PRINT "Submitted with mismatched passwords"
+
+3830 REM Check password validation
+3840 LET pwd_error = (selenium) get text from "#password-error" by "css"
+3850 PRINT "Password error: " + pwd_error
+
+3860 REM Test valid form
+3870 (selenium) type "john@example.com" into "#email" by "css" with clear true
+3880 (selenium) type "password123" into "#password" by "css" with clear true
+3890 (selenium) type "password123" into "#confirm-password" by "css" with clear true
+3900 (selenium) click element "#submit" by "css"
+3910 PRINT "Submitted valid form"
+
+3920 REM Check for success
+3930 LET success = (selenium) wait for element ".success" to be "visible" with timeout 5
+3940 IF success THEN
+3950   PRINT "Form validation passed!"
+3960 END IF
+3970 PRINT ""
+
+REM ============================================================================
+REM Example 14: Login Automation
+REM ============================================================================
+REM Demonstrates automated login process
+REM ============================================================================
+
+4000 PRINT "=== Example 14: Login Automation ==="
+4010 (selenium) navigate to "https://www.example.com/login"
+
+4020 REM Enter credentials
+4030 (selenium) type "testuser@example.com" into "#username" by "css"
+4040 (selenium) type "Test123!" into "#password" by "css"
+4050 PRINT "Entered credentials"
+
+4060 REM Check "Remember me"
+4070 (selenium) click element "#remember-me" by "css"
+4080 PRINT "Checked remember me"
+
+4090 REM Submit login form
+4100 (selenium) click element "#login-button" by "css"
+4110 PRINT "Submitted login form"
+
+4120 REM Wait for dashboard
+4130 LET logged_in = (selenium) wait for element ".dashboard" to be "visible" with timeout 10
+4140 IF logged_in THEN
+4150   PRINT "Login successful!"
+4160   LET username = (selenium) get text from ".user-name" by "css"
+4170   PRINT "Logged in as: " + username
+4180 ELSE
+4190   PRINT "Login failed"
+4200   LET error = (selenium) get text from ".error" by "css"
+4210   PRINT "Error: " + error
+4220 END IF
+
+4230 REM Take screenshot of dashboard
+4240 (selenium) screenshot "dashboard.png"
+4250 PRINT "Dashboard screenshot saved"
+
+4260 REM Logout
+4270 (selenium) click element "#logout-button" by "css"
+4280 PRINT "Logged out"
+4290 PRINT ""
+
+REM ============================================================================
+REM Example 15: E-commerce Testing
+REM ============================================================================
+REM Demonstrates automated e-commerce flow
+REM ============================================================================
+
+4300 PRINT "=== Example 15: E-commerce Testing ==="
+4310 (selenium) navigate to "https://www.example.com/shop"
+
+4320 REM Search for product
+4330 (selenium) type "laptop" into "#search" by "css"
+4340 (selenium) click element "#search-button" by "css"
+4350 PRINT "Searched for laptop"
+
+4360 REM Wait for results
+4370 (selenium) wait for element ".search-results" to be "visible" with timeout 10
+
+4380 REM Click first product
+4390 (selenium) click element ".product-item:first-child" by "css"
+4400 PRINT "Clicked first product"
+
+4410 REM Wait for product page
+4420 (selenium) wait for element ".product-details" to be "visible" with timeout 10
+
+4430 REM Get product info
+4440 LET title = (selenium) get text from ".product-title" by "css"
+4450 LET price = (selenium) get text from ".product-price" by "css"
+4460 PRINT "Product: " + title
+4470 PRINT "Price: " + price
+
+4480 REM Select quantity
+4490 (selenium) select "2" from "#quantity" by "css" using "value"
+4500 PRINT "Selected quantity: 2"
+
+4510 REM Add to cart
+4520 (selenium) click element "#add-to-cart" by "css"
+4530 PRINT "Added to cart"
+
+4540 REM Wait for cart update
+4550 (selenium) wait for element ".cart-count" to be "visible" with timeout 5
+
+4560 REM Get cart count
+4570 LET cart_count = (selenium) get text from ".cart-count" by "css"
+4580 PRINT "Cart items: " + cart_count
+
+4590 REM Go to cart
+4600 (selenium) click element "#cart-icon" by "css"
+4610 PRINT "Navigated to cart"
+
+4620 REM Verify cart contents
+4630 (selenium) wait for element ".cart-item" to be "visible" with timeout 10
+4640 LET cart_total = (selenium) get text from ".cart-total" by "css"
+4650 PRINT "Cart total: " + cart_total
+
+4660 REM Proceed to checkout
+4670 (selenium) click element "#checkout-button" by "css"
+4680 PRINT "Proceeded to checkout"
+4690 PRINT ""
+
+REM ============================================================================
+REM Example 16: Dynamic Content Handling
+REM ============================================================================
+REM Demonstrates handling AJAX and dynamic content
+REM ============================================================================
+
+4700 PRINT "=== Example 16: Dynamic Content Handling ==="
+4710 (selenium) navigate to "https://www.example.com/ajax-demo"
+
+4720 REM Click to load content
+4730 (selenium) click element "#load-data" by "css"
+4740 PRINT "Clicked load data button"
+
+4750 REM Wait for loading indicator
+4760 (selenium) wait for element ".loading" to be "visible" with timeout 5
+
+4770 REM Wait for loading to complete
+4780 LET i = 0
+4790 WHILE i < 20
+4800   LET still_loading = (selenium) is element ".loading" displayed by "css"
+4810   IF NOT still_loading THEN
+4820     GOTO 4870
+4830   END IF
+4840   SLEEP 0.5
+4850   LET i = i + 1
+4860 WEND
+
+4870 PRINT "Loading completed"
+
+4880 REM Get loaded data
+4890 LET data = (selenium) get text from "#data-container" by "css"
+4900 PRINT "Loaded data: " + data
+
+4910 REM Infinite scroll handling
+4920 (selenium) navigate to "https://www.example.com/infinite-scroll"
+4930 PRINT "Testing infinite scroll"
+
+4940 FOR i = 1 TO 5
+4950   REM Scroll to bottom
+4960   (selenium) execute script "window.scrollTo(0, document.body.scrollHeight);"
+4970   PRINT "Scrolled to bottom (iteration " + STR(i) + ")"
+4980
+4990   REM Wait for new content
+5000   SLEEP 2
+5010
+5020   REM Count items
+5030   LET item_count = (selenium) count elements ".item" by "css"
+5040   PRINT "Total items loaded: " + STR(item_count)
+5050 NEXT i
+5060 PRINT ""
+
+REM ============================================================================
+REM Example 17: Table Data Extraction
+REM ============================================================================
+REM Demonstrates extracting data from HTML tables
+REM ============================================================================
+
+5100 PRINT "=== Example 17: Table Data Extraction ==="
+5110 (selenium) navigate to "https://www.example.com/data-table"
+
+5120 REM Wait for table
+5130 (selenium) wait for element "table" to be "visible" with timeout 10
+
+5140 REM Extract table headers
+5150 LET headers = (selenium) execute script "return Array.from(document.querySelectorAll('table thead th')).map(th => th.innerText);"
+5160 PRINT "Headers: " + headers
+
+5170 REM Count rows
+5180 LET row_count = (selenium) count elements "table tbody tr" by "css"
+5190 PRINT "Total rows: " + STR(row_count)
+
+5200 REM Extract all table data
+5210 LET table_data = (selenium) execute script "return Array.from(document.querySelectorAll('table tbody tr')).map(row => Array.from(row.querySelectorAll('td')).map(cell => cell.innerText));"
+5220 PRINT "Extracted table data"
+
+5230 REM Extract specific column
+5240 LET names = (selenium) execute script "return Array.from(document.querySelectorAll('table tbody tr td:nth-child(1)')).map(td => td.innerText);"
+5250 PRINT "Names: " + names
+
+5260 REM Sort table by column
+5270 (selenium) click element "th:nth-child(2)" by "css"
+5280 PRINT "Sorted by second column"
+
+5290 REM Wait for sort to complete
+5300 SLEEP 1
+
+5310 REM Extract sorted data
+5320 LET sorted_data = (selenium) execute script "return Array.from(document.querySelectorAll('table tbody tr td:nth-child(2)')).map(td => td.innerText);"
+5330 PRINT "Sorted data: " + sorted_data
+
+5340 REM Filter table
+5350 (selenium) type "search term" into "#table-filter" by "css"
+5360 PRINT "Applied filter"
+
+5370 REM Count filtered rows
+5380 SLEEP 1
+5390 LET filtered_count = (selenium) count elements "table tbody tr:visible" by "css"
+5400 PRINT "Filtered rows: " + STR(filtered_count)
+5410 PRINT ""
+
+REM ============================================================================
+REM Example 18: Dropdown Handling
+REM ============================================================================
+REM Demonstrates working with different types of dropdowns
+REM ============================================================================
+
+5500 PRINT "=== Example 18: Dropdown Handling ==="
+5510 (selenium) navigate to "https://www.example.com/forms"
+
+5520 REM Standard select dropdown - select by value
+5530 (selenium) select "option2" from "#standard-select" by "css" using "value"
+5540 PRINT "Selected option by value"
+
+5550 REM Standard select dropdown - select by text
+5560 (selenium) select "Option 3" from "#standard-select" by "css" using "text"
+5570 PRINT "Selected option by text"
+
+5580 REM Standard select dropdown - select by index
+5590 (selenium) select "0" from "#standard-select" by "css" using "index"
+5600 PRINT "Selected option by index"
+
+5610 REM Custom dropdown (div-based)
+5620 (selenium) click element ".custom-dropdown" by "css"
+5630 PRINT "Opened custom dropdown"
+
+5640 REM Wait for options to appear
+5650 (selenium) wait for element ".dropdown-option" to be "visible" with timeout 5
+
+5660 REM Click specific option
+5670 (selenium) click element ".dropdown-option[data-value='option2']" by "css"
+5680 PRINT "Selected from custom dropdown"
+
+5690 REM Multi-select dropdown
+5700 (selenium) click element "#multi-select" by "css"
+5710 (selenium) select "option1" from "#multi-select" by "css" using "value"
+5720 (selenium) select "option3" from "#multi-select" by "css" using "value"
+5730 PRINT "Selected multiple options"
+
+5740 REM Searchable dropdown
+5750 (selenium) click element ".searchable-dropdown" by "css"
+5760 (selenium) type "search term" into ".dropdown-search" by "css"
+5770 (selenium) wait for element ".dropdown-option" to be "visible" with timeout 5
+5780 (selenium) click element ".dropdown-option:first-child" by "css"
+5790 PRINT "Selected from searchable dropdown"
+5800 PRINT ""
+
+REM ============================================================================
+REM Example 19: Multi-Window Handling
+REM ============================================================================
+REM Demonstrates advanced window management
+REM ============================================================================
+
+5900 PRINT "=== Example 19: Multi-Window Handling ==="
+5910 (selenium) navigate to "https://www.example.com"
+
+5920 REM Get main window handle
+5930 LET windows = (selenium) get window handles
+5940 LET main_window = windows[0]
+5950 PRINT "Main window: " + main_window
+
+5960 REM Open multiple new windows
+5970 (selenium) click element "#open-window-1" by "css"
+5980 SLEEP 1
+5990 (selenium) click element "#open-window-2" by "css"
+6000 SLEEP 1
+6010 PRINT "Opened 2 new windows"
+
+6020 REM Get all windows
+6030 LET all_windows = (selenium) get window handles
+6040 PRINT "Total windows: " + STR(LEN(all_windows))
+
+6050 REM Switch to second window
+6060 (selenium) switch to window 1
+6070 LET title1 = (selenium) get title
+6080 PRINT "Window 1 title: " + title1
+
+6090 REM Perform action in window 1
+6100 (selenium) click element "#action-button" by "css"
+6110 PRINT "Performed action in window 1"
+
+6120 REM Switch to third window
+6130 (selenium) switch to window 2
+6140 LET title2 = (selenium) get title
+6150 PRINT "Window 2 title: " + title2
+
+6160 REM Close current window
+6170 (selenium) close window
+6180 PRINT "Closed window 2"
+
+6190 REM Switch back to main window
+6200 (selenium) switch to window 0
+6210 PRINT "Switched back to main window"
+
+6220 REM Verify we're on the main window
+6230 LET current_title = (selenium) get title
+6240 PRINT "Current title: " + current_title
+6250 PRINT ""
+
+REM ============================================================================
+REM Example 20: Responsive Testing
+REM ============================================================================
+REM Demonstrates testing responsive designs
+REM ============================================================================
+
+6300 PRINT "=== Example 20: Responsive Testing ==="
+6310 (selenium) navigate to "https://www.example.com"
+
+6320 REM Desktop view
+6330 (selenium) set window size 1920 1080
+6340 PRINT "Set desktop size (1920x1080)"
+6350 (selenium) screenshot "desktop.png"
+
+6360 REM Check desktop menu visibility
+6370 LET desktop_menu = (selenium) is element ".desktop-menu" displayed by "css"
+6380 PRINT "Desktop menu visible: " + STR(desktop_menu)
+
+6390 REM Tablet view
+6400 (selenium) set window size 768 1024
+6410 PRINT "Set tablet size (768x1024)"
+6420 (selenium) screenshot "tablet.png"
+
+6430 REM Check tablet layout
+6440 LET tablet_menu = (selenium) is element ".tablet-menu" displayed by "css"
+6450 PRINT "Tablet menu visible: " + STR(tablet_menu)
+
+6460 REM Mobile view
+6470 (selenium) set window size 375 667
+6480 PRINT "Set mobile size (375x667)"
+6490 (selenium) screenshot "mobile.png"
+
+6500 REM Check mobile menu
+6510 LET mobile_menu = (selenium) is element ".mobile-menu-icon" displayed by "css"
+6520 PRINT "Mobile menu icon visible: " + STR(mobile_menu)
+
+6530 REM Test mobile menu
+6540 IF mobile_menu THEN
+6550   (selenium) click element ".mobile-menu-icon" by "css"
+6560   (selenium) wait for element ".mobile-nav" to be "visible" with timeout 5
+6570   PRINT "Mobile menu opened"
+6580 END IF
+
+6590 REM Restore window size
+6600 (selenium) maximize window
+6610 PRINT "Window maximized"
+6620 PRINT ""
+
+REM ============================================================================
+REM Example 21: Accessibility Testing
+REM ============================================================================
+REM Demonstrates basic accessibility checks
+REM ============================================================================
+
+6700 PRINT "=== Example 21: Accessibility Testing ==="
+6710 (selenium) navigate to "https://www.example.com"
+
+6720 REM Check for alt attributes on images
+6730 LET images_without_alt = (selenium) execute script "return Array.from(document.querySelectorAll('img:not([alt])')).length;"
+6740 PRINT "Images without alt text: " + STR(images_without_alt)
+
+6750 REM Check for form labels
+6760 LET inputs_without_labels = (selenium) execute script "return Array.from(document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])')).filter(i => !document.querySelector('label[for=\"' + i.id + '\"]')).length;"
+6770 PRINT "Inputs without labels: " + STR(inputs_without_labels)
+
+6780 REM Check heading hierarchy
+6790 LET headings = (selenium) execute script "return Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6')).map(h => h.tagName);"
+6800 PRINT "Heading structure: " + headings
+
+6810 REM Check for skip links
+6820 LET has_skip_link = (selenium) is element "a[href='#main']" displayed by "css"
+6830 PRINT "Has skip to main link: " + STR(has_skip_link)
+
+6840 REM Check color contrast (simplified)
+6850 LET contrast_issues = (selenium) execute script "let issues = 0; document.querySelectorAll('*').forEach(el => { const bg = window.getComputedStyle(el).backgroundColor; const color = window.getComputedStyle(el).color; if (bg === color) issues++; }); return issues;"
+6860 PRINT "Potential contrast issues: " + STR(contrast_issues)
+
+6870 REM Test keyboard navigation
+6880 (selenium) type KEYS.TAB into "body" by "css"
+6890 SLEEP 0.5
+6900 LET focused = (selenium) execute script "return document.activeElement.tagName;"
+6910 PRINT "Focused element after tab: " + focused
+6920 PRINT ""
+
+REM ============================================================================
+REM Example 22: Performance Testing
+REM ============================================================================
+REM Demonstrates basic performance metrics collection
+REM ============================================================================
+
+7000 PRINT "=== Example 22: Performance Testing ==="
+7010 (selenium) navigate to "https://www.example.com"
+
+7020 REM Get page load timing
+7030 LET timing = (selenium) execute script "return JSON.stringify(window.performance.timing);"
+7040 PRINT "Navigation timing: " + timing
+
+7050 REM Calculate load time
+7060 LET load_time = (selenium) execute script "return window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;"
+7070 PRINT "Page load time: " + STR(load_time) + " ms"
+
+7080 REM Get DOM content loaded time
+7090 LET dom_time = (selenium) execute script "return window.performance.timing.domContentLoadedEventEnd - window.performance.timing.navigationStart;"
+7100 PRINT "DOM content loaded: " + STR(dom_time) + " ms"
+
+7110 REM Get resource timing
+7120 LET resources = (selenium) execute script "return performance.getEntriesByType('resource').length;"
+7130 PRINT "Total resources: " + STR(resources)
+
+7140 REM Get slow resources
+7150 LET slow_resources = (selenium) execute script "return performance.getEntriesByType('resource').filter(r => r.duration > 1000).map(r => ({name: r.name, duration: r.duration}));"
+7160 PRINT "Slow resources (>1s): " + slow_resources
+
+7170 REM Get memory usage (Chrome only)
+7180 LET memory = (selenium) execute script "return window.performance.memory ? window.performance.memory.usedJSHeapSize : 'Not available';"
+7190 PRINT "Memory usage: " + STR(memory) + " bytes"
+
+7200 REM Test time to first byte
+7210 LET ttfb = (selenium) execute script "return window.performance.timing.responseStart - window.performance.timing.requestStart;"
+7220 PRINT "Time to first byte: " + STR(ttfb) + " ms"
+7230 PRINT ""
+
+REM ============================================================================
+REM Example 23: Cross-Browser Testing
+REM ============================================================================
+REM Demonstrates configuration for different browsers
+REM Note: This requires configuring SELENIUM_BROWSER environment variable
+REM ============================================================================
+
+7300 PRINT "=== Example 23: Cross-Browser Testing ==="
+7310 REM This example shows how to test across browsers
+7320 REM Set SELENIUM_BROWSER=chrome, firefox, edge, or safari in config
+
+7330 (selenium) navigate to "https://www.example.com"
+7340 PRINT "Testing on current browser"
+
+7350 REM Get browser info
+7360 LET user_agent = (selenium) execute script "return navigator.userAgent;"
+7370 PRINT "User agent: " + user_agent
+
+7380 REM Test browser capabilities
+7390 LET supports_local_storage = (selenium) execute script "return typeof(Storage) !== 'undefined';"
+7400 PRINT "Supports localStorage: " + STR(supports_local_storage)
+
+7410 LET supports_webgl = (selenium) execute script "return !!document.createElement('canvas').getContext('webgl');"
+7420 PRINT "Supports WebGL: " + STR(supports_webgl)
+
+7430 REM Take browser-specific screenshot
+7440 (selenium) screenshot "browser_test.png"
+7450 PRINT "Screenshot saved for browser test"
+
+7460 REM Test CSS grid support
+7470 LET supports_grid = (selenium) execute script "return CSS.supports('display', 'grid');"
+7480 PRINT "Supports CSS Grid: " + STR(supports_grid)
+
+7490 REM Test browser-specific features
+7500 LET supports_webrtc = (selenium) execute script "return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);"
+7510 PRINT "Supports WebRTC: " + STR(supports_webrtc)
+7520 PRINT ""
+
+REM ============================================================================
+REM Example 24: Parallel Test Execution
+REM ============================================================================
+REM Demonstrates pattern for parallel testing
+REM Note: True parallelism would require multiple AIbasic instances
+REM ============================================================================
+
+7600 PRINT "=== Example 24: Parallel Test Execution Pattern ==="
+7610 REM This example shows a pattern for organizing parallel tests
+
+7620 REM Define test URLs
+7630 DIM test_urls$(5)
+7640 LET test_urls$(0) = "https://www.example.com/page1"
+7650 LET test_urls$(1) = "https://www.example.com/page2"
+7660 LET test_urls$(2) = "https://www.example.com/page3"
+7670 LET test_urls$(3) = "https://www.example.com/page4"
+7680 LET test_urls$(4) = "https://www.example.com/page5"
+
+7690 REM Sequential execution (parallel would require multiple processes)
+7700 FOR i = 0 TO 4
+7710   PRINT "Testing URL " + STR(i + 1)
+7720   (selenium) navigate to test_urls$(i)
+7730
+7740   REM Perform test
+7750   LET title = (selenium) get title
+7760   PRINT "  Title: " + title
+7770
+7780   REM Check for errors
+7790   LET has_error = (selenium) is element ".error" displayed by "css"
+7800   PRINT "  Has error: " + STR(has_error)
+7810
+7820   REM Take screenshot
+7830   (selenium) screenshot "test_" + STR(i) + ".png"
+7840   PRINT "  Screenshot saved"
+7850 NEXT i
+
+7860 PRINT "All tests completed"
+7870 PRINT ""
+
+REM ============================================================================
+REM Example 25: Data-Driven Testing
+REM ============================================================================
+REM Demonstrates testing with different data sets
+REM ============================================================================
+
+7900 PRINT "=== Example 25: Data-Driven Testing ==="
+7910 (selenium) navigate to "https://www.example.com/login"
+
+7920 REM Define test data
+7930 DIM users$(3, 3)  REM username, password, expected_result
+7940 LET users$(0, 0) = "valid@example.com"
+7950 LET users$(0, 1) = "ValidPass123!"
+7960 LET users$(0, 2) = "success"
+
+7970 LET users$(1, 0) = "invalid@example.com"
+7980 LET users$(1, 1) = "WrongPassword"
+7990 LET users$(1, 2) = "fail"
+
+8000 LET users$(2, 0) = "locked@example.com"
+8010 LET users$(2, 1) = "LockedPass123!"
+8020 LET users$(2, 2) = "locked"
+
+8030 REM Run tests for each user
+8040 FOR i = 0 TO 2
+8050   PRINT "Test case " + STR(i + 1) + ":"
+8060   PRINT "  Username: " + users$(i, 0)
+8070
+8080   REM Clear previous data
+8090   (selenium) type users$(i, 0) into "#username" by "css" with clear true
+8100   (selenium) type users$(i, 1) into "#password" by "css" with clear true
+8110
+8120   REM Submit
+8130   (selenium) click element "#login-button" by "css"
+8140   SLEEP 2
+8150
+8160   REM Check result
+8170   IF users$(i, 2) = "success" THEN
+8180     LET success = (selenium) is element ".dashboard" displayed by "css"
+8190     PRINT "  Login successful: " + STR(success)
+8200     IF success THEN
+8210       (selenium) click element "#logout-button" by "css"
+8220       SLEEP 1
+8230     END IF
+8240   ELSEIF users$(i, 2) = "fail" THEN
+8250     LET has_error = (selenium) is element ".error-message" displayed by "css"
+8260     PRINT "  Error shown: " + STR(has_error)
+8270   ELSEIF users$(i, 2) = "locked" THEN
+8280     LET is_locked = (selenium) is element ".account-locked" displayed by "css"
+8290     PRINT "  Account locked: " + STR(is_locked)
+8300   END IF
+8310
+8320   REM Navigate back to login
+8330   (selenium) navigate to "https://www.example.com/login"
+8340   SLEEP 1
+8350 NEXT i
+
+8360 PRINT "Data-driven testing completed"
+8370 PRINT ""
+
+REM ============================================================================
+REM Cleanup
+REM ============================================================================
+
+9000 PRINT "=== Cleanup ==="
+9010 (selenium) quit
+9020 PRINT "Browser closed"
+9030 PRINT ""
+9040 PRINT "All Selenium examples completed successfully!"
+9050 END

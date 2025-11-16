@@ -1016,3 +1016,185 @@ MODEL = gpt-4o-mini
 # - Use persistent sessions (clean_session=false) for reliable delivery
 # - Monitor broker performance and message throughput
 # - Popular brokers: Mosquitto, HiveMQ, AWS IoT Core, Azure IoT Hub
+
+[prometheus]
+# Prometheus Monitoring and Observability settings
+# Uncomment and configure these settings to use the prometheus module
+
+# Prometheus Server (for queries)
+# PROMETHEUS_URL = http://localhost:9090  # Prometheus server URL
+
+# Metric Exposition (for scraping)
+# EXPOSITION_PORT = 8000  # HTTP port for exposing metrics
+# EXPOSITION_ADDR = 0.0.0.0  # Bind address (0.0.0.0 for all interfaces)
+
+# Pushgateway Configuration (for batch jobs)
+# PUSHGATEWAY_URL = localhost:9091  # Pushgateway URL
+# PUSHGATEWAY_JOB = aibasic  # Default job name
+
+# Metric Defaults
+# NAMESPACE = aibasic  # Default namespace for metrics (prefix)
+# SUBSYSTEM =  # Default subsystem (optional middle part)
+
+# Registry Settings
+# CUSTOM_REGISTRY = false  # Use custom registry (true) or global registry (false)
+
+# Auto-start Settings
+# AUTO_START_HTTP = false  # Automatically start HTTP server on module init
+
+# Notes:
+# - Prometheus module supports: Counter, Gauge, Histogram, Summary metrics
+# - Best for: Application monitoring, infrastructure observability, SLA tracking
+# - Metric types:
+#   * Counter: Monotonically increasing (requests, errors, tasks completed)
+#   * Gauge: Can go up/down (memory usage, active connections, queue size)
+#   * Histogram: Distribution of values (request duration, response size)
+#   * Summary: Similar to histogram with percentile calculation
+# - Use labels for multi-dimensional metrics (method, status, endpoint)
+# - Metric exposition: Start HTTP server for Prometheus to scrape
+# - Pushgateway: For short-lived jobs that can't be scraped
+# - PromQL: Query language for aggregation and analysis
+# - Common patterns:
+#   * rate(): Calculate per-second rate (e.g., requests/sec)
+#   * histogram_quantile(): Calculate percentiles (p95, p99)
+#   * sum() by (label): Aggregate metrics by label
+# - Naming convention: namespace_subsystem_name_unit (e.g., aibasic_http_requests_total)
+# - Always use base units (seconds, bytes) not milliseconds or megabytes
+# - Add _total suffix for counters, _bucket for histograms
+# - Use consistent label names across metrics
+# - Avoid high-cardinality labels (e.g., user IDs, timestamps)
+# - Recommended histogram buckets: [.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10]
+# - Default scrape interval: 15s (configure in prometheus.yml)
+
+[scylladb]
+# ScyllaDB High-Performance NoSQL Database settings
+# Uncomment and configure these settings to use the scylladb module
+
+# Contact Points (comma-separated list of ScyllaDB nodes)
+# CONTACT_POINTS = localhost
+# CONTACT_POINTS = scylla1.example.com,scylla2.example.com,scylla3.example.com
+
+# Port
+# PORT = 9042  # Default CQL native transport port
+
+# Keyspace
+# KEYSPACE = aibasic_keyspace  # Default keyspace to use
+
+# Authentication
+# USERNAME =  # ScyllaDB username (if authentication enabled)
+# PASSWORD =  # ScyllaDB password
+
+# Connection Settings
+# PROTOCOL_VERSION = 4  # CQL protocol version (3 or 4)
+# COMPRESSION = true  # Enable compression for network traffic
+
+# Consistency Level (default for all operations)
+# CONSISTENCY_LEVEL = LOCAL_QUORUM  # ONE, QUORUM, LOCAL_QUORUM, EACH_QUORUM, ALL
+
+# Replication Settings (for keyspace creation)
+# REPLICATION_STRATEGY = NetworkTopologyStrategy  # SimpleStrategy or NetworkTopologyStrategy
+# REPLICATION_FACTOR = 3  # Replication factor for SimpleStrategy
+
+# Connection Pool
+# POOL_SIZE = 10  # Connection pool size per host
+
+# Timeouts
+# CONNECT_TIMEOUT = 10  # Connection timeout in seconds
+# REQUEST_TIMEOUT = 10  # Request timeout in seconds
+
+# Notes:
+# - ScyllaDB is a high-performance NoSQL database compatible with Apache Cassandra
+# - Best for: Time-series data, IoT, high-throughput applications, real-time analytics
+# - Features: 10x better performance than Cassandra, lower latency, same CQL API
+# - Use NetworkTopologyStrategy for multi-datacenter deployments
+# - Use SimpleStrategy for single-datacenter development/testing
+# - Consistency levels:
+#   * ONE: Fastest, least consistent (written to 1 replica)
+#   * QUORUM: Balanced (majority of replicas)
+#   * LOCAL_QUORUM: Datacenter-local quorum (recommended for multi-DC)
+#   * ALL: Slowest, most consistent (all replicas)
+# - Primary key design is critical for performance:
+#   * Partition key: Determines data distribution across nodes
+#   * Clustering key: Determines sort order within partition
+# - Avoid large partitions (> 100MB) and wide rows
+# - Use TTL for automatic data expiration
+# - Batch operations for atomic writes (use UNLOGGED for performance)
+# - Prepared statements improve performance by 2-3x
+# - ScyllaDB is written in C++ (vs Java for Cassandra) for better performance
+# - Compatible with all Cassandra drivers and tools
+# - Default ports: 9042 (CQL), 9160 (Thrift - deprecated), 10000 (REST API)
+
+# Selenium (Web Browser Automation and Testing)
+[selenium]
+# Browser selection: chrome, firefox, edge, safari
+# Note: Safari only works on macOS and doesn't support headless mode
+BROWSER = chrome
+
+# Headless mode (run without visible browser window)
+# Recommended for automated testing, CI/CD, and production scraping
+HEADLESS = false
+
+# Window size (format: WIDTHxHEIGHT)
+# Important for responsive testing and consistent screenshots
+WINDOW_SIZE = 1920x1080
+
+# Wait timeouts (in seconds)
+IMPLICIT_WAIT = 10  # Default wait time for element location
+PAGE_LOAD_TIMEOUT = 30  # Maximum time to wait for page load
+
+# Download directory (absolute or relative path)
+# Files will be downloaded to this location
+DOWNLOAD_DIR = ./downloads
+
+# WebDriver paths (optional - leave empty to use webdriver-manager auto-download)
+# Only specify these if you want to use a specific driver version
+CHROME_DRIVER_PATH =
+FIREFOX_DRIVER_PATH =
+EDGE_DRIVER_PATH =
+
+# Notes:
+# - Selenium is the industry-standard tool for browser automation and web testing
+# - Best for: Web scraping, automated testing, form filling, UI testing, E2E testing
+# - Supported browsers: Chrome, Firefox, Edge, Safari (macOS only)
+# - Headless mode: Great for CI/CD, automated testing, and background scraping
+# - Element location strategies:
+#   * css: CSS selectors (recommended for most cases)
+#   * xpath: XPath expressions (powerful but slower)
+#   * id: Element ID (fastest, use when available)
+#   * name: Element name attribute
+#   * class: Class name (single class only)
+#   * tag: HTML tag name
+#   * link_text: Exact link text
+#   * partial_link_text: Partial link text match
+# - Wait strategies:
+#   * Implicit wait: Default timeout for all element lookups
+#   * Explicit wait: Wait for specific conditions (visible, clickable, present)
+#   * Fluent wait: Custom polling interval and ignored exceptions
+# - Best practices:
+#   * Use explicit waits for dynamic content (AJAX, animations)
+#   * Prefer CSS selectors over XPath for better performance
+#   * Use Page Object Model (POM) pattern for maintainable tests
+#   * Take screenshots on failures for debugging
+#   * Clean up resources with quit() to prevent memory leaks
+#   * Use headless mode in CI/CD for faster execution
+#   * Set appropriate timeouts to balance speed and reliability
+# - WebDriver Manager:
+#   * Automatically downloads and manages browser drivers
+#   * No manual driver installation needed
+#   * Always uses compatible driver version for installed browser
+#   * Supports Chrome, Firefox, Edge, IE
+# - Common issues:
+#   * StaleElementReferenceException: Element changed, re-locate it
+#   * TimeoutException: Element not found, increase wait time or check locator
+#   * ElementNotInteractableException: Element not visible/enabled, wait for it
+# - Performance tips:
+#   * Disable images/CSS in headless mode for faster page loads
+#   * Use browser profiles to cache data between runs
+#   * Reuse browser instance for multiple tests when possible
+#   * Use JavaScript execution for direct DOM manipulation
+# - Security considerations:
+#   * Don't hardcode credentials in scripts
+#   * Use environment variables or secure vaults for sensitive data
+#   * Be cautious with JavaScript execution from untrusted sources
+#   * Respect robots.txt and website terms of service when scraping
+# - Default ports: Chrome DevTools Protocol: 9222, Firefox Marionette: 2828

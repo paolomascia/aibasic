@@ -111,3 +111,14 @@ cryptography>=41.0.0  # Cryptographic library for RSA/ECDSA key support
 
 # MQTT module (IoT Messaging Protocol)
 paho-mqtt>=1.6.1  # Eclipse Paho MQTT client for IoT and pub/sub messaging
+
+# Prometheus module (Monitoring and Observability)
+prometheus-client>=0.19.0  # Prometheus instrumentation library for Python
+prometheus-api-client>=0.5.3  # Prometheus HTTP API client for PromQL queries
+
+# ScyllaDB module (High-Performance NoSQL Database)
+scylla-driver>=3.28.0  # ScyllaDB Python driver (Cassandra-compatible)
+
+# Selenium module (Web Browser Automation and Testing)
+selenium>=4.15.0  # Selenium WebDriver for browser automation and web testing
+webdriver-manager>=4.0.0  # Automatic webdriver binary management for Chrome/Firefox/Edge
