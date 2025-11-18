@@ -22,9 +22,10 @@ import threading
 from typing import Any, Dict, List, Optional, Union
 from datetime import datetime, timedelta
 import pandas as pd
+from .module_base import AIbasicModuleBase
 
 
-class TimescaleDBModule:
+class TimescaleDBModule(AIbasicModuleBase):
     """
     TimescaleDB module for AIbasic programs.
 
@@ -693,6 +694,185 @@ class TimescaleDBModule:
         """Close all connections in the pool."""
         if hasattr(self, 'pool'):
             self.pool.closeall()
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="TimescaleDB",
+            task_type="timescaledb",
+            description="TimescaleDB time-series database (PostgreSQL extension) with hypertables, continuous aggregates, compression, and retention policies",
+            version="1.0.0",
+            keywords=[
+                "timescaledb", "time-series", "postgresql", "hypertable", "continuous-aggregate",
+                "compression", "retention", "iot", "metrics", "monitoring"
+            ],
+            dependencies=["psycopg2-binary>=2.9.0", "pandas>=1.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "Built on PostgreSQL - all PostgreSQL features available",
+            "Hypertables automatically partition data by time for fast queries",
+            "Default chunk interval is 1 day, configurable per hypertable",
+            "Continuous aggregates are auto-updating materialized views",
+            "Retention policies automatically delete old data",
+            "Compression policies reduce storage for old data (10x+ reduction typical)",
+            "time_bucket() function aggregates data into time intervals",
+            "time_bucket_gapfill() fills missing data points with locf, linear, or NULL",
+            "Supports additional space partitioning for high-cardinality data",
+            "create_default_indexes=True creates indexes on time column",
+            "Compression must be enabled before adding compression policy",
+            "Continuous aggregate policies auto-refresh on schedule",
+            "start_offset and end_offset control refresh window",
+            "Chunks are individual table partitions (view with get_chunk_info)",
+            "Manual compression/decompression available per chunk",
+            "Connection pooling with ThreadedConnectionPool for concurrency",
+            "query_to_dataframe() integrates seamlessly with pandas",
+            "All PostgreSQL data types and functions supported",
+            "Requires TimescaleDB extension installed in PostgreSQL database"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="create_hypertable",
+                description="Convert regular table to hypertable with automatic time-based partitioning",
+                parameters={
+                    "table_name": "str (required) - Table name",
+                    "time_column": "str (optional) - Time column name (default 'time')",
+                    "chunk_time_interval": "str (optional) - Chunk size (default '1 day')",
+                    "if_not_exists": "bool (optional) - Don't error if exists (default True)",
+                    "partitioning_column": "str (optional) - Additional partition column",
+                    "number_partitions": "int (optional) - Number of space partitions"
+                },
+                returns="dict - Result with success status",
+                examples=['create hypertable "metrics" time_column "timestamp" chunk_interval "1 hour"']
+            ),
+            MethodInfo(
+                name="add_retention_policy",
+                description="Automatically delete data older than specified interval",
+                parameters={
+                    "table_name": "str (required) - Hypertable name",
+                    "drop_after": "str (required) - Drop data older than (e.g., '7 days', '3 months')",
+                    "if_not_exists": "bool (optional) - Don't error if exists (default True)"
+                },
+                returns="dict - Result with success status",
+                examples=['add retention policy to "metrics" drop_after "30 days"']
+            ),
+            MethodInfo(
+                name="add_compression_policy",
+                description="Automatically compress old data to save storage",
+                parameters={
+                    "table_name": "str (required) - Hypertable name",
+                    "compress_after": "str (required) - Compress data older than (e.g., '7 days')",
+                    "if_not_exists": "bool (optional) - Don't error if exists (default True)"
+                },
+                returns="dict - Result with success status",
+                examples=['add compression policy to "metrics" compress_after "7 days"']
+            ),
+            MethodInfo(
+                name="create_continuous_aggregate",
+                description="Create auto-updating materialized view for pre-computed aggregations",
+                parameters={
+                    "view_name": "str (required) - View name",
+                    "hypertable": "str (required) - Source hypertable",
+                    "time_column": "str (required) - Time column",
+                    "bucket_interval": "str (required) - Bucket size (e.g., '1 hour')",
+                    "select_query": "str (required) - Aggregation columns",
+                    "with_data": "bool (optional) - Populate immediately (default True)"
+                },
+                returns="dict - Result with success status",
+                examples=['create continuous aggregate "metrics_hourly" from "metrics" bucket "1 hour" select "AVG(value), MAX(value)"']
+            ),
+            MethodInfo(
+                name="time_bucket_query",
+                description="Execute time-bucketed aggregation query with optional filters",
+                parameters={
+                    "table_name": "str (required) - Hypertable name",
+                    "time_column": "str (required) - Time column",
+                    "bucket_interval": "str (required) - Bucket size (e.g., '5 minutes')",
+                    "aggregations": "dict (required) - Column: function mappings",
+                    "start_time": "str (optional) - Start time filter",
+                    "end_time": "str (optional) - End time filter",
+                    "where_clause": "str (optional) - Additional WHERE conditions"
+                },
+                returns="DataFrame - Results as pandas DataFrame",
+                examples=['time_bucket_query "metrics" time "timestamp" bucket "1 hour" agg {"value": "AVG", "count": "COUNT(*)"}']
+            ),
+            MethodInfo(
+                name="fill_gaps",
+                description="Fill missing data points in time-series using locf, linear, or NULL",
+                parameters={
+                    "table_name": "str (required) - Hypertable name",
+                    "time_column": "str (required) - Time column",
+                    "bucket_interval": "str (required) - Bucket size",
+                    "start_time": "str (required) - Start time",
+                    "end_time": "str (required) - End time",
+                    "columns": "list (required) - Columns to fill",
+                    "fill_method": "str (optional) - Method: locf, linear, NULL (default locf)"
+                },
+                returns="DataFrame - Results with filled gaps",
+                examples=['fill_gaps "metrics" time "timestamp" bucket "5 minutes" from "2023-01-01" to "2023-01-02" method "locf"']
+            ),
+            MethodInfo(
+                name="execute_query",
+                description="Execute SQL query and return results as list of dictionaries",
+                parameters={
+                    "query": "str (required) - SQL query",
+                    "params": "tuple (optional) - Query parameters",
+                    "fetch": "bool (optional) - Fetch results (default True)"
+                },
+                returns="list[dict] - Query results",
+                examples=['execute "SELECT * FROM metrics WHERE timestamp > NOW() - INTERVAL \'1 hour\'"']
+            ),
+            MethodInfo(
+                name="query_to_dataframe",
+                description="Execute query and return results as pandas DataFrame",
+                parameters={
+                    "query": "str (required) - SQL query",
+                    "params": "tuple (optional) - Query parameters"
+                },
+                returns="DataFrame - pandas DataFrame",
+                examples=['query_to_dataframe "SELECT time_bucket(\'1 hour\', timestamp) as hour, AVG(value) FROM metrics GROUP BY hour"']
+            ),
+            MethodInfo(
+                name="get_hypertable_stats",
+                description="Get statistics and configuration for hypertable",
+                parameters={"table_name": "str (required) - Hypertable name"},
+                returns="dict - Hypertable statistics",
+                examples=['get_hypertable_stats "metrics"']
+            ),
+            MethodInfo(
+                name="get_chunk_info",
+                description="Get information about all chunks (partitions) for hypertable",
+                parameters={"table_name": "str (required) - Hypertable name"},
+                returns="list[dict] - Chunk information",
+                examples=['get_chunk_info "metrics"']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (timescaledb) execute "CREATE TABLE metrics (timestamp TIMESTAMPTZ NOT NULL, device_id TEXT, value DOUBLE PRECISION)" fetch false',
+            '20 (timescaledb) create hypertable "metrics" time_column "timestamp" chunk_interval "1 day"',
+            '30 (timescaledb) execute "INSERT INTO metrics VALUES (NOW(), \'sensor1\', 23.5)" fetch false',
+            '40 (timescaledb) add retention policy to "metrics" drop_after "30 days"',
+            '50 (timescaledb) add compression policy to "metrics" compress_after "7 days"',
+            '60 (timescaledb) df = time_bucket_query "metrics" time "timestamp" bucket "1 hour" agg {"value": "AVG"}',
+            '70 (timescaledb) create continuous aggregate "metrics_daily" from "metrics" bucket "1 day" select "device_id, AVG(value), MAX(value), MIN(value)"',
+            '80 (timescaledb) stats = get_hypertable_stats "metrics"',
+            '90 (timescaledb) chunks = get_chunk_info "metrics"'
+        ]
 
 
 # Singleton instance getter

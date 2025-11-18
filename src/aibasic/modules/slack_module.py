@@ -39,6 +39,7 @@ import threading
 import time
 from typing import Optional, Dict, Any, List, Union
 from urllib.parse import urljoin
+from .module_base import AIbasicModuleBase
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -49,7 +50,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class SlackModule:
+class SlackModule(AIbasicModuleBase):
     """
     Slack integration module.
 
@@ -736,6 +737,261 @@ class SlackModule:
     def __del__(self):
         """Cleanup on deletion."""
         self.close()
+
+    # ============================================================================
+    # Metadata Methods (for AIbasic compiler prompt generation)
+    # ============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Slack",
+            task_type="slack",
+            description="Slack messaging and notifications with webhooks, Block Kit blocks, alerts, file uploads, and bot API integration",
+            version="1.0.0",
+            keywords=[
+                "slack", "messaging", "notifications", "webhook", "blocks",
+                "alerts", "chat", "collaboration", "bot", "api"
+            ],
+            dependencies=["requests>=2.28.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "Supports two authentication modes: webhook URL or bot token",
+            "Webhook mode is simpler but limited to posting to a single channel",
+            "Bot token mode requires Slack app with proper OAuth scopes",
+            "Webhook URLs obtained from Slack app incoming webhooks settings",
+            "Bot token starts with 'xoxb-' and requires chat:write scope",
+            "Channel names start with # for public, @ for direct messages",
+            "Automatic retry with exponential backoff for failed requests",
+            "Default timeout is 30 seconds, configurable via timeout parameter",
+            "Maximum 3 retries by default for transient failures (429, 500, 502, 503, 504)",
+            "Proxy support available via proxy parameter",
+            "Message text supports Slack markdown formatting",
+            "Blocks use Block Kit for rich interactive messages",
+            "Attachments are legacy format but still supported",
+            "Alert severity levels: info (green), warning (yellow), error (red), success (green)",
+            "Status messages automatically color-coded: success (green), failed/error (red), running (yellow), pending (blue)",
+            "File uploads require bot token and files:write scope",
+            "Thread replies use thread_ts parameter from parent message",
+            "Reactions use emoji names without colons (e.g., 'thumbsup')",
+            "Message updates and deletions require bot token and message timestamp",
+            "Block builder methods help create header, section, divider, and fields blocks",
+            "Always call close() to cleanup session resources when done"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="send_message",
+                description="Send a text message to Slack channel with optional formatting",
+                parameters={
+                    "text": "str (required) - Message text (supports Slack markdown)",
+                    "channel": "str (optional) - Target channel (#general, @username)",
+                    "username": "str (optional) - Bot username to display",
+                    "icon_emoji": "str (optional) - Bot icon emoji (e.g., ':robot_face:')",
+                    "icon_url": "str (optional) - Bot icon URL",
+                    "thread_ts": "str (optional) - Thread timestamp for replies",
+                    "attachments": "list[dict] (optional) - Message attachments (legacy)"
+                },
+                returns="dict - Response with status and message details",
+                examples=[
+                    'send message "Pipeline completed successfully" to "#builds"',
+                    'send message "Hello @john" to "@john" icon_emoji ":wave:"'
+                ]
+            ),
+            MethodInfo(
+                name="send_blocks",
+                description="Send a message with Block Kit blocks for rich formatting",
+                parameters={
+                    "blocks": "list[dict] (required) - List of Block Kit block elements",
+                    "channel": "str (optional) - Target channel",
+                    "text": "str (optional) - Fallback text for notifications",
+                    "thread_ts": "str (optional) - Thread timestamp for replies"
+                },
+                returns="dict - Response from Slack API",
+                examples=[
+                    'blocks = [create_header_block("Status"), create_section_block("Success")]',
+                    'send blocks blocks to "#general"'
+                ]
+            ),
+            MethodInfo(
+                name="send_alert",
+                description="Send an alert message with automatic severity-based color coding",
+                parameters={
+                    "message": "str (required) - Alert message text",
+                    "severity": "str (optional) - Alert level: info, warning, error, success, danger (default warning)",
+                    "title": "str (optional) - Custom alert title (default '{SEVERITY} Alert')",
+                    "channel": "str (optional) - Target channel"
+                },
+                returns="dict - Response data",
+                examples=[
+                    'send alert "High CPU usage: 95%" severity "warning" to "#alerts"',
+                    'send alert "Backup completed" severity "success" title "Daily Backup"',
+                    'alert "Service down" severity "error" to "#ops"'
+                ]
+            ),
+            MethodInfo(
+                name="send_status_message",
+                description="Send a status update message with fields",
+                parameters={
+                    "title": "str (required) - Status message title",
+                    "status": "str (required) - Status value (Success, Failed, Running, Pending)",
+                    "fields": "list[dict] (optional) - List of field dicts with 'title' and 'value' keys",
+                    "channel": "str (optional) - Target channel"
+                },
+                returns="dict - Response data",
+                examples=[
+                    'send status "Database Backup" status "Success" fields [{"title": "Size", "value": "150GB"}] to "#ops"',
+                    'status message "ETL Pipeline" "Running" fields [{"title": "Progress", "value": "75%"}]'
+                ]
+            ),
+            MethodInfo(
+                name="send_rich_message",
+                description="Send a rich formatted message with attachment and optional images",
+                parameters={
+                    "title": "str (required) - Message title",
+                    "text": "str (required) - Message text",
+                    "color": "str (optional) - Attachment color in hex (default '#36a64f' green)",
+                    "fields": "list[dict] (optional) - List of field dicts",
+                    "footer": "str (optional) - Footer text",
+                    "footer_icon": "str (optional) - Footer icon URL",
+                    "image_url": "str (optional) - Full image URL",
+                    "thumb_url": "str (optional) - Thumbnail image URL",
+                    "channel": "str (optional) - Target channel"
+                },
+                returns="dict - Response data",
+                examples=[
+                    'send rich "Sales Report" text "Daily summary" color "#36a64f" fields [{"title": "Revenue", "value": "$50000"}]',
+                    'rich message "Dashboard" "Metrics" image_url "https://example.com/chart.png" to "#team"'
+                ]
+            ),
+            MethodInfo(
+                name="upload_file",
+                description="Upload a file to Slack channel(s)",
+                parameters={
+                    "file_path": "str (required) - Path to file to upload",
+                    "channels": "str or list[str] (optional) - Target channel(s)",
+                    "title": "str (optional) - File title",
+                    "initial_comment": "str (optional) - Comment with file",
+                    "thread_ts": "str (optional) - Thread timestamp"
+                },
+                returns="dict - API response",
+                examples=[
+                    'upload file "report.pdf" to "#reports" title "Monthly Report"',
+                    'upload file "screenshot.png" channels ["#bugs", "#dev"] comment "Bug screenshot"'
+                ]
+            ),
+            MethodInfo(
+                name="update_message",
+                description="Update an existing message by timestamp",
+                parameters={
+                    "channel": "str (required) - Channel ID",
+                    "timestamp": "str (required) - Message timestamp (ts)",
+                    "text": "str (required) - New message text",
+                    "blocks": "list[dict] (optional) - New blocks"
+                },
+                returns="dict - API response",
+                examples=['update message channel "C1234567890" timestamp "1234567890.123456" text "Updated text"']
+            ),
+            MethodInfo(
+                name="delete_message",
+                description="Delete a message by timestamp",
+                parameters={
+                    "channel": "str (required) - Channel ID",
+                    "timestamp": "str (required) - Message timestamp (ts)"
+                },
+                returns="dict - API response",
+                examples=['delete message channel "C1234567890" timestamp "1234567890.123456"']
+            ),
+            MethodInfo(
+                name="add_reaction",
+                description="Add an emoji reaction to a message",
+                parameters={
+                    "channel": "str (required) - Channel ID",
+                    "timestamp": "str (required) - Message timestamp (ts)",
+                    "emoji": "str (required) - Emoji name without colons (e.g., 'thumbsup', 'rocket')"
+                },
+                returns="dict - API response",
+                examples=[
+                    'add reaction "thumbsup" to channel "C1234567890" timestamp "1234567890.123456"',
+                    'react "rocket" to message "1234567890.123456" in "C1234567890"'
+                ]
+            ),
+            MethodInfo(
+                name="create_header_block",
+                description="Create a Block Kit header block",
+                parameters={"text": "str (required) - Header text"},
+                returns="dict - Header block",
+                examples=['header = create_header_block("Pipeline Status")', 'block = create_header_block("Report")']
+            ),
+            MethodInfo(
+                name="create_section_block",
+                description="Create a Block Kit section block with text",
+                parameters={
+                    "text": "str (required) - Block text",
+                    "text_type": "str (optional) - Text type: 'mrkdwn' or 'plain_text' (default 'mrkdwn')"
+                },
+                returns="dict - Section block",
+                examples=[
+                    'section = create_section_block("*Status:* Success :white_check_mark:")',
+                    'block = create_section_block("Plain text" text_type "plain_text")'
+                ]
+            ),
+            MethodInfo(
+                name="create_fields_block",
+                description="Create a Block Kit section block with multiple fields",
+                parameters={"fields": "list[str] (required) - List of field texts"},
+                returns="dict - Section block with fields",
+                examples=['fields = create_fields_block(["*CPU:* 45%", "*Memory:* 8GB", "*Disk:* 120GB"])']
+            ),
+            MethodInfo(
+                name="create_divider_block",
+                description="Create a Block Kit divider block",
+                parameters={},
+                returns="dict - Divider block",
+                examples=['divider = create_divider_block()']
+            ),
+            MethodInfo(
+                name="close",
+                description="Close Slack module and cleanup HTTP session resources",
+                parameters={},
+                returns="None",
+                examples=['close slack connection', 'close']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (slack) send message "Deployment completed successfully" to "#builds"',
+            '20 (slack) send message "Hello team!" to "#general" icon_emoji ":robot_face:"',
+            '30 (slack) send alert "High CPU usage: 95%" severity "warning" to "#alerts"',
+            '40 (slack) send alert "Backup completed" severity "success" title "Daily Backup"',
+            '50 (slack) send alert "Service down" severity "error" to "#ops"',
+            '60 (slack) fields = [{"title": "Database", "value": "prod_db"}, {"title": "Size", "value": "150GB"}]',
+            '70 (slack) send status "Database Backup" status "Success" fields fields to "#ops"',
+            '80 (slack) send status "ETL Pipeline" status "Running" fields [{"title": "Progress", "value": "75%"}]',
+            '90 (slack) send rich "Sales Report" text "Daily summary" color "#36a64f" fields [{"title": "Revenue", "value": "$125000"}]',
+            '100 (slack) upload file "report.pdf" to "#reports" title "Monthly Report" comment "Q4 report"',
+            '110 (slack) header = create_header_block("Pipeline Status")',
+            '120 (slack) section = create_section_block("*Status:* Success :white_check_mark:")',
+            '130 (slack) divider = create_divider_block()',
+            '140 (slack) fields_block = create_fields_block(["*Records:* 125000", "*Duration:* 2h", "*Errors:* 0"])',
+            '150 (slack) blocks = [header, divider, section, fields_block]',
+            '160 (slack) send blocks blocks to "#general" text "Pipeline completed"',
+            '170 (slack) close'
+        ]
 
 
 # Global instance

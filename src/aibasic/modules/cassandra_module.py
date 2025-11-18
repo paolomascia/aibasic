@@ -100,7 +100,10 @@ except ImportError:
     CL = None
 
 
-class CassandraModule:
+from .module_base import AIbasicModuleBase
+
+
+class CassandraModule(AIbasicModuleBase):
     """
     Apache Cassandra distributed NoSQL database module.
 
@@ -716,3 +719,303 @@ class CassandraModule:
             self.close()
         except:
             pass
+
+    # =============================================================================
+    # Metadata Methods for AIbasic Compiler
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Cassandra",
+            task_type="cassandra",
+            description="Apache Cassandra distributed NoSQL database with support for clustering, consistency levels, and CQL queries",
+            version="1.0.0",
+            keywords=["cassandra", "nosql", "distributed", "database", "cql", "cluster", "keyspace", "timeseries", "wide-column"],
+            dependencies=["cassandra-driver>=3.25.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern via from_config() - one instance per application",
+            "Supports distributed cluster with multiple contact points for high availability",
+            "Consistency levels: ANY, ONE, TWO, THREE, QUORUM, ALL, LOCAL_QUORUM, EACH_QUORUM, LOCAL_ONE",
+            "Default consistency level is LOCAL_QUORUM (balance between performance and consistency)",
+            "Prepared statements are automatically cached for better performance on repeated queries",
+            "Batch operations provide atomicity for multiple writes within same partition",
+            "TTL (Time To Live) can be set on insert/update for automatic data expiration",
+            "Lightweight transactions (IF NOT EXISTS, IF EXISTS) ensure atomic operations but have performance cost",
+            "ALLOW FILTERING enables queries on non-primary-key columns (use carefully, impacts performance)",
+            "Keyspaces provide namespace isolation, similar to databases in SQL systems",
+            "Tables use partition keys for data distribution and clustering keys for ordering",
+            "Counter columns support atomic increment/decrement operations",
+            "SSL/TLS support for encrypted connections with certificate verification",
+            "Authentication via username/password (PlainTextAuthProvider)",
+            "Load balancing policies: RoundRobinPolicy, DCAwareRoundRobinPolicy, TokenAwarePolicy",
+            "Asynchronous query execution available via execute_async()",
+            "Connection pooling and retry policies handled automatically by driver",
+            "Key methods: execute, execute_prepared, execute_batch, insert, select, update, delete, create_keyspace, create_table",
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="from_config",
+                description="Create CassandraModule instance from aibasic.conf file (singleton pattern)",
+                parameters={
+                    "config_path": "Path to aibasic.conf (default: 'aibasic.conf')"
+                },
+                returns="CassandraModule instance configured with settings from [cassandra] section",
+                examples=[
+                    '(cassandra) initialize from config "aibasic.conf"',
+                    '(cassandra) connect using configuration file',
+                ]
+            ),
+            MethodInfo(
+                name="execute",
+                description="Execute a CQL query with optional parameters and consistency level",
+                parameters={
+                    "query": "CQL query string with ? placeholders for parameters",
+                    "parameters": "List, tuple, or dict of parameter values (optional)",
+                    "consistency_level": "Override default consistency (optional: ONE, QUORUM, ALL, etc.)",
+                    "timeout": "Query timeout in seconds (optional)"
+                },
+                returns="List of Row objects containing query results",
+                examples=[
+                    '(cassandra) execute query "SELECT * FROM users WHERE id = ?" with parameters [user_id]',
+                    '(cassandra) execute "INSERT INTO logs (timestamp, message) VALUES (?, ?)" with parameters',
+                    '(cassandra) execute query "SELECT * FROM events" with consistency level "ONE"',
+                ]
+            ),
+            MethodInfo(
+                name="execute_prepared",
+                description="Execute a prepared statement (cached for performance on repeated queries)",
+                parameters={
+                    "query": "CQL query string (will be prepared and cached)",
+                    "parameters": "List, tuple, or dict of parameter values",
+                    "consistency_level": "Override default consistency (optional)"
+                },
+                returns="List of Row objects containing query results",
+                examples=[
+                    '(cassandra) execute prepared "SELECT * FROM users WHERE email = ?" with parameters ["user@example.com"]',
+                    '(cassandra) run prepared statement "UPDATE users SET last_login = ? WHERE id = ?" with parameters',
+                ]
+            ),
+            MethodInfo(
+                name="execute_batch",
+                description="Execute multiple CQL statements atomically within a batch",
+                parameters={
+                    "statements": "List of CQL strings or (query, parameters) tuples",
+                    "consistency_level": "Consistency level for the batch (optional)",
+                    "batch_type": "LOGGED (default, atomic), UNLOGGED (faster), or COUNTER"
+                },
+                returns="None - raises exception on failure",
+                examples=[
+                    '(cassandra) execute batch with statements ["INSERT INTO users VALUES (?, ?)", "UPDATE stats SET count = count + 1"]',
+                    '(cassandra) run batch with type "LOGGED" and consistency "QUORUM"',
+                ]
+            ),
+            MethodInfo(
+                name="create_keyspace",
+                description="Create a keyspace (namespace for tables)",
+                parameters={
+                    "keyspace": "Keyspace name (string)",
+                    "replication_strategy": "SimpleStrategy (default) or NetworkTopologyStrategy",
+                    "replication_factor": "Number of replicas (default: 1, production: 3+)",
+                    "durable_writes": "Enable durable writes (default: True)"
+                },
+                returns="None - creates keyspace if it doesn't exist",
+                examples=[
+                    '(cassandra) create keyspace "my_app" with replication factor 3',
+                    '(cassandra) create keyspace "prod_data" with strategy "SimpleStrategy" and replication factor 3',
+                ]
+            ),
+            MethodInfo(
+                name="create_table",
+                description="Create a table with columns and primary key definition",
+                parameters={
+                    "table": "Table name (string)",
+                    "columns": "Dict of {column_name: cassandra_type} (e.g., {'id': 'uuid', 'name': 'text'})",
+                    "primary_key": "Single column name or list [partition_key, clustering_key, ...]",
+                    "clustering_order": "Dict of {column: 'ASC' or 'DESC'} for clustering columns (optional)",
+                    "compact_storage": "Enable compact storage - deprecated (default: False)"
+                },
+                returns="None - creates table if it doesn't exist",
+                examples=[
+                    '(cassandra) create table "users" with columns {"id": "uuid", "name": "text", "email": "text"} and primary key "id"',
+                    '(cassandra) create table "events" with columns {"user_id": "uuid", "timestamp": "timestamp", "event": "text"} and primary key ["user_id", "timestamp"]',
+                ]
+            ),
+            MethodInfo(
+                name="insert",
+                description="Insert a row into a table with optional TTL and conditional logic",
+                parameters={
+                    "table": "Table name (string)",
+                    "data": "Dict of {column: value} to insert",
+                    "ttl": "Time to live in seconds for automatic expiration (optional)",
+                    "if_not_exists": "Use lightweight transaction to ensure row doesn't exist (default: False)"
+                },
+                returns="None - inserts row or raises exception on error",
+                examples=[
+                    '(cassandra) insert into "users" data {"id": uuid(), "name": "Alice", "email": "alice@example.com"}',
+                    '(cassandra) insert into "sessions" data {"session_id": "abc123", "user": "alice"} with TTL 3600',
+                    '(cassandra) insert into "locks" data {"resource": "db", "owner": "worker1"} if not exists',
+                ]
+            ),
+            MethodInfo(
+                name="select",
+                description="Select rows from a table with optional filtering and limits",
+                parameters={
+                    "table": "Table name (string)",
+                    "columns": "Single column, list of columns, or '*' for all (default: '*')",
+                    "where": "Dict of {column: value} for WHERE clause (optional)",
+                    "limit": "Maximum number of rows to return (optional)",
+                    "allow_filtering": "Enable filtering on non-primary-key columns (use carefully, default: False)"
+                },
+                returns="List of Row objects with results",
+                examples=[
+                    '(cassandra) select from "users" where {"id": user_id}',
+                    '(cassandra) select columns ["name", "email"] from "users" where {"id": user_id}',
+                    '(cassandra) select from "events" where {"user_id": uid} limit 100',
+                    '(cassandra) select from "users" where {"status": "active"} allow filtering',
+                ]
+            ),
+            MethodInfo(
+                name="update",
+                description="Update rows in a table with optional TTL and conditional logic",
+                parameters={
+                    "table": "Table name (string)",
+                    "set_values": "Dict of {column: new_value} to update",
+                    "where": "Dict of {column: value} for WHERE clause (required for primary key)",
+                    "ttl": "Time to live in seconds (optional)",
+                    "if_exists": "Use lightweight transaction to ensure row exists (default: False)"
+                },
+                returns="None - updates row(s) or raises exception on error",
+                examples=[
+                    '(cassandra) update "users" set {"last_login": now()} where {"id": user_id}',
+                    '(cassandra) update "sessions" set {"data": session_data} where {"session_id": "abc123"} with TTL 1800',
+                    '(cassandra) update "users" set {"name": "Bob"} where {"id": user_id} if exists',
+                ]
+            ),
+            MethodInfo(
+                name="delete",
+                description="Delete rows or specific columns from a table",
+                parameters={
+                    "table": "Table name (string)",
+                    "where": "Dict of {column: value} for WHERE clause (required)",
+                    "columns": "List of specific columns to delete (optional: None = entire row)",
+                    "if_exists": "Use lightweight transaction (default: False)"
+                },
+                returns="None - deletes row(s) or raises exception on error",
+                examples=[
+                    '(cassandra) delete from "users" where {"id": user_id}',
+                    '(cassandra) delete columns ["email", "phone"] from "users" where {"id": user_id}',
+                    '(cassandra) delete from "sessions" where {"session_id": "abc123"} if exists',
+                ]
+            ),
+            MethodInfo(
+                name="increment_counter",
+                description="Atomically increment a counter column (requires counter table)",
+                parameters={
+                    "table": "Counter table name (string)",
+                    "counter_col": "Counter column name to increment",
+                    "where": "Dict of {column: value} for WHERE clause (primary key)",
+                    "amount": "Amount to increment by (default: 1)"
+                },
+                returns="None - increments counter atomically",
+                examples=[
+                    '(cassandra) increment counter "page_views" in "stats" where {"page_id": "home"}',
+                    '(cassandra) increment counter "count" in "metrics" where {"metric_name": "requests"} by 10',
+                ]
+            ),
+            MethodInfo(
+                name="decrement_counter",
+                description="Atomically decrement a counter column (requires counter table)",
+                parameters={
+                    "table": "Counter table name (string)",
+                    "counter_col": "Counter column name to decrement",
+                    "where": "Dict of {column: value} for WHERE clause (primary key)",
+                    "amount": "Amount to decrement by (default: 1)"
+                },
+                returns="None - decrements counter atomically",
+                examples=[
+                    '(cassandra) decrement counter "inventory" in "products" where {"product_id": "SKU123"}',
+                    '(cassandra) decrement counter "quota" in "users" where {"user_id": user_id} by 5',
+                ]
+            ),
+            MethodInfo(
+                name="list_keyspaces",
+                description="List all keyspaces in the Cassandra cluster",
+                parameters={},
+                returns="List of keyspace names (strings)",
+                examples=[
+                    '(cassandra) list keyspaces',
+                    '(cassandra) show all keyspaces in cluster',
+                ]
+            ),
+            MethodInfo(
+                name="list_tables",
+                description="List all tables in a keyspace",
+                parameters={
+                    "keyspace": "Keyspace name (optional: uses current keyspace if not specified)"
+                },
+                returns="List of table names (strings)",
+                examples=[
+                    '(cassandra) list tables in keyspace "my_app"',
+                    '(cassandra) show all tables',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Connection and setup
+            '10 (cassandra) initialize from config "aibasic.conf"',
+            '20 (cassandra) create keyspace "my_app" with replication factor 3',
+            '30 (cassandra) create table "users" with columns {"id": "uuid", "name": "text", "email": "text", "created_at": "timestamp"} and primary key "id"',
+
+            # Basic CRUD operations
+            '40 (cassandra) insert into "users" data {"id": uuid(), "name": "Alice", "email": "alice@example.com", "created_at": "2025-01-01 10:00:00"}',
+            '50 (cassandra) select from "users" where {"id": user_id}',
+            '60 (cassandra) update "users" set {"last_login": now()} where {"id": user_id}',
+            '70 (cassandra) delete from "users" where {"id": user_id}',
+
+            # Advanced queries
+            '80 (cassandra) execute query "SELECT * FROM users WHERE name = ?" with parameters ["Alice"]',
+            '90 (cassandra) execute prepared "SELECT * FROM users WHERE email = ?" with parameters ["alice@example.com"]',
+            '100 (cassandra) select columns ["name", "email"] from "users" limit 100',
+
+            # Time-series data (common Cassandra use case)
+            '110 (cassandra) create table "events" with columns {"user_id": "uuid", "timestamp": "timestamp", "event_type": "text", "data": "text"} and primary key ["user_id", "timestamp"]',
+            '120 (cassandra) insert into "events" data {"user_id": user_id, "timestamp": now(), "event_type": "login", "data": "{}"}',
+            '130 (cassandra) select from "events" where {"user_id": user_id, "timestamp": "2025-01-01"} limit 1000',
+
+            # TTL and expiration
+            '140 (cassandra) insert into "sessions" data {"session_id": "abc123", "user_id": user_id, "data": "{}"} with TTL 3600',
+
+            # Batch operations
+            '150 (cassandra) execute batch with statements [("INSERT INTO users (id, name) VALUES (?, ?)", [uuid1, "Bob"]), ("INSERT INTO users (id, name) VALUES (?, ?)", [uuid2, "Charlie"])]',
+
+            # Counter operations
+            '160 (cassandra) create table "page_stats" with columns {"page_id": "text", "views": "counter"} and primary key "page_id"',
+            '170 (cassandra) increment counter "views" in "page_stats" where {"page_id": "home"}',
+            '180 (cassandra) decrement counter "inventory" in "products" where {"product_id": "SKU123"}',
+
+            # Conditional operations
+            '190 (cassandra) insert into "locks" data {"resource": "database", "owner": "worker1"} if not exists',
+            '200 (cassandra) delete from "locks" where {"resource": "database"} if exists',
+
+            # Administration
+            '210 (cassandra) list keyspaces',
+            '220 (cassandra) list tables in keyspace "my_app"',
+            '230 (cassandra) execute query "DESCRIBE TABLE users"',
+        ]

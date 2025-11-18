@@ -64,7 +64,10 @@ except ImportError:
     AZURE_AVAILABLE = False
 
 
-class AzureModule:
+from .module_base import AIbasicModuleBase
+
+
+class AzureModule(AIbasicModuleBase):
     """
     Azure module for Microsoft Azure cloud services management.
 
@@ -643,6 +646,324 @@ class AzureModule:
             }
         except Exception as e:
             raise RuntimeError(f"Failed to get subscription info: {e}")
+
+    # =============================================================================
+    # Metadata Methods for AIbasic Compiler
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Azure",
+            task_type="azure",
+            description="Microsoft Azure cloud services management with support for VMs, Storage, SQL, Networking, and more",
+            version="1.0.0",
+            keywords=["azure", "cloud", "vm", "storage", "blob", "sql", "database", "vnet", "network", "compute", "resource-group"],
+            dependencies=[
+                "azure-identity>=1.15.0",
+                "azure-mgmt-compute>=30.0.0",
+                "azure-mgmt-storage>=21.0.0",
+                "azure-mgmt-sql>=4.0.0",
+                "azure-mgmt-resource>=23.0.0",
+                "azure-mgmt-network>=25.0.0",
+                "azure-mgmt-web>=7.0.0",
+                "azure-storage-blob>=12.19.0",
+                "azure-mgmt-containerinstance>=10.0.0",
+                "azure-keyvault-secrets>=4.7.0",
+                "azure-mgmt-cosmosdb>=9.0.0"
+            ]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern - one instance shared across all operations",
+            "Supports Service Principal authentication (CLIENT_ID/SECRET) or DefaultAzureCredential",
+            "All service clients are lazy-loaded on first use for efficiency",
+            "Resource group and location can be set as defaults or overridden per operation",
+            "VM operations support full lifecycle: create, start, stop, delete, list",
+            "Storage operations cover accounts and blob storage (upload, download, list)",
+            "SQL operations manage both servers and databases",
+            "Virtual network operations support VNet creation and management",
+            "Most operations return Azure SDK response objects with detailed properties",
+            "Long-running operations use pollers - call .wait() or .result() to block",
+            "Authentication via environment variables or aibasic.conf file",
+            "Requires valid Azure subscription ID for all operations",
+            "Storage account names must be globally unique (3-24 chars, lowercase, numbers only)",
+            "VM creation requires existing resource group",
+            "Blob operations automatically retrieve storage account keys",
+            "All clients use credential property for lazy authentication setup",
+            "Key methods: resource_group_create, vm_create, vm_start, vm_stop, storage_account_create, blob_upload_file, blob_download_file, sql_database_create",
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="resource_group_create",
+                description="Create an Azure resource group to organize related resources",
+                parameters={
+                    "name": "Resource group name (string)",
+                    "location": "Azure region (optional, defaults to module's location setting)",
+                    "tags": "Optional dict of key-value tags for organization"
+                },
+                returns="Azure ResourceGroup object with properties: name, location, id, tags, provisioning_state",
+                examples=[
+                    '(azure) create resource group "my-rg" in location "eastus"',
+                    '(azure) create resource group "dev-rg" in "westeurope" with tags',
+                ]
+            ),
+            MethodInfo(
+                name="resource_group_delete",
+                description="Delete a resource group and all resources within it (destructive operation)",
+                parameters={
+                    "name": "Resource group name to delete (string)"
+                },
+                returns="Boolean True if deletion successful, raises RuntimeError on failure",
+                examples=[
+                    '(azure) delete resource group "old-rg"',
+                    '(azure) remove resource group "test-rg"',
+                ]
+            ),
+            MethodInfo(
+                name="vm_create",
+                description="Create a virtual machine with specified configuration",
+                parameters={
+                    "vm_name": "Name for the virtual machine (string)",
+                    "resource_group": "Resource group name (optional, uses default)",
+                    "location": "Azure region (optional, uses default)",
+                    "vm_size": "VM size/SKU (default: 'Standard_B1s' for burstable small VM)",
+                    "image": "Image reference dict with publisher/offer/sku/version (optional: defaults to Ubuntu 18.04 LTS)",
+                    "admin_username": "Admin username (default: 'azureuser')",
+                    "admin_password": "Admin password (required for SSH/RDP access)"
+                },
+                returns="Azure VirtualMachine object with properties: name, location, vm_size, provisioning_state, vm_id",
+                examples=[
+                    '(azure) create VM "web-server-1" with size "Standard_B2s"',
+                    '(azure) create VM "db-vm" in resource group "prod-rg" with Ubuntu image',
+                ]
+            ),
+            MethodInfo(
+                name="vm_start",
+                description="Start a stopped (deallocated) virtual machine",
+                parameters={
+                    "vm_name": "Name of VM to start (string)",
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="Boolean True when VM successfully started",
+                examples=[
+                    '(azure) start VM "web-server-1"',
+                    '(azure) power on VM "app-server" in resource group "prod-rg"',
+                ]
+            ),
+            MethodInfo(
+                name="vm_stop",
+                description="Stop (deallocate) a running virtual machine to save costs",
+                parameters={
+                    "vm_name": "Name of VM to stop (string)",
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="Boolean True when VM successfully stopped and deallocated",
+                examples=[
+                    '(azure) stop VM "web-server-1"',
+                    '(azure) deallocate VM "test-vm" in resource group "dev-rg"',
+                ]
+            ),
+            MethodInfo(
+                name="vm_delete",
+                description="Delete a virtual machine permanently (destructive operation)",
+                parameters={
+                    "vm_name": "Name of VM to delete (string)",
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="Boolean True when VM successfully deleted",
+                examples=[
+                    '(azure) delete VM "old-server"',
+                    '(azure) remove VM "temp-vm" from resource group "test-rg"',
+                ]
+            ),
+            MethodInfo(
+                name="vm_list",
+                description="List all virtual machines in a resource group",
+                parameters={
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="List of VirtualMachine objects, each with properties: name, location, vm_size, provisioning_state",
+                examples=[
+                    '(azure) list VMs in resource group "prod-rg"',
+                    '(azure) show all virtual machines',
+                ]
+            ),
+            MethodInfo(
+                name="storage_account_create",
+                description="Create a storage account for blob, file, queue, and table storage",
+                parameters={
+                    "account_name": "Globally unique account name (3-24 chars, lowercase, numbers only)",
+                    "resource_group": "Resource group name (optional, uses default)",
+                    "location": "Azure region (optional, uses default)",
+                    "sku": "Storage redundancy SKU (default: 'Standard_LRS' - locally redundant, options: Standard_GRS, Premium_LRS, etc.)"
+                },
+                returns="Azure StorageAccount object with properties: name, location, sku, provisioning_state, primary_endpoints",
+                examples=[
+                    '(azure) create storage account "myappdata2025" with SKU "Standard_LRS"',
+                    '(azure) create storage account "prodstore123" in "westus" with "Standard_GRS"',
+                ]
+            ),
+            MethodInfo(
+                name="storage_account_get_keys",
+                description="Retrieve access keys for a storage account (needed for blob operations)",
+                parameters={
+                    "account_name": "Storage account name (string)",
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="List of access key strings (typically 2 keys for rotation)",
+                examples=[
+                    '(azure) get storage account keys for "myappdata2025"',
+                    '(azure) retrieve keys for storage account "prodstore123"',
+                ]
+            ),
+            MethodInfo(
+                name="blob_upload_file",
+                description="Upload a local file to Azure Blob Storage container",
+                parameters={
+                    "account_name": "Storage account name (string)",
+                    "container_name": "Blob container name (string)",
+                    "blob_name": "Name for the blob in Azure (string)",
+                    "file_path": "Local file path to upload (string)",
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="Boolean True when file successfully uploaded, overwrites existing blobs",
+                examples=[
+                    '(azure) upload file "data.csv" to blob "uploads/data.csv" in container "backups" account "mystore"',
+                    '(azure) upload file "report.pdf" to storage account "docs" container "reports" as "2025-report.pdf"',
+                ]
+            ),
+            MethodInfo(
+                name="blob_download_file",
+                description="Download a blob from Azure Blob Storage to local file",
+                parameters={
+                    "account_name": "Storage account name (string)",
+                    "container_name": "Blob container name (string)",
+                    "blob_name": "Name of blob to download (string)",
+                    "file_path": "Local destination path (string)",
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="Boolean True when file successfully downloaded",
+                examples=[
+                    '(azure) download blob "backups/data.csv" from container "storage" account "mystore" to "local_data.csv"',
+                    '(azure) download file from blob storage account "docs" container "reports" blob "report.pdf" to "downloaded_report.pdf"',
+                ]
+            ),
+            MethodInfo(
+                name="blob_list",
+                description="List all blobs in a storage container",
+                parameters={
+                    "account_name": "Storage account name (string)",
+                    "container_name": "Container name (string)",
+                    "resource_group": "Resource group name (optional, uses default)"
+                },
+                returns="List of blob names (strings) in the container",
+                examples=[
+                    '(azure) list blobs in container "backups" account "mystore"',
+                    '(azure) show all blobs in storage account "docs" container "reports"',
+                ]
+            ),
+            MethodInfo(
+                name="sql_server_create",
+                description="Create an Azure SQL Server instance (logical server for databases)",
+                parameters={
+                    "server_name": "Globally unique server name (string)",
+                    "admin_login": "Administrator username (string)",
+                    "admin_password": "Administrator password (string, must meet complexity requirements)",
+                    "resource_group": "Resource group name (optional, uses default)",
+                    "location": "Azure region (optional, uses default)"
+                },
+                returns="Azure Server object with properties: name, location, version, administrator_login, state",
+                examples=[
+                    '(azure) create SQL server "myapp-sqlserver" with admin "sqladmin" password "P@ssw0rd123!"',
+                    '(azure) create SQL server "prod-db-server" in "eastus" with credentials',
+                ]
+            ),
+            MethodInfo(
+                name="sql_database_create",
+                description="Create a SQL database on an existing SQL Server",
+                parameters={
+                    "server_name": "SQL Server name (string)",
+                    "database_name": "Database name (string)",
+                    "resource_group": "Resource group name (optional, uses default)",
+                    "location": "Azure region (optional, uses default)",
+                    "sku": "Database SKU dict with name/tier (optional: defaults to Basic tier)"
+                },
+                returns="Azure Database object with properties: name, location, sku, collation, status",
+                examples=[
+                    '(azure) create SQL database "appdb" on server "myapp-sqlserver"',
+                    '(azure) create database "prod-db" on SQL server "prod-db-server" with Basic SKU',
+                ]
+            ),
+            MethodInfo(
+                name="vnet_create",
+                description="Create an Azure Virtual Network for network isolation",
+                parameters={
+                    "vnet_name": "Virtual network name (string)",
+                    "address_prefix": "CIDR address space (default: '10.0.0.0/16')",
+                    "resource_group": "Resource group name (optional, uses default)",
+                    "location": "Azure region (optional, uses default)"
+                },
+                returns="Azure VirtualNetwork object with properties: name, location, address_space, subnets, provisioning_state",
+                examples=[
+                    '(azure) create virtual network "app-vnet" with address space "10.0.0.0/16"',
+                    '(azure) create VNet "prod-network" in resource group "networking-rg" with CIDR "172.16.0.0/12"',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Resource Group operations
+            '10 (azure) create resource group "dev-environment" in location "eastus"',
+            '20 (azure) create resource group "prod-rg" in "westeurope" with tags',
+            '30 (azure) list all resource groups',
+
+            # VM operations
+            '40 (azure) create VM "web-server" in resource group "dev-environment" with size "Standard_B2s"',
+            '50 (azure) start VM "web-server"',
+            '60 (azure) list VMs in resource group "dev-environment"',
+            '70 (azure) stop VM "web-server"',
+            '80 (azure) delete VM "old-server"',
+
+            # Storage Account operations
+            '90 (azure) create storage account "myappstore2025" with SKU "Standard_LRS"',
+            '100 (azure) get storage account keys for "myappstore2025"',
+            '110 (azure) list storage accounts in resource group "dev-environment"',
+
+            # Blob Storage operations
+            '120 (azure) upload file "backup.tar.gz" to blob "backups/daily-backup.tar.gz" in container "data" account "myappstore2025"',
+            '130 (azure) list blobs in container "data" account "myappstore2025"',
+            '140 (azure) download blob "backups/daily-backup.tar.gz" from container "data" account "myappstore2025" to "restored-backup.tar.gz"',
+
+            # SQL operations
+            '150 (azure) create SQL server "appdb-server" with admin "dbadmin" password "SecureP@ss123"',
+            '160 (azure) create SQL database "production-db" on server "appdb-server"',
+            '170 (azure) list SQL databases on server "appdb-server"',
+
+            # Virtual Network operations
+            '180 (azure) create virtual network "app-vnet" with address space "10.0.0.0/16"',
+            '190 (azure) list virtual networks in resource group "dev-environment"',
+
+            # Multi-operation workflow
+            '200 (azure) create resource group "full-stack-app" in "eastus"',
+            '210 (azure) create storage account "fullstackdata" in resource group "full-stack-app"',
+            '220 (azure) create virtual network "app-network" in resource group "full-stack-app"',
+            '230 (azure) create VM "app-server" in resource group "full-stack-app" with size "Standard_D2s_v3"',
+            '240 (azure) get subscription info',
+        ]
 
 
 # Global instance

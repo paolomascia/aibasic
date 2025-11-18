@@ -142,8 +142,10 @@ class APIKeyAuth(AuthBase):
         r.headers[self.header_name] = self.api_key
         return r
 
+from .module_base import AIbasicModuleBase
 
-class RestAPIModule:
+
+class RestAPIModule(AIbasicModuleBase):
     """
     REST API module with singleton pattern.
     Provides HTTP client for REST API operations with multiple authentication methods.
@@ -641,3 +643,129 @@ class RestAPIModule:
         """Close the session."""
         self.session.close()
         print("[RestAPIModule] Session closed")
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="RestAPI",
+            task_type="restapi",
+            description="HTTP REST API client with GET/POST/PUT/DELETE, authentication (Bearer, API Key, Basic), and JSON support",
+            version="1.0.0",
+            keywords=[
+                "rest", "api", "http", "requests", "json", "bearer-token",
+                "api-key", "basic-auth", "oauth", "webhook"
+            ],
+            dependencies=["requests>=2.28.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one HTTP session per application",
+            "Session persists connections for better performance",
+            "Default timeout is 30 seconds for all requests",
+            "AUTH_TYPE options: none, bearer, api_key, basic, custom",
+            "Bearer token sent in 'Authorization: Bearer <token>' header",
+            "API key sent in custom header (default 'X-API-Key')",
+            "Basic auth encodes username:password in Base64",
+            "verify_ssl=False disables certificate verification (dev only)",
+            "Retries with exponential backoff for failed requests (default 3)",
+            "JSON auto-serialization for dicts in POST/PUT/PATCH",
+            "Response parsing: response['data'] for JSON, response['text'] for HTML",
+            "Headers can be set globally or per-request",
+            "User-Agent customizable via USER_AGENT config",
+            "Pagination support with get_paginated() for large datasets",
+            "upload_file() uses multipart/form-data encoding",
+            "download_file() streams large files to disk",
+            "All HTTP methods return dict with status_code, data/text, headers",
+            "ClientError raised for 4xx/5xx with error details",
+            "Session cookies maintained automatically across requests",
+            "set_bearer_token(), set_api_key(), set_basic_auth() update auth dynamically"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="get",
+                description="Send HTTP GET request",
+                parameters={
+                    "endpoint": "str (required) - API endpoint path",
+                    "params": "dict (optional) - Query parameters",
+                    "headers": "dict (optional) - Additional headers"
+                },
+                returns="dict - Response with status_code, data/text, headers",
+                examples=['response = get("/users")', 'response = get("/search", params={"q": "python"})']
+            ),
+            MethodInfo(
+                name="post",
+                description="Send HTTP POST request",
+                parameters={
+                    "endpoint": "str (required) - API endpoint path",
+                    "data": "dict (optional) - Request body (auto-serialized to JSON)",
+                    "headers": "dict (optional) - Additional headers"
+                },
+                returns="dict - Response with status_code, data/text, headers",
+                examples=['response = post("/users", data={"name": "John", "email": "john@example.com"})']
+            ),
+            MethodInfo(
+                name="put",
+                description="Send HTTP PUT request",
+                parameters={
+                    "endpoint": "str (required) - API endpoint path",
+                    "data": "dict (optional) - Request body",
+                    "headers": "dict (optional) - Additional headers"
+                },
+                returns="dict - Response",
+                examples=['response = put("/users/123", data={"name": "Jane"})']
+            ),
+            MethodInfo(
+                name="delete",
+                description="Send HTTP DELETE request",
+                parameters={
+                    "endpoint": "str (required) - API endpoint path",
+                    "headers": "dict (optional) - Additional headers"
+                },
+                returns="dict - Response",
+                examples=['response = delete("/users/123")']
+            ),
+            MethodInfo(
+                name="upload_file",
+                description="Upload file using multipart/form-data",
+                parameters={
+                    "endpoint": "str (required) - Upload endpoint",
+                    "file_path": "str (required) - Local file path",
+                    "field_name": "str (optional) - Form field name (default 'file')"
+                },
+                returns="dict - Response",
+                examples=['response = upload_file("/upload", "document.pdf")']
+            ),
+            MethodInfo(
+                name="download_file",
+                description="Download file from URL",
+                parameters={
+                    "endpoint": "str (required) - Download endpoint",
+                    "local_path": "str (required) - Local destination path"
+                },
+                returns="None",
+                examples=['download_file("/files/report.pdf", "local_report.pdf")']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (restapi) response = get("/api/users")',
+            '20 (restapi) print response["data"]',
+            '30 (restapi) response = post("/api/users", data={"name": "John", "email": "john@example.com"})',
+            '40 (restapi) response = put("/api/users/123", data={"status": "active"})',
+            '50 (restapi) response = delete("/api/users/123")',
+            '60 (restapi) upload_file("/api/upload", "document.pdf")',
+            '70 (restapi) download_file("/api/files/report.pdf", "report.pdf")'
+        ]

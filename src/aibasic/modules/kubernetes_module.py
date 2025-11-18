@@ -38,6 +38,7 @@ import os
 import threading
 from typing import Optional, Dict, List, Any, Union
 import configparser
+from .module_base import AIbasicModuleBase
 
 try:
     from kubernetes import client, config
@@ -48,7 +49,7 @@ except ImportError:
     KUBERNETES_AVAILABLE = False
 
 
-class KubernetesModule:
+class KubernetesModule(AIbasicModuleBase):
     """
     Kubernetes module for cluster and resource management.
 
@@ -697,6 +698,453 @@ class KubernetesModule:
             }
         except Exception as e:
             raise RuntimeError(f"Failed to get cluster info: {e}")
+
+    # =============================================================================
+    # Module Metadata
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Kubernetes",
+            task_type="kubernetes",
+            description="Kubernetes container orchestration with pod management, deployments, services, ConfigMaps, Secrets, namespaces, and cluster operations",
+            version="1.0.0",
+            keywords=["kubernetes", "k8s", "container", "orchestration", "pod", "deployment", "service", "configmap", "secret", "namespace", "cluster", "docker"],
+            dependencies=["kubernetes>=28.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get usage notes and best practices."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "Requires kubeconfig file at ~/.kube/config or KUBECONFIG env variable",
+            "Can use in-cluster config when running inside Kubernetes pod",
+            "Supports token-based authentication with K8S_API_SERVER and K8S_TOKEN",
+            "Default namespace is 'default', configure with K8S_NAMESPACE",
+            "SSL verification enabled by default, set K8S_VERIFY_SSL=false for dev",
+            "API clients lazy-loaded on first use for efficient resource usage",
+            "Pod labels used for selectors and service routing",
+            "Deployment manages ReplicaSets and rolling updates automatically",
+            "Replicas determine number of pod copies for high availability",
+            "Services expose pods with ClusterIP (internal), NodePort, or LoadBalancer types",
+            "ConfigMaps store non-sensitive configuration as key-value pairs",
+            "Secrets store sensitive data base64-encoded (use for passwords, tokens)",
+            "Namespaces provide logical isolation and resource quotas",
+            "Label selectors filter resources (e.g., 'app=myapp,env=prod')",
+            "pod_exec() requires pod to be running and container accessible",
+            "pod_logs() supports tail_lines and follow for real-time streaming",
+            "deployment_scale() updates replica count for horizontal scaling",
+            "deployment_rollout_restart() triggers rolling restart without downtime",
+            "Use node_list() to check cluster capacity and node health",
+            "Events provide audit trail and debugging information",
+            "get_cluster_info() returns version, node count, namespace count"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about available methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="pod_create",
+                description="Create a pod with container image and configuration",
+                parameters={
+                    "name": "str (required) - Pod name",
+                    "image": "str (required) - Container image (e.g., 'nginx:latest')",
+                    "namespace": "str (optional) - Namespace (default from config)",
+                    "labels": "dict (optional) - Labels as key-value pairs",
+                    "env": "dict (optional) - Environment variables",
+                    "ports": "list[int] (optional) - Container ports to expose",
+                    "command": "list[str] (optional) - Override container entrypoint",
+                    "args": "list[str] (optional) - Container arguments"
+                },
+                returns="V1Pod - Created pod object",
+                examples=[
+                    'k8s pod_create "nginx-pod" "nginx:latest" ports [80]',
+                    'k8s pod_create "app" "myapp:1.0" env {"DB_HOST": "postgres"} labels {"app": "myapp"}'
+                ]
+            ),
+            MethodInfo(
+                name="pod_list",
+                description="List pods in namespace with optional label filtering",
+                parameters={
+                    "namespace": "str (optional) - Namespace",
+                    "label_selector": "str (optional) - Label selector (e.g., 'app=myapp')"
+                },
+                returns="list[V1Pod] - List of pods",
+                examples=['k8s pod_list', 'k8s pod_list label_selector "app=nginx"']
+            ),
+            MethodInfo(
+                name="pod_delete",
+                description="Delete a pod",
+                parameters={
+                    "name": "str (required) - Pod name",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="bool - True if deleted successfully",
+                examples=['k8s pod_delete "nginx-pod"']
+            ),
+            MethodInfo(
+                name="pod_logs",
+                description="Get pod logs (stdout/stderr)",
+                parameters={
+                    "name": "str (required) - Pod name",
+                    "namespace": "str (optional) - Namespace",
+                    "tail_lines": "int (optional) - Number of lines from end",
+                    "follow": "bool (optional) - Stream logs in real-time (default False)"
+                },
+                returns="str - Log output",
+                examples=['k8s pod_logs "nginx-pod" tail_lines 100', 'k8s pod_logs "app" follow true']
+            ),
+            MethodInfo(
+                name="pod_exec",
+                description="Execute command inside running pod container",
+                parameters={
+                    "name": "str (required) - Pod name",
+                    "command": "list[str] (required) - Command and arguments",
+                    "namespace": "str (optional) - Namespace",
+                    "container": "str (optional) - Container name (if pod has multiple)"
+                },
+                returns="str - Command output",
+                examples=['k8s pod_exec "nginx-pod" ["ls", "-la", "/usr/share/nginx"]', 'k8s pod_exec "app" ["env"]']
+            ),
+            MethodInfo(
+                name="pod_get",
+                description="Get detailed pod information",
+                parameters={
+                    "name": "str (required) - Pod name",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="V1Pod - Pod details",
+                examples=['k8s pod_get "nginx-pod"']
+            ),
+            MethodInfo(
+                name="deployment_create",
+                description="Create a deployment for managing pod replicas",
+                parameters={
+                    "name": "str (required) - Deployment name",
+                    "image": "str (required) - Container image",
+                    "replicas": "int (optional) - Number of pod replicas (default 1)",
+                    "namespace": "str (optional) - Namespace",
+                    "labels": "dict (optional) - Labels",
+                    "env": "dict (optional) - Environment variables",
+                    "ports": "list[int] (optional) - Container ports"
+                },
+                returns="V1Deployment - Created deployment",
+                examples=[
+                    'k8s deployment_create "nginx" "nginx:latest" replicas 3',
+                    'k8s deployment_create "webapp" "myapp:1.0" replicas 2 ports [8080] env {"ENV": "prod"}'
+                ]
+            ),
+            MethodInfo(
+                name="deployment_list",
+                description="List deployments",
+                parameters={
+                    "namespace": "str (optional) - Namespace",
+                    "label_selector": "str (optional) - Label selector"
+                },
+                returns="list[V1Deployment] - List of deployments",
+                examples=['k8s deployment_list', 'k8s deployment_list label_selector "app=nginx"']
+            ),
+            MethodInfo(
+                name="deployment_scale",
+                description="Scale deployment by changing replica count",
+                parameters={
+                    "name": "str (required) - Deployment name",
+                    "replicas": "int (required) - Target replica count",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="V1Deployment - Updated deployment",
+                examples=['k8s deployment_scale "nginx" 5', 'k8s deployment_scale "webapp" 10']
+            ),
+            MethodInfo(
+                name="deployment_delete",
+                description="Delete a deployment",
+                parameters={
+                    "name": "str (required) - Deployment name",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="bool - True if deleted",
+                examples=['k8s deployment_delete "old-app"']
+            ),
+            MethodInfo(
+                name="deployment_rollout_restart",
+                description="Rolling restart of deployment (recreates pods without downtime)",
+                parameters={
+                    "name": "str (required) - Deployment name",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="V1Deployment - Updated deployment",
+                examples=['k8s deployment_rollout_restart "webapp"']
+            ),
+            MethodInfo(
+                name="service_create",
+                description="Create a service to expose pods",
+                parameters={
+                    "name": "str (required) - Service name",
+                    "port": "int (required) - Service port",
+                    "target_port": "int (required) - Pod target port",
+                    "namespace": "str (optional) - Namespace",
+                    "service_type": "str (optional) - ClusterIP, NodePort, or LoadBalancer (default ClusterIP)",
+                    "selector": "dict (optional) - Pod selector labels"
+                },
+                returns="V1Service - Created service",
+                examples=[
+                    'k8s service_create "nginx-svc" 80 80 service_type "ClusterIP"',
+                    'k8s service_create "webapp" 8080 8080 service_type "LoadBalancer" selector {"app": "webapp"}'
+                ]
+            ),
+            MethodInfo(
+                name="service_list",
+                description="List services",
+                parameters={"namespace": "str (optional) - Namespace"},
+                returns="list[V1Service] - List of services",
+                examples=['k8s service_list']
+            ),
+            MethodInfo(
+                name="service_delete",
+                description="Delete a service",
+                parameters={
+                    "name": "str (required) - Service name",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="bool - True if deleted",
+                examples=['k8s service_delete "old-service"']
+            ),
+            MethodInfo(
+                name="configmap_create",
+                description="Create a ConfigMap for storing configuration data",
+                parameters={
+                    "name": "str (required) - ConfigMap name",
+                    "data": "dict (required) - Configuration key-value pairs",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="V1ConfigMap - Created ConfigMap",
+                examples=['k8s configmap_create "app-config" {"database_url": "postgres://...", "api_key": "xyz"}']
+            ),
+            MethodInfo(
+                name="configmap_list",
+                description="List ConfigMaps",
+                parameters={"namespace": "str (optional) - Namespace"},
+                returns="list[V1ConfigMap] - List of ConfigMaps",
+                examples=['k8s configmap_list']
+            ),
+            MethodInfo(
+                name="configmap_delete",
+                description="Delete a ConfigMap",
+                parameters={
+                    "name": "str (required) - ConfigMap name",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="bool - True if deleted",
+                examples=['k8s configmap_delete "old-config"']
+            ),
+            MethodInfo(
+                name="secret_create",
+                description="Create a Secret for storing sensitive data (base64-encoded)",
+                parameters={
+                    "name": "str (required) - Secret name",
+                    "data": "dict (required) - Secret key-value pairs",
+                    "namespace": "str (optional) - Namespace",
+                    "secret_type": "str (optional) - Secret type (default Opaque)"
+                },
+                returns="V1Secret - Created secret",
+                examples=['k8s secret_create "db-credentials" {"username": "admin", "password": "secret123"}']
+            ),
+            MethodInfo(
+                name="secret_list",
+                description="List Secrets",
+                parameters={"namespace": "str (optional) - Namespace"},
+                returns="list[V1Secret] - List of secrets",
+                examples=['k8s secret_list']
+            ),
+            MethodInfo(
+                name="secret_delete",
+                description="Delete a Secret",
+                parameters={
+                    "name": "str (required) - Secret name",
+                    "namespace": "str (optional) - Namespace"
+                },
+                returns="bool - True if deleted",
+                examples=['k8s secret_delete "old-secret"']
+            ),
+            MethodInfo(
+                name="namespace_create",
+                description="Create a namespace for resource isolation",
+                parameters={"name": "str (required) - Namespace name"},
+                returns="V1Namespace - Created namespace",
+                examples=['k8s namespace_create "production"', 'k8s namespace_create "dev"']
+            ),
+            MethodInfo(
+                name="namespace_list",
+                description="List all namespaces",
+                parameters={},
+                returns="list[V1Namespace] - List of namespaces",
+                examples=['k8s namespace_list']
+            ),
+            MethodInfo(
+                name="namespace_delete",
+                description="Delete a namespace (deletes all resources inside)",
+                parameters={"name": "str (required) - Namespace name"},
+                returns="bool - True if deleted",
+                examples=['k8s namespace_delete "old-env"']
+            ),
+            MethodInfo(
+                name="node_list",
+                description="List cluster nodes",
+                parameters={},
+                returns="list[V1Node] - List of nodes",
+                examples=['k8s node_list']
+            ),
+            MethodInfo(
+                name="node_get",
+                description="Get node details",
+                parameters={"name": "str (required) - Node name"},
+                returns="V1Node - Node details",
+                examples=['k8s node_get "worker-node-1"']
+            ),
+            MethodInfo(
+                name="events_list",
+                description="List cluster events for debugging and auditing",
+                parameters={"namespace": "str (optional) - Namespace"},
+                returns="list[V1Event] - List of events",
+                examples=['k8s events_list', 'k8s events_list namespace "production"']
+            ),
+            MethodInfo(
+                name="get_cluster_info",
+                description="Get cluster summary information",
+                parameters={},
+                returns="dict - Cluster info with version, node count, namespace count",
+                examples=['k8s get_cluster_info']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '''// Create and manage pods
+k8s = new kubernetes
+k8s pod_create "nginx" "nginx:latest" ports [80] labels {"app": "nginx"}
+pods = k8s pod_list
+foreach pod in pods {
+    print pod.metadata.name + " - " + pod.status.phase
+}
+logs = k8s pod_logs "nginx" tail_lines 50
+print logs''',
+
+            '''// Create deployment with replicas
+k8s = new kubernetes
+k8s deployment_create "webapp" "myapp:1.0" replicas 3 ports [8080] env {"ENV": "production", "DB_HOST": "postgres"}
+k8s service_create "webapp-svc" 80 8080 service_type "LoadBalancer" selector {"app": "webapp"}''',
+
+            '''// Scale deployment
+k8s = new kubernetes
+k8s deployment_scale "webapp" 5
+deployments = k8s deployment_list
+foreach deploy in deployments {
+    print deploy.metadata.name + " - Replicas: " + deploy.spec.replicas
+}''',
+
+            '''// Execute commands in pod
+k8s = new kubernetes
+output = k8s pod_exec "nginx" ["nginx", "-v"]
+print output
+files = k8s pod_exec "nginx" ["ls", "-la", "/etc/nginx"]
+print files''',
+
+            '''// ConfigMap and Secret management
+k8s = new kubernetes
+config_data = {"database_url": "postgres://db:5432", "redis_url": "redis://cache:6379"}
+k8s configmap_create "app-config" config_data
+
+secret_data = {"db_password": "supersecret", "api_key": "abc123xyz"}
+k8s secret_create "app-secrets" secret_data''',
+
+            '''// Namespace management
+k8s = new kubernetes
+k8s namespace_create "production"
+k8s namespace_create "staging"
+k8s namespace_create "development"
+
+namespaces = k8s namespace_list
+foreach ns in namespaces {
+    print ns.metadata.name
+}''',
+
+            '''// Monitor pods and logs
+k8s = new kubernetes
+pods = k8s pod_list namespace "production" label_selector "app=webapp"
+foreach pod in pods {
+    print "Pod: " + pod.metadata.name
+    print "Status: " + pod.status.phase
+    if pod.status.phase == "Running" {
+        logs = k8s pod_logs pod.metadata.name tail_lines 20
+        print logs
+    }
+}''',
+
+            '''// Rolling restart deployment
+k8s = new kubernetes
+k8s deployment_rollout_restart "webapp"
+print "Deployment restarted without downtime"''',
+
+            '''// Cluster information and nodes
+k8s = new kubernetes
+info = k8s get_cluster_info
+print "Kubernetes version: " + info["version"]
+print "Nodes: " + info["nodes"]
+print "Namespaces: " + info["namespaces"]
+
+nodes = k8s node_list
+foreach node in nodes {
+    print node.metadata.name + " - " + node.status.conditions[0].type
+}''',
+
+            '''// Event monitoring
+k8s = new kubernetes
+events = k8s events_list namespace "production"
+foreach event in events {
+    print event.last_timestamp + " - " + event.type + ": " + event.message
+}''',
+
+            '''// Complete application deployment
+k8s = new kubernetes
+
+// Create namespace
+k8s namespace_create "myapp"
+
+// Create ConfigMap
+config = {"APP_ENV": "production", "LOG_LEVEL": "info"}
+k8s configmap_create "app-config" config namespace "myapp"
+
+// Create Secret
+secrets = {"db_password": "secret123", "jwt_secret": "supersecret"}
+k8s secret_create "app-secrets" secrets namespace "myapp"
+
+// Create deployment
+env_vars = {"CONFIG_MAP": "app-config", "SECRETS": "app-secrets"}
+k8s deployment_create "myapp" "myapp:latest" replicas 3 namespace "myapp" ports [8080] env env_vars labels {"app": "myapp"}
+
+// Create service
+k8s service_create "myapp-svc" 80 8080 namespace "myapp" service_type "LoadBalancer" selector {"app": "myapp"}
+
+// Check status
+pods = k8s pod_list namespace "myapp"
+print "Deployed " + pods.length + " pods"''',
+
+            '''// Cleanup resources
+k8s = new kubernetes
+k8s deployment_delete "old-app"
+k8s service_delete "old-service"
+k8s configmap_delete "old-config"
+k8s secret_delete "old-secret"
+k8s pod_delete "temp-pod"'''
+        ]
 
 
 # Global instance

@@ -1198,3 +1198,164 @@ EDGE_DRIVER_PATH =
 #   * Be cautious with JavaScript execution from untrusted sources
 #   * Respect robots.txt and website terms of service when scraping
 # - Default ports: Chrome DevTools Protocol: 9222, Firefox Marionette: 2828
+
+# Discord (Discord Integration and Notifications)
+[discord]
+# Discord webhook URL for sending messages
+# Get this from: Server Settings → Integrations → Webhooks → Create Webhook
+WEBHOOK_URL = https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
+
+# Optional: Discord bot token for advanced features
+# Get this from: https://discord.com/developers/applications
+BOT_TOKEN =
+
+# Default username and avatar for webhook messages
+DEFAULT_USERNAME = AIbasic Bot
+DEFAULT_AVATAR_URL =
+
+# Rate limiting and retry settings
+RATE_LIMIT_RETRY = true
+MAX_RETRIES = 3
+
+# Notes:
+# - Discord is a popular communication platform for teams and communities
+# - Best for: Notifications, alerts, monitoring, team collaboration, bot integration
+# - Webhook vs Bot:
+#   * Webhooks: Simple, no authentication, one-way messaging (server → Discord)
+#   * Bot: Full API access, two-way communication, requires token and permissions
+# - Message limits:
+#   * Content: 2000 characters max
+#   * Embed title: 256 characters max
+#   * Embed description: 4096 characters max
+#   * Embed fields: 25 max, field name 256 chars, field value 1024 chars
+#   * Total embed size: 6000 characters max
+# - Rich embeds support:
+#   * Title, description, color, URL, timestamp
+#   * Author (name, URL, icon)
+#   * Footer (text, icon)
+#   * Thumbnail and full-size images
+#   * Fields (name, value, inline)
+# - Formatting:
+#   * **bold**, *italic*, __underline__, ~~strikethrough~~
+#   * `inline code`, ```code block```
+#   * > quote, >>> multiline quote
+#   * Mentions: <@user_id>, <@&role_id>, @everyone, @here
+#   * Emojis: Standard Unicode or custom :emoji_name:
+# - Colors:
+#   * Specified as integer (e.g., 0xFF0000 for red)
+#   * Common: 0x2ECC71 (green), 0xE74C3C (red), 0x3498DB (blue), 0xF39C12 (orange)
+# - Rate limits:
+#   * Webhooks: 30 requests per minute per webhook
+#   * Global: 50 requests per second
+#   * 429 Too Many Requests response includes Retry-After header
+# - File uploads:
+#   * Max file size: 8 MB (free) / 50 MB (Nitro)
+#   * Supported formats: Images, videos, documents, archives
+# - Best practices:
+#   * Use embeds for structured, formatted messages
+#   * Use simple messages for quick notifications
+#   * Include timestamps for time-sensitive alerts
+#   * Use color coding for message severity (green=success, red=error, orange=warning)
+#   * Set appropriate username and avatar for message context
+#   * Handle rate limits with retry logic
+#   * Validate webhook URLs before use
+#   * Don't expose webhook URLs publicly (they provide write access to channels)
+# - Common use cases:
+#   * Server monitoring and health checks
+#   * Application error notifications
+#   * Deployment status updates
+#   * CI/CD pipeline notifications
+#   * User activity tracking
+#   * API usage alerts
+#   * Security incident notifications
+#   * Automated log aggregation
+#   * Backup job status reports
+# - Webhook URL format: https://discord.com/api/webhooks/{webhook.id}/{webhook.token}
+# - API version: v10 (current)
+# - Documentation: https://discord.com/developers/docs
+
+# Telegram (Telegram Bot Integration and Notifications)
+[telegram]
+# Telegram bot token (get from @BotFather)
+# Steps to create a bot:
+#   1. Message @BotFather on Telegram
+#   2. Send /newbot
+#   3. Follow instructions to create bot
+#   4. Copy the bot token
+BOT_TOKEN = 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+
+# Default chat ID to send messages to
+# To get your chat ID:
+#   1. Send a message to your bot
+#   2. Visit: https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates
+#   3. Look for "chat":{"id":... in the JSON response
+CHAT_ID =
+
+# Default parse mode for messages (Markdown, MarkdownV2, HTML)
+PARSE_MODE = Markdown
+
+# Send messages silently (no notification sound)
+DISABLE_NOTIFICATION = false
+
+# Disable link previews in messages
+DISABLE_WEB_PAGE_PREVIEW = false
+
+# Notes:
+# - Telegram is a cloud-based instant messaging platform
+# - Best for: Notifications, alerts, monitoring, bot automation, team communication
+# - Bot capabilities:
+#   * Send text messages with formatting (Markdown, HTML)
+#   * Send media (photos, videos, documents, audio)
+#   * Send locations and contacts
+#   * Edit and delete messages
+#   * Pin/unpin messages
+#   * Interactive keyboards (inline and reply keyboards)
+#   * Receive updates (polling or webhooks)
+# - Message limits:
+#   * Text messages: 4096 characters max
+#   * Captions: 1024 characters max
+#   * File size: 50 MB max (documents), 10 MB (photos)
+# - Formatting:
+#   * Markdown: *bold*, _italic_, `code`, ```code block```
+#   * MarkdownV2: *bold*, _italic_, __underline__, ~strikethrough~
+#   * HTML: <b>bold</b>, <i>italic</i>, <code>code</code>
+#   * Links: [text](url) in Markdown, <a href="url">text</a> in HTML
+#   * Mentions: @username
+# - Chat types:
+#   * Private: One-on-one chat with bot
+#   * Group: Bot in a group chat
+#   * Channel: Bot posting to a channel
+# - Chat actions:
+#   * typing: Show typing indicator
+#   * upload_photo: Show uploading photo
+#   * upload_video: Show uploading video
+#   * upload_document: Show uploading document
+#   * find_location: Show finding location
+# - Best practices:
+#   * Use Markdown for simple formatting
+#   * Use HTML for complex formatting
+#   * Keep messages concise (under 4096 chars)
+#   * Use silent notifications for non-urgent messages
+#   * Pin important messages in groups/channels
+#   * Use chat actions for better UX (typing, uploading)
+#   * Store bot token securely (never commit to git)
+#   * Use environment variables for sensitive data
+# - Common use cases:
+#   * Server monitoring and alerts
+#   * Application error notifications
+#   * Deployment status updates
+#   * CI/CD pipeline notifications
+#   * User activity tracking
+#   * Automated customer support
+#   * News and updates broadcasting
+#   * Backup job status reports
+#   * Security incident alerts
+# - API rate limits:
+#   * Messages: 30 messages per second per chat
+#   * Bulk messages: 20 messages per minute to different chats
+#   * Group messages: 20 messages per minute
+# - Getting chat ID for groups/channels:
+#   * Groups: Add bot to group, send /start, check getUpdates
+#   * Channels: Add bot as admin, forward message from channel, check getUpdates
+# - API version: Bot API 7.0+
+# - Documentation: https://core.telegram.org/bots/api

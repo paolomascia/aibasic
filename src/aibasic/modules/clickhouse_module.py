@@ -29,7 +29,10 @@ import pandas as pd
 from io import StringIO
 
 
-class ClickHouseModule:
+from .module_base import AIbasicModuleBase
+
+
+class ClickHouseModule(AIbasicModuleBase):
     """
     ClickHouse module for AIbasic programs.
 
@@ -647,6 +650,302 @@ class ClickHouseModule:
         """
         if hasattr(self, 'session'):
             self.session.close()
+
+    # =============================================================================
+    # Metadata Methods for AIbasic Compiler
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="ClickHouse",
+            task_type="clickhouse",
+            description="ClickHouse OLAP database for high-performance analytical queries and data warehousing",
+            version="1.0.0",
+            keywords=["clickhouse", "olap", "analytics", "columnar", "database", "datawarehouse", "timeseries", "bigdata"],
+            dependencies=["requests>=2.25.0", "pandas>=1.3.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "ClickHouse is optimized for OLAP workloads (analytical queries, aggregations, time-series)",
+            "Column-oriented storage provides excellent compression and query performance",
+            "HTTP interface (port 8123) used for all operations via requests library",
+            "Supports multiple output formats: JSONEachRow, JSON, CSV, TabSeparated, etc.",
+            "Batch inserts recommended for large datasets (use batch_insert with 10000+ rows)",
+            "MergeTree engine family is most common (requires ORDER BY clause)",
+            "Partitioning by date/month improves query performance for time-series data",
+            "OPTIMIZE TABLE merges parts for better performance (automatic in background)",
+            "Materialized views provide pre-aggregated data for fast queries",
+            "Distributed tables enable queries across cluster nodes",
+            "Compression (LZ4, ZSTD) reduces network traffic and storage",
+            "Authentication via username/password, SSL/TLS supported",
+            "query() returns list of dicts, query_df() returns pandas DataFrame",
+            "Connection pooling via requests Session for better performance",
+            "Key methods: query, query_df, insert, batch_insert, execute, create_table, show_tables",
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="execute",
+                description="Execute any ClickHouse SQL query with custom output format and settings",
+                parameters={
+                    "query": "SQL query string (SELECT, INSERT, CREATE, DROP, etc.)",
+                    "params": "Dict of parameters for :param substitution (optional)",
+                    "database": "Database to use (optional, uses default)",
+                    "output_format": "Output format: JSONEachRow (default), JSON, CSV, TabSeparated, etc.",
+                    "settings": "Dict of ClickHouse settings (optional, e.g., {'max_threads': 4})"
+                },
+                returns="Dict with success, data, rows, format, or error information",
+                examples=[
+                    '(clickhouse) execute query "SELECT * FROM events WHERE user_id = :uid" with params {"uid": 123}',
+                    '(clickhouse) execute "CREATE TABLE logs (timestamp DateTime, message String) ENGINE = MergeTree() ORDER BY timestamp"',
+                    '(clickhouse) execute query "SELECT count() FROM users" with output format "CSV"',
+                ]
+            ),
+            MethodInfo(
+                name="query",
+                description="Execute SELECT query and return results as list of dictionaries",
+                parameters={
+                    "sql": "SELECT query string",
+                    "params": "Dict of parameters for :param substitution (optional)",
+                    "database": "Database to use (optional)"
+                },
+                returns="List of dictionaries, one per row",
+                examples=[
+                    '(clickhouse) query "SELECT * FROM users WHERE age > 18"',
+                    '(clickhouse) query "SELECT name, email FROM users WHERE status = :status" with params {"status": "active"}',
+                    '(clickhouse) query "SELECT toDate(timestamp) as date, count() as events FROM logs GROUP BY date"',
+                ]
+            ),
+            MethodInfo(
+                name="query_df",
+                description="Execute SELECT query and return results as pandas DataFrame",
+                parameters={
+                    "sql": "SELECT query string",
+                    "params": "Dict of parameters (optional)",
+                    "database": "Database to use (optional)"
+                },
+                returns="pandas DataFrame with query results",
+                examples=[
+                    '(clickhouse) query dataframe "SELECT * FROM sales WHERE year = 2025"',
+                    '(clickhouse) query df "SELECT product, sum(revenue) as total FROM sales GROUP BY product"',
+                ]
+            ),
+            MethodInfo(
+                name="insert",
+                description="Insert data into a table (single batch, use batch_insert for large datasets)",
+                parameters={
+                    "table": "Table name (string)",
+                    "data": "List of dicts or pandas DataFrame to insert",
+                    "database": "Database to use (optional)",
+                    "columns": "List of column names (optional, inferred from data)"
+                },
+                returns="Dict with success, rows_inserted, table, or error",
+                examples=[
+                    '(clickhouse) insert into "events" data [{"user_id": 1, "event": "login", "timestamp": "2025-01-01 10:00:00"}]',
+                    '(clickhouse) insert into "logs" data from dataframe df',
+                ]
+            ),
+            MethodInfo(
+                name="batch_insert",
+                description="Insert large datasets in batches for optimal performance",
+                parameters={
+                    "table": "Table name (string)",
+                    "data": "List of dicts or pandas DataFrame to insert",
+                    "database": "Database to use (optional)",
+                    "batch_size": "Rows per batch (default: 10000, tune based on row size)"
+                },
+                returns="Dict with success, total_rows, rows_inserted, and errors if any",
+                examples=[
+                    '(clickhouse) batch insert into "events" data from dataframe large_df with batch size 50000',
+                    '(clickhouse) batch insert into "logs" data list_of_100k_records',
+                ]
+            ),
+            MethodInfo(
+                name="create_table",
+                description="Create a ClickHouse table with specified schema and engine",
+                parameters={
+                    "table": "Table name (string)",
+                    "columns": "Dict of {column_name: column_type} (e.g., {'id': 'UInt64', 'name': 'String'})",
+                    "engine": "Table engine (default: MergeTree(), options: ReplacingMergeTree, SummingMergeTree, etc.)",
+                    "order_by": "List of columns for ORDER BY (required for MergeTree engines)",
+                    "partition_by": "Partition expression (optional, e.g., 'toYYYYMM(date)')",
+                    "database": "Database to use (optional)",
+                    "if_not_exists": "Add IF NOT EXISTS clause (default: True)"
+                },
+                returns="Dict with creation results",
+                examples=[
+                    '(clickhouse) create table "events" with columns {"user_id": "UInt64", "timestamp": "DateTime", "event": "String"} and order by ["user_id", "timestamp"]',
+                    '(clickhouse) create table "logs" with columns {"date": "Date", "level": "String", "message": "String"} engine "MergeTree()" order by ["date"] partition by "toYYYYMM(date)"',
+                ]
+            ),
+            MethodInfo(
+                name="drop_table",
+                description="Drop a table from the database",
+                parameters={
+                    "table": "Table name (string)",
+                    "database": "Database to use (optional)",
+                    "if_exists": "Add IF EXISTS clause (default: True)"
+                },
+                returns="Dict with drop results",
+                examples=[
+                    '(clickhouse) drop table "old_events"',
+                    '(clickhouse) drop table "temp_logs" if exists',
+                ]
+            ),
+            MethodInfo(
+                name="show_tables",
+                description="List all tables in a database",
+                parameters={
+                    "database": "Database to list tables from (optional, uses current)"
+                },
+                returns="List of table names (strings)",
+                examples=[
+                    '(clickhouse) show tables',
+                    '(clickhouse) list tables in database "analytics"',
+                ]
+            ),
+            MethodInfo(
+                name="show_databases",
+                description="List all databases on the ClickHouse server",
+                parameters={},
+                returns="List of database names (strings)",
+                examples=[
+                    '(clickhouse) show databases',
+                    '(clickhouse) list all databases',
+                ]
+            ),
+            MethodInfo(
+                name="describe_table",
+                description="Get table schema information (column names, types, defaults)",
+                parameters={
+                    "table": "Table name (string)",
+                    "database": "Database to use (optional)"
+                },
+                returns="List of dicts with column information (name, type, default_type, default_expression)",
+                examples=[
+                    '(clickhouse) describe table "events"',
+                    '(clickhouse) show schema for table "logs" in database "prod"',
+                ]
+            ),
+            MethodInfo(
+                name="optimize_table",
+                description="Optimize table by merging parts (improves query performance)",
+                parameters={
+                    "table": "Table name (string)",
+                    "database": "Database to use (optional)",
+                    "partition": "Specific partition to optimize (optional)",
+                    "final": "Perform final optimization - forces merge of all parts (default: False)"
+                },
+                returns="Dict with optimization results",
+                examples=[
+                    '(clickhouse) optimize table "events"',
+                    '(clickhouse) optimize table "logs" with final merge',
+                    '(clickhouse) optimize table "metrics" partition "202501"',
+                ]
+            ),
+            MethodInfo(
+                name="truncate_table",
+                description="Remove all data from a table (keeps table structure)",
+                parameters={
+                    "table": "Table name (string)",
+                    "database": "Database to use (optional)"
+                },
+                returns="Dict with truncate results",
+                examples=[
+                    '(clickhouse) truncate table "temp_events"',
+                    '(clickhouse) clear all data from table "test_logs"',
+                ]
+            ),
+            MethodInfo(
+                name="get_stats",
+                description="Get table statistics including row count, size, and partitions",
+                parameters={
+                    "table": "Table name (string)",
+                    "database": "Database to use (optional)"
+                },
+                returns="Dict with row_count, total_size, primary_key_size, total_rows, partitions",
+                examples=[
+                    '(clickhouse) get stats for table "events"',
+                    '(clickhouse) show table statistics for "logs"',
+                ]
+            ),
+            MethodInfo(
+                name="ping",
+                description="Check if ClickHouse server is accessible",
+                parameters={},
+                returns="Boolean True if server responds, False otherwise",
+                examples=[
+                    '(clickhouse) ping server',
+                    '(clickhouse) check if server is alive',
+                ]
+            ),
+            MethodInfo(
+                name="get_version",
+                description="Get ClickHouse server version",
+                parameters={},
+                returns="Version string (e.g., '23.8.2.7')",
+                examples=[
+                    '(clickhouse) get server version',
+                    '(clickhouse) show clickhouse version',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Connection and basic queries
+            '10 (clickhouse) ping server',
+            '20 (clickhouse) get server version',
+            '30 (clickhouse) show databases',
+            '40 (clickhouse) show tables',
+
+            # Create database and table
+            '50 (clickhouse) execute "CREATE DATABASE IF NOT EXISTS analytics"',
+            '60 (clickhouse) create table "events" with columns {"user_id": "UInt64", "timestamp": "DateTime", "event_type": "String", "data": "String"} and order by ["user_id", "timestamp"] partition by "toYYYYMM(timestamp)"',
+
+            # Insert data
+            '70 (clickhouse) insert into "events" data [{"user_id": 1, "timestamp": "2025-01-01 10:00:00", "event_type": "login", "data": "{}"}]',
+            '80 (clickhouse) batch insert into "events" data large_dataframe with batch size 50000',
+
+            # Query data
+            '90 (clickhouse) query "SELECT * FROM events WHERE user_id = 1 LIMIT 100"',
+            '100 (clickhouse) query "SELECT event_type, count() as count FROM events GROUP BY event_type ORDER BY count DESC"',
+            '110 (clickhouse) query df "SELECT toDate(timestamp) as date, count() as events FROM events GROUP BY date ORDER BY date"',
+
+            # Time-series analytics (ClickHouse strength)
+            '120 (clickhouse) query "SELECT toStartOfHour(timestamp) as hour, count() as events FROM events WHERE timestamp >= today() - INTERVAL 7 DAY GROUP BY hour"',
+            '130 (clickhouse) query "SELECT user_id, countDistinct(event_type) as unique_events FROM events GROUP BY user_id HAVING unique_events > 5"',
+
+            # Advanced queries with parameters
+            '140 (clickhouse) query "SELECT * FROM events WHERE user_id = :uid AND timestamp >= :start" with params {"uid": 123, "start": "2025-01-01"}',
+            '150 (clickhouse) execute query "SELECT quantile(0.95)(response_time) as p95 FROM metrics WHERE service = :svc" with params {"svc": "api"}',
+
+            # Table maintenance
+            '160 (clickhouse) describe table "events"',
+            '170 (clickhouse) get stats for table "events"',
+            '180 (clickhouse) optimize table "events"',
+            '190 (clickhouse) truncate table "temp_events"',
+            '200 (clickhouse) drop table "old_events" if exists',
+
+            # Aggregation example
+            '210 (clickhouse) query "SELECT toDate(timestamp) as date, uniq(user_id) as unique_users, count() as total_events FROM events WHERE timestamp >= today() - 30 GROUP BY date ORDER BY date"',
+
+            # Materialized view for pre-aggregation
+            '220 (clickhouse) execute "CREATE MATERIALIZED VIEW IF NOT EXISTS daily_events_mv ENGINE = SummingMergeTree ORDER BY (date, event_type) AS SELECT toDate(timestamp) as date, event_type, count() as count FROM events GROUP BY date, event_type"',
+        ]
 
 
 # Singleton instance getter

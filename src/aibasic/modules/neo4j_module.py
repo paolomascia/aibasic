@@ -23,9 +23,10 @@ Version: 1.0
 import threading
 from typing import Any, Dict, List, Optional, Union
 import pandas as pd
+from .module_base import AIbasicModuleBase
 
 
-class Neo4jModule:
+class Neo4jModule(AIbasicModuleBase):
     """
     Neo4j module for AIbasic programs.
 
@@ -558,6 +559,358 @@ class Neo4jModule:
         """
         if hasattr(self, 'driver'):
             self.driver.close()
+
+    # ========================================
+    # Metadata methods for AIbasic compiler
+    # ========================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Neo4j",
+            task_type="neo4j",
+            description="Neo4j graph database for storing and querying highly connected data with Cypher query language",
+            version="1.0.0",
+            keywords=[
+                "neo4j", "graph", "database", "cypher", "nodes", "relationships",
+                "graph-database", "path-finding", "network", "connected-data"
+            ],
+            dependencies=["neo4j>=5.0.0", "pandas>=1.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one driver instance per process",
+            "Default connection URI is bolt://localhost:7687 for Neo4j Bolt protocol",
+            "Supports bolt://, neo4j://, bolt+s://, and neo4j+s:// URI schemes",
+            "Connection pooling automatically managed with max 50 connections by default",
+            "Connection lifetime defaults to 3600 seconds (1 hour)",
+            "Default database is 'neo4j' unless specified otherwise",
+            "Cypher queries support parameterization for security and performance",
+            "execute_query() returns list of dictionaries for read operations",
+            "execute_write() returns statistics about nodes/relationships created/modified/deleted",
+            "All write operations use transactions for consistency",
+            "Detach delete removes nodes and their relationships automatically",
+            "Path finding uses shortestPath algorithm with configurable max depth",
+            "Indexes improve query performance on frequently accessed properties",
+            "Constraints enforce data integrity (UNIQUE, EXISTS)",
+            "Batch operations more efficient than individual creates for bulk data",
+            "query_to_dataframe() integrates with pandas for data analysis",
+            "get_stats() provides database metrics including node/relationship counts",
+            "Label and relationship type names must start with letter, use alphanumeric characters",
+            "Property values can be strings, numbers, booleans, lists, or nested structures",
+            "Always call close() when done to release connection resources properly"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="execute_query",
+                description="Execute Cypher query and return results as list of dictionaries",
+                parameters={
+                    "query": "str (required) - Cypher query string (MATCH, RETURN, etc.)",
+                    "parameters": "dict (optional) - Query parameters as key-value pairs",
+                    "database": "str (optional) - Database to use (overrides default)"
+                },
+                returns="list[dict] - Query results as list of dictionaries",
+                examples=[
+                    'execute query "MATCH (n:Person) RETURN n LIMIT 10"',
+                    'execute query "MATCH (n:Person {name: $name}) RETURN n" parameters {"name": "Alice"}',
+                    'execute query "MATCH (p:Product) WHERE p.price > $min_price RETURN p" parameters {"min_price": 100}'
+                ]
+            ),
+            MethodInfo(
+                name="execute_write",
+                description="Execute write transaction (CREATE, MERGE, SET, DELETE) and return statistics",
+                parameters={
+                    "query": "str (required) - Cypher write query",
+                    "parameters": "dict (optional) - Query parameters",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Statistics with nodes_created, relationships_created, properties_set, etc.",
+                examples=[
+                    'execute write "CREATE (n:Person {name: $name, age: $age})" parameters {"name": "Bob", "age": 30}',
+                    'execute write "MATCH (n:Person {name: $name}) SET n.age = $age" parameters {"name": "Alice", "age": 31}',
+                    'execute write "MATCH (n:Person {name: $name}) DETACH DELETE n" parameters {"name": "Bob"}'
+                ]
+            ),
+            MethodInfo(
+                name="create_node",
+                description="Create a node with label and properties, returns created node",
+                parameters={
+                    "label": "str (required) - Node label (e.g., 'Person', 'Product')",
+                    "properties": "dict (required) - Node properties as key-value pairs",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Created node as dictionary",
+                examples=[
+                    'create node "Person" properties {"name": "Alice", "age": 30, "city": "New York"}',
+                    'create node "Product" properties {"sku": "WIDGET-1", "name": "Super Widget", "price": 29.99}',
+                    'create node "Company" properties {"name": "Acme Corp", "founded": 1995}'
+                ]
+            ),
+            MethodInfo(
+                name="find_nodes",
+                description="Find nodes by label and optional property filters with limit",
+                parameters={
+                    "label": "str (required) - Node label to search",
+                    "properties": "dict (optional) - Properties to match",
+                    "limit": "int (optional) - Maximum number of results",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="list[dict] - List of matching nodes",
+                examples=[
+                    'find nodes "Person"',
+                    'find nodes "Person" properties {"city": "New York"} limit 10',
+                    'find nodes "Product" properties {"category": "electronics", "in_stock": true}'
+                ]
+            ),
+            MethodInfo(
+                name="update_node",
+                description="Update node properties matching given criteria",
+                parameters={
+                    "label": "str (required) - Node label",
+                    "match_properties": "dict (required) - Properties to match node",
+                    "update_properties": "dict (required) - Properties to update",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Update statistics",
+                examples=[
+                    'update node "Person" match {"name": "Alice"} update {"age": 31, "city": "Boston"}',
+                    'update node "Product" match {"sku": "WIDGET-1"} update {"price": 24.99, "discount": 0.15}'
+                ]
+            ),
+            MethodInfo(
+                name="delete_node",
+                description="Delete nodes matching label and properties, optionally detach relationships",
+                parameters={
+                    "label": "str (required) - Node label",
+                    "properties": "dict (required) - Properties to match",
+                    "detach": "bool (optional) - Also delete relationships (default True)",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Deletion statistics",
+                examples=[
+                    'delete node "Person" properties {"name": "Bob"}',
+                    'delete node "Product" properties {"sku": "OLD-WIDGET"} detach true',
+                    'delete node "TempData" properties {"session_id": "12345"}'
+                ]
+            ),
+            MethodInfo(
+                name="create_relationship",
+                description="Create relationship between two nodes with optional properties",
+                parameters={
+                    "from_label": "str (required) - Source node label",
+                    "from_properties": "dict (required) - Source node match properties",
+                    "rel_type": "str (required) - Relationship type (e.g., 'KNOWS', 'PURCHASED')",
+                    "to_label": "str (required) - Target node label",
+                    "to_properties": "dict (required) - Target node match properties",
+                    "rel_properties": "dict (optional) - Relationship properties",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Created relationship information",
+                examples=[
+                    'create relationship from "Person" {"name": "Alice"} type "KNOWS" to "Person" {"name": "Bob"}',
+                    'create relationship from "User" {"id": 123} type "PURCHASED" to "Product" {"sku": "WIDGET-1"} properties {"date": "2023-12-01", "quantity": 2}',
+                    'create relationship from "Employee" {"emp_id": 456} type "WORKS_FOR" to "Company" {"name": "Acme"} properties {"since": 2020}'
+                ]
+            ),
+            MethodInfo(
+                name="find_path",
+                description="Find shortest path between two nodes with configurable maximum depth",
+                parameters={
+                    "from_label": "str (required) - Source node label",
+                    "from_properties": "dict (required) - Source node properties",
+                    "to_label": "str (required) - Target node label",
+                    "to_properties": "dict (required) - Target node properties",
+                    "max_depth": "int (optional) - Maximum path depth (default 5)",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="list[dict] - List of paths found",
+                examples=[
+                    'find path from "Person" {"name": "Alice"} to "Person" {"name": "Bob"} max_depth 5',
+                    'find path from "City" {"name": "Boston"} to "City" {"name": "Seattle"} max_depth 10',
+                    'find path from "User" {"id": 123} to "Product" {"sku": "WIDGET-1"} max_depth 3'
+                ]
+            ),
+            MethodInfo(
+                name="batch_create_nodes",
+                description="Create multiple nodes in single transaction for efficient bulk inserts",
+                parameters={
+                    "label": "str (required) - Node label for all nodes",
+                    "nodes": "list[dict] (required) - List of node properties",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Creation statistics",
+                examples=[
+                    'batch create nodes "Person" [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}, {"name": "Carol", "age": 28}]',
+                    'batch create nodes "Product" [{"sku": "A1", "price": 10}, {"sku": "A2", "price": 20}]'
+                ]
+            ),
+            MethodInfo(
+                name="create_index",
+                description="Create index on node property for improved query performance",
+                parameters={
+                    "label": "str (required) - Node label",
+                    "property_name": "str (required) - Property to index",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Index creation statistics",
+                examples=[
+                    'create index on "Person" property "email"',
+                    'create index on "Product" property "sku"',
+                    'create index on "User" property "username"'
+                ]
+            ),
+            MethodInfo(
+                name="create_constraint",
+                description="Create constraint on node property for data integrity (UNIQUE or EXISTS)",
+                parameters={
+                    "label": "str (required) - Node label",
+                    "property_name": "str (required) - Property to constrain",
+                    "constraint_type": "str (optional) - 'UNIQUE' or 'EXISTS' (default 'UNIQUE')",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="dict - Constraint creation statistics",
+                examples=[
+                    'create constraint on "Person" property "email" type "UNIQUE"',
+                    'create constraint on "Product" property "sku" type "UNIQUE"',
+                    'create constraint on "User" property "username" type "EXISTS"'
+                ]
+            ),
+            MethodInfo(
+                name="query_to_dataframe",
+                description="Execute Cypher query and return results as pandas DataFrame",
+                parameters={
+                    "query": "str (required) - Cypher query",
+                    "parameters": "dict (optional) - Query parameters",
+                    "database": "str (optional) - Database to use"
+                },
+                returns="pandas.DataFrame - Query results as DataFrame",
+                examples=[
+                    'query to dataframe "MATCH (p:Person) RETURN p.name, p.age ORDER BY p.age"',
+                    'query to dataframe "MATCH (p:Product) WHERE p.price > $min RETURN p" parameters {"min": 50}'
+                ]
+            ),
+            MethodInfo(
+                name="get_stats",
+                description="Get database statistics including node count, relationship count, labels, and types",
+                parameters={
+                    "database": "str (optional) - Database to query"
+                },
+                returns="dict - Statistics with total_nodes, total_relationships, labels, relationship_types",
+                examples=[
+                    'get database stats',
+                    'get stats'
+                ]
+            ),
+            MethodInfo(
+                name="clear_database",
+                description="Delete all nodes and relationships from database (WARNING: irreversible)",
+                parameters={
+                    "database": "str (optional) - Database to clear"
+                },
+                returns="dict - Deletion statistics",
+                examples=[
+                    'clear database',
+                    'delete all data'
+                ]
+            ),
+            MethodInfo(
+                name="verify_connectivity",
+                description="Verify connection to Neo4j server",
+                parameters={},
+                returns="bool - True if connected, False otherwise",
+                examples=[
+                    'verify connectivity',
+                    'check connection'
+                ]
+            ),
+            MethodInfo(
+                name="close",
+                description="Close driver and cleanup connection resources",
+                parameters={},
+                returns="None",
+                examples=[
+                    'close connection',
+                    'close driver'
+                ]
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            # Basic node creation
+            '10 (neo4j) create node "Person" properties {"name": "Alice", "age": 30, "city": "New York"}',
+            '20 (neo4j) create node "Person" properties {"name": "Bob", "age": 25, "city": "Boston"}',
+            '30 (neo4j) create node "Company" properties {"name": "Acme Corp", "industry": "Technology"}',
+
+            # Finding nodes
+            '10 (neo4j) find nodes "Person"',
+            '20 (neo4j) find nodes "Person" properties {"city": "New York"} limit 10',
+            '30 (neo4j) find nodes "Company" properties {"industry": "Technology"}',
+
+            # Creating relationships
+            '10 (neo4j) create relationship from "Person" {"name": "Alice"} type "KNOWS" to "Person" {"name": "Bob"}',
+            '20 (neo4j) create relationship from "Person" {"name": "Alice"} type "WORKS_FOR" to "Company" {"name": "Acme Corp"} properties {"since": 2020, "role": "Engineer"}',
+
+            # Cypher queries
+            '10 (neo4j) execute query "MATCH (n:Person) RETURN n.name, n.age ORDER BY n.age DESC LIMIT 5"',
+            '20 (neo4j) execute query "MATCH (p:Person)-[:KNOWS]->(f:Person) WHERE p.name = $name RETURN f" parameters {"name": "Alice"}',
+            '30 (neo4j) execute query "MATCH (p:Person)-[:WORKS_FOR]->(c:Company) RETURN p.name, c.name"',
+
+            # Path finding
+            '10 (neo4j) find path from "Person" {"name": "Alice"} to "Person" {"name": "Bob"} max_depth 5',
+            '20 (neo4j) find path from "City" {"name": "Boston"} to "City" {"name": "Seattle"} max_depth 10',
+
+            # Batch operations
+            '10 (neo4j) batch create nodes "Product" [{"sku": "WIDGET-1", "price": 19.99}, {"sku": "GADGET-2", "price": 29.99}, {"sku": "TOOL-3", "price": 39.99}]',
+
+            # Update operations
+            '10 (neo4j) update node "Person" match {"name": "Alice"} update {"age": 31, "city": "San Francisco"}',
+            '20 (neo4j) execute write "MATCH (p:Product {sku: $sku}) SET p.price = $price" parameters {"sku": "WIDGET-1", "price": 17.99}',
+
+            # Delete operations
+            '10 (neo4j) delete node "Person" properties {"name": "Bob"}',
+            '20 (neo4j) execute write "MATCH (n:TempData) WHERE n.created < $cutoff DETACH DELETE n" parameters {"cutoff": "2023-01-01"}',
+
+            # Indexes and constraints
+            '10 (neo4j) create index on "Person" property "email"',
+            '20 (neo4j) create constraint on "Product" property "sku" type "UNIQUE"',
+            '30 (neo4j) create constraint on "User" property "username" type "EXISTS"',
+
+            # Analytics
+            '10 (neo4j) query to dataframe "MATCH (p:Person) RETURN p.city as city, count(*) as count GROUP BY p.city ORDER BY count DESC"',
+            '20 (neo4j) query to dataframe "MATCH (p:Person)-[r:KNOWS]->(f) RETURN p.name, count(f) as friends ORDER BY friends DESC LIMIT 10"',
+
+            # Statistics
+            '10 (neo4j) get database stats',
+            '20 (neo4j) verify connectivity',
+
+            # Social network example
+            '10 (neo4j) create node "User" properties {"username": "alice", "email": "alice@example.com", "joined": "2023-01-15"}',
+            '20 (neo4j) create node "User" properties {"username": "bob", "email": "bob@example.com", "joined": "2023-02-20"}',
+            '30 (neo4j) create node "Post" properties {"id": 1, "title": "Hello World", "content": "My first post", "date": "2023-03-01"}',
+            '40 (neo4j) create relationship from "User" {"username": "alice"} type "FOLLOWS" to "User" {"username": "bob"}',
+            '50 (neo4j) create relationship from "User" {"username": "alice"} type "POSTED" to "Post" {"id": 1}',
+            '60 (neo4j) create relationship from "User" {"username": "bob"} type "LIKED" to "Post" {"id": 1} properties {"timestamp": "2023-03-02"}',
+            '70 (neo4j) execute query "MATCH (u:User)-[:FOLLOWS]->(followed:User)-[:POSTED]->(p:Post) WHERE u.username = $user RETURN p" parameters {"user": "alice"}',
+
+            # Recommendation example
+            '10 (neo4j) execute query "MATCH (u:User {username: $user})-[:PURCHASED]->(p:Product)<-[:PURCHASED]-(other:User)-[:PURCHASED]->(rec:Product) WHERE NOT (u)-[:PURCHASED]->(rec) RETURN rec.name, count(*) as score ORDER BY score DESC LIMIT 5" parameters {"user": "alice"}',
+
+            # Cleanup
+            '10 (neo4j) close connection'
+        ]
 
 
 # Singleton instance getter

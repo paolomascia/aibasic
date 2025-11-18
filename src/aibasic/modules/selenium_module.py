@@ -26,9 +26,10 @@ from selenium.common.exceptions import (
     ElementNotInteractableException,
     StaleElementReferenceException
 )
+from .module_base import AIbasicModuleBase
 
 
-class SeleniumModule:
+class SeleniumModule(AIbasicModuleBase):
     """
     Selenium module for web browser automation and testing.
 
@@ -747,6 +748,227 @@ class SeleniumModule:
     def __del__(self):
         """Cleanup when object is destroyed."""
         self.quit()
+
+    # ========================================
+    # Metadata methods for AIbasic compiler
+    # ========================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Selenium",
+            task_type="selenium",
+            description="Web browser automation and testing with support for Chrome, Firefox, Edge, and Safari browsers",
+            version="1.0.0",
+            keywords=[
+                "selenium", "browser", "automation", "web-scraping", "testing",
+                "webdriver", "headless", "chrome", "firefox", "xpath", "css-selector"
+            ],
+            dependencies=["selenium>=4.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one browser instance per application",
+            "Supports Chrome, Firefox, Edge, and Safari browsers",
+            "Headless mode available for running without GUI (set SELENIUM_HEADLESS=true)",
+            "Default implicit wait is 10 seconds, configurable via SELENIUM_IMPLICIT_WAIT",
+            "Page load timeout defaults to 30 seconds",
+            "Multiple element locator strategies: CSS, XPath, ID, name, class, tag, link text",
+            "CSS selector is the default locator strategy",
+            "Driver auto-initialized on first use (lazy loading)",
+            "Screenshots saved to specified filename path",
+            "JavaScript execution supported via execute_script()",
+            "File uploads work by sending file path to input elements",
+            "Wait strategies: implicit (global), explicit (per element), fluent (custom conditions)",
+            "Frame and window switching required for iframes and popups",
+            "Alert handling requires switching to alert first",
+            "Cookies can be added, retrieved, or deleted",
+            "ActionChains used internally for hover and drag-and-drop",
+            "Window size configurable via set_window_size() or SELENIUM_WINDOW_SIZE env var",
+            "Always call quit() when done to cleanup browser resources",
+            "Browser driver must be in PATH or specify driver path in config",
+            "Download directory configurable via SELENIUM_DOWNLOAD_DIR"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="navigate",
+                description="Navigate to a URL in the browser",
+                parameters={"url": "str (required) - The URL to navigate to"},
+                returns="bool - True if successful",
+                examples=['navigate to "https://example.com"', 'goto "https://github.com"']
+            ),
+            MethodInfo(
+                name="click",
+                description="Click an element located by CSS selector, XPath, or other strategy",
+                parameters={
+                    "locator": "str (required) - Element locator",
+                    "by": "str (optional) - Locator strategy: css, xpath, id, name, class, tag, link_text (default css)",
+                    "wait": "int (optional) - Wait time in seconds"
+                },
+                returns="bool - True if successful",
+                examples=['click "#submit-button"', 'click "//button[@id=\'login\']" by xpath']
+            ),
+            MethodInfo(
+                name="type_text",
+                description="Type text into an input field, optionally clearing existing text first",
+                parameters={
+                    "locator": "str (required) - Element locator",
+                    "text": "str (required) - Text to type",
+                    "by": "str (optional) - Locator strategy (default css)",
+                    "clear": "bool (optional) - Clear existing text (default True)",
+                    "wait": "int (optional) - Wait time in seconds"
+                },
+                returns="bool - True if successful",
+                examples=['type "john@example.com" into "#email"', 'type "password123" into "input[name=\'password\']" clear false']
+            ),
+            MethodInfo(
+                name="get_text",
+                description="Get visible text from an element",
+                parameters={
+                    "locator": "str (required) - Element locator",
+                    "by": "str (optional) - Locator strategy",
+                    "wait": "int (optional) - Wait time"
+                },
+                returns="str - Element text content",
+                examples=['get text from ".message"', 'get text from "//h1" by xpath']
+            ),
+            MethodInfo(
+                name="get_attribute",
+                description="Get attribute value from an element",
+                parameters={
+                    "locator": "str (required) - Element locator",
+                    "attribute": "str (required) - Attribute name (e.g., href, value, class)",
+                    "by": "str (optional) - Locator strategy",
+                    "wait": "int (optional) - Wait time"
+                },
+                returns="str - Attribute value",
+                examples=['get attribute "href" from "a.download-link"', 'get attribute "value" from "#username"']
+            ),
+            MethodInfo(
+                name="wait_for_element",
+                description="Wait for element to meet condition (visible, clickable, or present)",
+                parameters={
+                    "locator": "str (required) - Element locator",
+                    "by": "str (optional) - Locator strategy",
+                    "timeout": "int (optional) - Wait timeout in seconds (default 10)",
+                    "condition": "str (optional) - Condition: visible, clickable, present (default visible)"
+                },
+                returns="bool - True if condition met, False on timeout",
+                examples=['wait for "#loading" timeout 20', 'wait for "//button" by xpath condition clickable']
+            ),
+            MethodInfo(
+                name="select_dropdown",
+                description="Select option from dropdown by value, text, or index",
+                parameters={
+                    "locator": "str (required) - Select element locator",
+                    "value": "str (required) - Value to select",
+                    "by": "str (optional) - Locator strategy",
+                    "select_by": "str (optional) - Selection method: value, text, index (default value)",
+                    "wait": "int (optional) - Wait time"
+                },
+                returns="bool - True if successful",
+                examples=['select "USA" from "#country" by text', 'select "option2" from "select[name=\'category\']"']
+            ),
+            MethodInfo(
+                name="execute_script",
+                description="Execute JavaScript code in the browser",
+                parameters={
+                    "script": "str (required) - JavaScript code to execute",
+                    "*args": "any (optional) - Arguments to pass to script"
+                },
+                returns="any - Script return value",
+                examples=['execute script "return document.title;"', 'execute script "window.scrollTo(0, 500);"']
+            ),
+            MethodInfo(
+                name="take_screenshot",
+                description="Capture screenshot and save to file",
+                parameters={"filename": "str (required) - Path to save screenshot"},
+                returns="bool - True if successful",
+                examples=['take screenshot "error.png"', 'screenshot "results/test1.png"']
+            ),
+            MethodInfo(
+                name="get_current_url",
+                description="Get current browser URL",
+                parameters={},
+                returns="str - Current URL",
+                examples=['get current url', 'get url']
+            ),
+            MethodInfo(
+                name="get_title",
+                description="Get page title",
+                parameters={},
+                returns="str - Page title",
+                examples=['get title', 'get page title']
+            ),
+            MethodInfo(
+                name="back",
+                description="Navigate to previous page in history",
+                parameters={},
+                returns="bool - True if successful",
+                examples=['back', 'go back']
+            ),
+            MethodInfo(
+                name="forward",
+                description="Navigate to next page in history",
+                parameters={},
+                returns="bool - True if successful",
+                examples=['forward', 'go forward']
+            ),
+            MethodInfo(
+                name="refresh",
+                description="Reload current page",
+                parameters={},
+                returns="bool - True if successful",
+                examples=['refresh', 'reload page']
+            ),
+            MethodInfo(
+                name="quit",
+                description="Close browser and cleanup resources",
+                parameters={},
+                returns="bool - True if successful",
+                examples=['quit browser', 'close browser']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (selenium) navigate to "https://example.com"',
+            '20 (selenium) click "#login-button"',
+            '30 (selenium) type "user@example.com" into "#email"',
+            '40 (selenium) type "password123" into "#password"',
+            '50 (selenium) click "button[type=\'submit\']"',
+            '60 (selenium) wait for ".success-message" timeout 10',
+            '70 (selenium) take screenshot "login-success.png"',
+            '80 (selenium) quit browser',
+
+            '10 (selenium) goto "https://github.com/search"',
+            '20 (selenium) type "selenium python" into "input[name=\'q\']"',
+            '30 (selenium) click "//button[@type=\'submit\']" by xpath',
+            '40 (selenium) wait for ".search-results" condition visible timeout 15',
+            '50 (selenium) get text from ".result-count"',
+
+            '10 (selenium) navigate to "https://httpbin.org/forms/post"',
+            '20 (selenium) select "Pizza" from "#custemail" by text',
+            '30 (selenium) type "Large" into "input[name=\'size\']"',
+            '40 (selenium) execute script "document.querySelector(\\'#submit\\').click();"',
+
+            '10 (selenium) goto "https://example.com"',
+            '20 (selenium) add cookie "session" "abc123"',
+            '30 (selenium) refresh',
+            '40 (selenium) get all cookies'
+        ]
 
 
 def execute(task_hint: str, params: Dict[str, Any]) -> Any:

@@ -36,9 +36,10 @@ from psycopg2 import pool
 from pathlib import Path
 from typing import Optional
 import threading
+from .module_base import AIbasicModuleBase
 
 
-class PostgresModule:
+class PostgresModule(AIbasicModuleBase):
     """
     PostgreSQL connection pool manager.
 
@@ -258,3 +259,124 @@ class PostgresModule:
             "min_connections": self.min_connections,
             "max_connections": self.max_connections
         }
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="PostgreSQL",
+            task_type="postgres",
+            description="PostgreSQL relational database with connection pooling, transactions, and parameterized queries",
+            version="1.0.0",
+            keywords=[
+                "postgresql", "postgres", "sql", "database", "relational",
+                "connection-pool", "transactions", "queries", "psycopg2"
+            ],
+            dependencies=["psycopg2-binary>=2.9.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern with threaded connection pool",
+            "Default port is 5432 for PostgreSQL",
+            "MIN_CONNECTIONS defaults to 1, MAX_CONNECTIONS defaults to 10",
+            "Connections automatically returned to pool after use",
+            "execute_query() handles connection management automatically",
+            "Use fetch=True for SELECT queries, fetch=False for INSERT/UPDATE/DELETE",
+            "Parameterized queries prevent SQL injection (use %s placeholders)",
+            "execute_many() efficient for batch inserts (single query, multiple params)",
+            "Transactions auto-commit on success, auto-rollback on error",
+            "get_connection() retrieves from pool, release_connection() returns it",
+            "Always release connections to avoid pool exhaustion",
+            "Connection pool is thread-safe for concurrent operations",
+            "Cursor closed automatically after execute_query() completes",
+            "close_all_connections() called automatically on program exit",
+            "Use context managers with manual connection management for complex transactions",
+            "Query results returned as list of tuples by default",
+            "psycopg2.Error exceptions wrapped in RuntimeError with details",
+            "Connection pool creates connections lazily up to max_connections",
+            "Database schema must exist before connection",
+            "SSL/TLS support via psycopg2 connection parameters (add to __init__ if needed)"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="execute_query",
+                description="Execute SQL query with automatic connection management",
+                parameters={
+                    "query": "str (required) - SQL query with %s placeholders for params",
+                    "params": "tuple (optional) - Parameters for parameterized query",
+                    "fetch": "bool (optional) - True for SELECT (default), False for INSERT/UPDATE/DELETE"
+                },
+                returns="list - List of tuples (rows) if fetch=True, None otherwise",
+                examples=[
+                    'execute "SELECT * FROM users"',
+                    'execute "SELECT * FROM users WHERE age > %s" with params (25,)',
+                    'execute "INSERT INTO users (name, age) VALUES (%s, %s)" with params ("Alice", 30) fetch false'
+                ]
+            ),
+            MethodInfo(
+                name="execute_many",
+                description="Execute same query multiple times with different parameters (batch operation)",
+                parameters={
+                    "query": "str (required) - SQL query with %s placeholders",
+                    "params_list": "list (required) - List of parameter tuples"
+                },
+                returns="None",
+                examples=[
+                    'execute_many "INSERT INTO users (name, age) VALUES (%s, %s)" with [("Alice", 30), ("Bob", 25)]'
+                ]
+            ),
+            MethodInfo(
+                name="get_connection",
+                description="Get a connection from the pool for manual management",
+                parameters={},
+                returns="psycopg2.connection - Database connection object",
+                examples=['conn = get_connection()']
+            ),
+            MethodInfo(
+                name="release_connection",
+                description="Release a connection back to the pool",
+                parameters={"conn": "connection (required) - Connection to release"},
+                returns="None",
+                examples=['release_connection(conn)']
+            ),
+            MethodInfo(
+                name="get_pool_status",
+                description="Get current connection pool configuration and status",
+                parameters={},
+                returns="dict - Pool statistics including host, port, database, min/max connections",
+                examples=['status = get_pool_status()']
+            ),
+            MethodInfo(
+                name="close_all_connections",
+                description="Close all connections in the pool (called automatically on exit)",
+                parameters={},
+                returns="None",
+                examples=['close_all_connections()']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (postgres) results = execute_query("SELECT * FROM customers")',
+            '20 (postgres) results = execute_query("SELECT * FROM customers WHERE city = %s", ("NYC",))',
+            '30 (postgres) execute_query("INSERT INTO customers (name, email) VALUES (%s, %s)", ("John", "john@example.com"), fetch=False)',
+            '40 (postgres) execute_query("UPDATE customers SET status = %s WHERE id = %s", ("active", 123), fetch=False)',
+            '50 (postgres) execute_query("DELETE FROM customers WHERE id = %s", (456,), fetch=False)',
+            '60 (postgres) execute_many("INSERT INTO orders (product, qty) VALUES (%s, %s)", [("Widget", 10), ("Gadget", 5)])',
+            '70 (postgres) status = get_pool_status()',
+            '80 (postgres) conn = get_connection()',
+            '90 (postgres) cursor = conn.cursor()',
+            '100 (postgres) cursor.execute("SELECT * FROM products")',
+            '110 (postgres) release_connection(conn)'
+        ]

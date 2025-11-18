@@ -1,0 +1,4 @@
+REM Test verbose compiler output with Discord module
+10 (discord) send message "Hello from AIbasic with verbose output!"
+20 (telegram) send notification with title "Test" and message "Testing verbose compiler" and level "info"
+30 PRINT "Done"

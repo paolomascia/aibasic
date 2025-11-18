@@ -66,9 +66,10 @@ from typing import Optional, Dict, Any, List, Union
 
 import redis
 from redis import Redis, ConnectionPool
+from .module_base import AIbasicModuleBase
 
 
-class RedisModule:
+class RedisModule(AIbasicModuleBase):
     """
     Redis connection manager with pooling and full SSL/TLS support.
 
@@ -459,3 +460,217 @@ class RedisModule:
     def __del__(self):
         """Destructor to ensure connection is closed."""
         self.close()
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Redis",
+            task_type="redis",
+            description="Redis key-value store and caching with support for all data types, Pub/Sub, transactions, and SSL/TLS",
+            version="1.0.0",
+            keywords=[
+                "redis", "cache", "key-value", "nosql", "pubsub", "messaging",
+                "hash", "list", "set", "sorted-set", "transaction", "pipeline", "ssl"
+            ],
+            dependencies=["redis>=4.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one connection pool per application",
+            "Connection pool configured via MAX_CONNECTIONS (default 50)",
+            "Supports password authentication (AUTH) and ACL username/password (Redis 6+)",
+            "SSL/TLS connections supported with optional certificate verification",
+            "Set SSL_VERIFY=false for self-signed certificates (development only)",
+            "Default database is 0, configurable via DB parameter (0-15)",
+            "decode_responses=True returns strings instead of bytes",
+            "JSON values automatically serialized/deserialized in set/get",
+            "Expiration can be set in seconds (ex) or milliseconds (px)",
+            "nx=True sets only if key doesn't exist, xx=True sets only if exists",
+            "Hash operations support both single field and mapping (multiple fields)",
+            "List operations: lpush/lpop for left side, rpush/rpop for right side",
+            "Sorted sets store members with scores for ranking/leaderboards",
+            "Pub/Sub returns pubsub object - call get_message() to receive",
+            "Pipeline groups multiple commands for batch execution",
+            "scan() preferred over keys() for production (non-blocking iteration)",
+            "ttl() returns -1 for keys without expiration, -2 for non-existent keys",
+            "Socket timeout defaults to 5 seconds, configurable via SOCKET_TIMEOUT",
+            "Connection tested with ping() on initialization",
+            "Call close() to cleanup connection pool when done"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="set",
+                description="Set key to value with optional expiration and conditions",
+                parameters={
+                    "key": "str (required) - Key name",
+                    "value": "Any (required) - Value to store (auto-serializes dict/list to JSON)",
+                    "ex": "int (optional) - Expiration in seconds",
+                    "px": "int (optional) - Expiration in milliseconds",
+                    "nx": "bool (optional) - Set only if key doesn't exist",
+                    "xx": "bool (optional) - Set only if key exists"
+                },
+                returns="bool - True if successful",
+                examples=['set "user:123" to "John Doe"', 'set "session:abc" to {"user_id": 123} expire 3600']
+            ),
+            MethodInfo(
+                name="get",
+                description="Get value of key (auto-deserializes JSON)",
+                parameters={"key": "str (required) - Key name"},
+                returns="str/dict/list/None - Value or None if key doesn't exist",
+                examples=['get "user:123"', 'value = get "session:abc"']
+            ),
+            MethodInfo(
+                name="hset",
+                description="Set hash field to value or set multiple fields",
+                parameters={
+                    "key": "str (required) - Hash key name",
+                    "field": "str (optional) - Field name",
+                    "value": "Any (optional) - Field value",
+                    "mapping": "dict (optional) - Multiple field-value pairs"
+                },
+                returns="int - Number of fields added",
+                examples=['hset "user:123" field "name" value "Alice"', 'hset "user:123" mapping {"name": "Alice", "age": 30}']
+            ),
+            MethodInfo(
+                name="hgetall",
+                description="Get all fields and values in hash",
+                parameters={"key": "str (required) - Hash key name"},
+                returns="dict - All field-value pairs",
+                examples=['hgetall "user:123"']
+            ),
+            MethodInfo(
+                name="lpush",
+                description="Push values to the left (head) of list",
+                parameters={
+                    "key": "str (required) - List key name",
+                    "values": "Any (variadic) - Values to push"
+                },
+                returns="int - New length of list",
+                examples=['lpush "queue" "task1" "task2"', 'lpush "jobs" "process_order"']
+            ),
+            MethodInfo(
+                name="rpop",
+                description="Pop and return value from the right (tail) of list",
+                parameters={"key": "str (required) - List key name"},
+                returns="str/None - Popped value or None if list is empty",
+                examples=['rpop "queue"', 'task = rpop "jobs"']
+            ),
+            MethodInfo(
+                name="sadd",
+                description="Add members to set",
+                parameters={
+                    "key": "str (required) - Set key name",
+                    "members": "Any (variadic) - Members to add"
+                },
+                returns="int - Number of members added",
+                examples=['sadd "tags" "python" "redis" "cache"']
+            ),
+            MethodInfo(
+                name="smembers",
+                description="Get all members of set",
+                parameters={"key": "str (required) - Set key name"},
+                returns="set - All members",
+                examples=['smembers "tags"']
+            ),
+            MethodInfo(
+                name="zadd",
+                description="Add members with scores to sorted set",
+                parameters={
+                    "key": "str (required) - Sorted set key name",
+                    "mapping": "dict (required) - Member-score pairs {member: score}"
+                },
+                returns="int - Number of members added",
+                examples=['zadd "leaderboard" {"player1": 100, "player2": 200}']
+            ),
+            MethodInfo(
+                name="zrange",
+                description="Get range of members from sorted set by rank",
+                parameters={
+                    "key": "str (required) - Sorted set key name",
+                    "start": "int (required) - Start index (0-based)",
+                    "end": "int (required) - End index (-1 for all)",
+                    "withscores": "bool (optional) - Include scores in result"
+                },
+                returns="list - Members or (member, score) tuples if withscores=True",
+                examples=['zrange "leaderboard" 0 9', 'zrange "leaderboard" 0 -1 withscores true']
+            ),
+            MethodInfo(
+                name="publish",
+                description="Publish message to Pub/Sub channel",
+                parameters={
+                    "channel": "str (required) - Channel name",
+                    "message": "Any (required) - Message to publish (auto-serializes dict/list)"
+                },
+                returns="int - Number of subscribers that received the message",
+                examples=['publish "notifications" "New order received"', 'publish "events" {"type": "login", "user": 123}']
+            ),
+            MethodInfo(
+                name="subscribe",
+                description="Subscribe to Pub/Sub channels",
+                parameters={"channels": "str (variadic) - Channel names to subscribe to"},
+                returns="PubSub - PubSub object (call get_message() to receive)",
+                examples=['subscribe "notifications" "alerts"']
+            ),
+            MethodInfo(
+                name="expire",
+                description="Set expiration on key in seconds",
+                parameters={
+                    "key": "str (required) - Key name",
+                    "seconds": "int (required) - Expiration time in seconds"
+                },
+                returns="bool - True if successful",
+                examples=['expire "session:abc" 3600', 'expire "temp_data" 300']
+            ),
+            MethodInfo(
+                name="ttl",
+                description="Get time to live of key in seconds",
+                parameters={"key": "str (required) - Key name"},
+                returns="int - Seconds until expiration, -1 if no expiration, -2 if key doesn't exist",
+                examples=['ttl "session:abc"']
+            ),
+            MethodInfo(
+                name="delete",
+                description="Delete one or more keys",
+                parameters={"keys": "str (variadic) - Key names to delete"},
+                returns="int - Number of keys deleted",
+                examples=['delete "temp:123"', 'delete "cache:1" "cache:2" "cache:3"']
+            ),
+            MethodInfo(
+                name="pipeline",
+                description="Create pipeline for batch operations",
+                parameters={"transaction": "bool (optional) - Use transaction (default True)"},
+                returns="Pipeline - Pipeline object for batching commands",
+                examples=['pipe = pipeline', 'pipe.set("key1", "val1"); pipe.set("key2", "val2"); pipe.execute()']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (redis) set "user:123" to "John Doe"',
+            '20 (redis) set "session:abc" to {"user_id": 123, "role": "admin"} expire 3600',
+            '30 (redis) value = get "user:123"',
+            '40 (redis) hset "user:456" mapping {"name": "Alice", "age": 30, "city": "NYC"}',
+            '50 (redis) user_data = hgetall "user:456"',
+            '60 (redis) lpush "tasks" "process_order" "send_email" "update_inventory"',
+            '70 (redis) task = rpop "tasks"',
+            '80 (redis) sadd "online_users" "user123" "user456" "user789"',
+            '90 (redis) online = smembers "online_users"',
+            '100 (redis) zadd "leaderboard" {"player1": 1000, "player2": 1500, "player3": 800}',
+            '110 (redis) top10 = zrange "leaderboard" 0 9 withscores true',
+            '120 (redis) incr "page_views"',
+            '130 (redis) publish "notifications" {"type": "new_message", "from": "user123"}',
+            '140 (redis) expire "cache:result" 300',
+            '150 (redis) delete "temp:data"'
+        ]

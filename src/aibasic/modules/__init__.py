@@ -4,40 +4,62 @@ AIBasic Modules
 This package contains reusable modules that can be used by AIBasic programs.
 Each module provides specific functionality (database connections, APIs, etc.)
 and can be initialized from aibasic.conf configuration.
+
+Note: Some modules may not be available if their dependencies are not installed.
+Modules will be silently skipped if dependencies are missing.
 """
 
-from .postgres_module import PostgresModule
-from .mysql_module import MySQLModule
-from .rabbitmq_module import RabbitMQModule
-from .kafka_module import KafkaModule
-from .redis_module import RedisModule
-from .opensearch_module import OpenSearchModule
-from .compression_module import CompressionModule
-from .vault_module import VaultModule
-from .cassandra_module import CassandraModule
-from .email_module import EmailModule
-from .mongodb_module import MongoDBModule
-from .s3_module import S3Module
-from .restapi_module import RestAPIModule
-from .ssh_module import SSHModule
-from .teams_module import TeamsModule
-from .slack_module import SlackModule
-from .clickhouse_module import ClickHouseModule
-from .neo4j_module import Neo4jModule
-from .elasticsearch_module import ElasticsearchModule
-from .timescaledb_module import TimescaleDBModule
-from .aws_module import AWSModule
-from .terraform_module import TerraformModule
-from .docker_module import DockerModule
-from .kubernetes_module import KubernetesModule
-from .azure_module import AzureModule
-from .gcp_module import GCPModule
-from .ldap_module import LDAPModule
-from .keycloak_module import KeycloakModule
-from .jwt_module import JWTModule
-from .mqtt_module import MQTTModule
-from .prometheus_module import PrometheusModule
-from .scylladb_module import ScyllaDBModule
-from .selenium_module import SeleniumModule
+import importlib
 
-__all__ = ['PostgresModule', 'MySQLModule', 'RabbitMQModule', 'KafkaModule', 'RedisModule', 'OpenSearchModule', 'CompressionModule', 'VaultModule', 'CassandraModule', 'EmailModule', 'MongoDBModule', 'S3Module', 'RestAPIModule', 'SSHModule', 'TeamsModule', 'SlackModule', 'ClickHouseModule', 'Neo4jModule', 'ElasticsearchModule', 'TimescaleDBModule', 'AWSModule', 'TerraformModule', 'DockerModule', 'KubernetesModule', 'AzureModule', 'GCPModule', 'LDAPModule', 'KeycloakModule', 'JWTModule', 'MQTTModule', 'PrometheusModule', 'ScyllaDBModule', 'SeleniumModule']
+# List of all available modules (will be populated as imports succeed)
+__all__ = []
+
+# Helper function to import modules with optional dependencies
+def _import_module(module_name, class_name):
+    """Import a module, handling missing dependencies gracefully."""
+    try:
+        module = importlib.import_module(f'.{module_name}', package='aibasic.modules')
+        cls = getattr(module, class_name)
+        globals()[class_name] = cls
+        __all__.append(class_name)
+        return cls
+    except (ImportError, AttributeError) as e:
+        # Module or dependency not available, skip silently
+        return None
+
+# Import all modules with optional dependency handling
+_import_module('postgres_module', 'PostgresModule')
+_import_module('mysql_module', 'MySQLModule')
+_import_module('rabbitmq_module', 'RabbitMQModule')
+_import_module('kafka_module', 'KafkaModule')
+_import_module('redis_module', 'RedisModule')
+_import_module('opensearch_module', 'OpenSearchModule')
+_import_module('compression_module', 'CompressionModule')
+_import_module('vault_module', 'VaultModule')
+_import_module('cassandra_module', 'CassandraModule')
+_import_module('email_module', 'EmailModule')
+_import_module('mongodb_module', 'MongoDBModule')
+_import_module('s3_module', 'S3Module')
+_import_module('restapi_module', 'RestAPIModule')
+_import_module('ssh_module', 'SSHModule')
+_import_module('teams_module', 'TeamsModule')
+_import_module('slack_module', 'SlackModule')
+_import_module('clickhouse_module', 'ClickHouseModule')
+_import_module('neo4j_module', 'Neo4jModule')
+_import_module('elasticsearch_module', 'ElasticsearchModule')
+_import_module('timescaledb_module', 'TimescaleDBModule')
+_import_module('aws_module', 'AWSModule')
+_import_module('terraform_module', 'TerraformModule')
+_import_module('docker_module', 'DockerModule')
+_import_module('kubernetes_module', 'KubernetesModule')
+_import_module('azure_module', 'AzureModule')
+_import_module('gcp_module', 'GCPModule')
+_import_module('ldap_module', 'LDAPModule')
+_import_module('keycloak_module', 'KeycloakModule')
+_import_module('jwt_module', 'JWTModule')
+_import_module('mqtt_module', 'MQTTModule')
+_import_module('prometheus_module', 'PrometheusModule')
+_import_module('scylladb_module', 'ScyllaDBModule')
+_import_module('selenium_module', 'SeleniumModule')
+_import_module('discord_module', 'DiscordModule')
+_import_module('telegram_module', 'TelegramModule')

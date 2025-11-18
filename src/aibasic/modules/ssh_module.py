@@ -91,8 +91,10 @@ except ImportError:
     paramiko = None
     SSHClient = None
 
+from .module_base import AIbasicModuleBase
 
-class SSHModule:
+
+class SSHModule(AIbasicModuleBase):
     """
     SSH remote connection and command execution module.
 
@@ -777,3 +779,146 @@ class SSHModule:
             self.close()
         except:
             pass
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="SSH",
+            task_type="ssh",
+            description="SSH remote server connections with command execution, file transfer (SFTP), and interactive shells",
+            version="1.0.0",
+            keywords=[
+                "ssh", "remote", "sftp", "file-transfer", "command-execution",
+                "shell", "paramiko", "server-management", "linux"
+            ],
+            dependencies=["paramiko>=2.7.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one SSH connection per application",
+            "Default SSH port is 22",
+            "Supports password and SSH key authentication (RSA, ED25519, ECDSA, DSS)",
+            "KEY_FILE takes precedence over PASSWORD if both provided",
+            "verify_host_key options: true (strict), false (ignore), auto-add (add new)",
+            "AutoAddPolicy recommended for development, RejectPolicy for production",
+            "execute_command() returns dict with stdout, stderr, exit_status",
+            "execute_sudo() auto-handles sudo password prompt",
+            "execute_batch() runs multiple commands in single session",
+            "get_shell() returns interactive channel for multi-command workflows",
+            "SFTP initialized lazily on first file operation",
+            "upload_file() and download_file() preserve file permissions",
+            "upload_directory() and download_directory() handle recursive transfers",
+            "Keepalive interval prevents connection timeout (default 30s)",
+            "Connection auto-reconnects via reconnect() if connection lost",
+            "Timeout defaults: connection=30s, banner=15s, auth=10s",
+            "Shell width/height configurable for terminal emulation",
+            "Always call close() or use context manager to cleanup connections",
+            "Host key verification uses ~/.ssh/known_hosts when verify_host_key=true",
+            "Private keys auto-detected by type (RSA, ED25519, ECDSA, DSS)"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="execute_command",
+                description="Execute a command on remote server",
+                parameters={
+                    "command": "str (required) - Command to execute",
+                    "timeout": "int (optional) - Command timeout in seconds (default 30)",
+                    "get_pty": "bool (optional) - Request pseudo-terminal (default False)"
+                },
+                returns="dict - stdout, stderr, exit_status",
+                examples=[
+                    'execute "ls -la /var/www"',
+                    'result = execute "df -h"',
+                    'execute "tail -f /var/log/syslog" with timeout 10'
+                ]
+            ),
+            MethodInfo(
+                name="execute_sudo",
+                description="Execute command with sudo privileges",
+                parameters={
+                    "command": "str (required) - Command to execute (without 'sudo')",
+                    "sudo_password": "str (optional) - Sudo password (default uses SSH password)",
+                    "timeout": "int (optional) - Timeout in seconds"
+                },
+                returns="dict - stdout, stderr, exit_status",
+                examples=['execute_sudo "systemctl restart nginx" with sudo_password "pass"']
+            ),
+            MethodInfo(
+                name="upload_file",
+                description="Upload file to remote server via SFTP",
+                parameters={
+                    "local_path": "str (required) - Local file path",
+                    "remote_path": "str (required) - Remote destination path",
+                    "preserve_perms": "bool (optional) - Preserve file permissions (default True)"
+                },
+                returns="None",
+                examples=['upload "local.txt" to "/remote/path/file.txt"']
+            ),
+            MethodInfo(
+                name="download_file",
+                description="Download file from remote server via SFTP",
+                parameters={
+                    "remote_path": "str (required) - Remote file path",
+                    "local_path": "str (required) - Local destination path",
+                    "preserve_perms": "bool (optional) - Preserve file permissions (default True)"
+                },
+                returns="None",
+                examples=['download "/var/log/app.log" to "local_app.log"']
+            ),
+            MethodInfo(
+                name="get_shell",
+                description="Get interactive shell channel",
+                parameters={
+                    "term": "str (optional) - Terminal type (default 'xterm')",
+                    "width": "int (optional) - Terminal width (default 80)",
+                    "height": "int (optional) - Terminal height (default 24)"
+                },
+                returns="Channel - Interactive shell channel",
+                examples=['shell = get_shell()']
+            ),
+            MethodInfo(
+                name="is_connected",
+                description="Check if SSH connection is active",
+                parameters={},
+                returns="bool - True if connected",
+                examples=['if is_connected() then...']
+            ),
+            MethodInfo(
+                name="reconnect",
+                description="Reconnect to SSH server if connection lost",
+                parameters={},
+                returns="None",
+                examples=['reconnect()']
+            ),
+            MethodInfo(
+                name="list_directory",
+                description="List files in remote directory",
+                parameters={"remote_path": "str (optional) - Remote directory path (default '.')"},
+                returns="list - File and directory names",
+                examples=['files = list_directory("/var/www")']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (ssh) result = execute "ls -la /var/www"',
+            '20 (ssh) print result["stdout"]',
+            '30 (ssh) execute_sudo "systemctl restart nginx"',
+            '40 (ssh) upload "local_backup.tar.gz" to "/backups/backup.tar.gz"',
+            '50 (ssh) download "/var/log/application.log" to "app.log"',
+            '60 (ssh) files = list_directory("/etc")',
+            '70 (ssh) if is_connected() then execute "uptime"',
+            '80 (ssh) reconnect()'
+        ]

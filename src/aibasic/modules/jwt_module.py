@@ -27,6 +27,7 @@ import threading
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List, Union
 import json
+from .module_base import AIbasicModuleBase
 
 try:
     import jwt
@@ -40,7 +41,7 @@ except ImportError:
     )
 
 
-class JWTModule:
+class JWTModule(AIbasicModuleBase):
     """
     JWT module for token management and authentication.
 
@@ -480,6 +481,271 @@ class JWTModule:
         """Close JWT module and cleanup resources."""
         self._private_key = None
         self._public_key = None
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="JWT",
+            task_type="jwt",
+            description="JSON Web Token creation, verification, and management with support for symmetric and asymmetric algorithms",
+            version="1.0.0",
+            keywords=["jwt", "token", "authentication", "authorization", "security", "oauth", "access-token", "refresh-token", "claims"],
+            dependencies=[
+                "PyJWT[crypto]>=2.8.0",
+                "cryptography>=41.0.0"
+            ]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern - one instance shared across operations",
+            "Supports symmetric algorithms (HS256, HS384, HS512) with secret key",
+            "Supports asymmetric algorithms (RS256, RS384, RS512, ES256, ES384, ES512) with RSA/ECDSA keys",
+            "Default algorithm is HS256 - change in config for production use",
+            "Secret key should be strong and kept secure - use environment variables in production",
+            "Access tokens typically expire in 15 minutes (configurable)",
+            "Refresh tokens typically expire in 7 days (configurable)",
+            "Tokens include standard claims: iss (issuer), aud (audience), exp (expiration), iat (issued at), sub (subject)",
+            "Asymmetric algorithms require private key for signing, public key for verification",
+            "Private/public keys loaded lazily from PEM files specified in config",
+            "Token verification checks signature, expiration, issuer, and audience by default",
+            "decode_token() can read payload without verification (useful for debugging, unsafe for auth)",
+            "Refresh tokens should be stored securely and used only to obtain new access tokens",
+            "Token blacklisting requires external storage (Redis, database) to track revoked JTI values",
+            "is_token_expired() checks expiration without full verification",
+            "create_token_pair() generates both access and refresh tokens in one call",
+            "Key methods: create_access_token, create_refresh_token, verify_token, refresh_access_token, decode_token"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="create_token",
+                description="Create a JWT token with custom payload and expiration",
+                parameters={
+                    "payload": "Dictionary of claims to include in token",
+                    "expires_delta": "Optional timedelta for custom expiration (overrides default)"
+                },
+                returns="Encoded JWT token string",
+                examples=[
+                    '(jwt) create token with payload {"user_id": 123, "role": "admin"}',
+                    '(jwt) create token with payload {"sub": "user@example.com"} expires in 30 minutes',
+                ]
+            ),
+            MethodInfo(
+                name="create_access_token",
+                description="Create a short-lived access token for API authentication",
+                parameters={
+                    "subject": "Subject identifier (user ID, username, email, etc.)",
+                    "additional_claims": "Optional dict of extra claims to include (e.g., roles, permissions)"
+                },
+                returns="Encoded access token string with 'access' type and default expiration",
+                examples=[
+                    '(jwt) create access token for subject "user123"',
+                    '(jwt) create access token for "user@example.com" with claims {"role": "admin", "permissions": ["read", "write"]}',
+                ]
+            ),
+            MethodInfo(
+                name="create_refresh_token",
+                description="Create a long-lived refresh token for obtaining new access tokens",
+                parameters={
+                    "subject": "Subject identifier (user ID, username, email, etc.)",
+                    "additional_claims": "Optional dict of extra claims to include"
+                },
+                returns="Encoded refresh token string with 'refresh' type and extended expiration",
+                examples=[
+                    '(jwt) create refresh token for subject "user123"',
+                    '(jwt) create refresh token for "user@example.com" with claims {"device": "mobile"}',
+                ]
+            ),
+            MethodInfo(
+                name="verify_token",
+                description="Verify JWT signature and validate all claims including expiration",
+                parameters={
+                    "token": "JWT token string to verify",
+                    "verify_exp": "Whether to check expiration (default: True)",
+                    "audience": "Expected audience value to verify (optional, uses config default)"
+                },
+                returns="Decoded payload dictionary if valid",
+                examples=[
+                    '(jwt) verify token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+                    '(jwt) verify token with audience "api.example.com"',
+                    '(jwt) verify token without expiration check',
+                ]
+            ),
+            MethodInfo(
+                name="decode_token",
+                description="Decode token payload without verification (unsafe for authentication)",
+                parameters={
+                    "token": "JWT token string to decode",
+                    "verify": "Whether to verify signature (default: False)"
+                },
+                returns="Decoded payload dictionary",
+                examples=[
+                    '(jwt) decode token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+                    '(jwt) decode token without verification',
+                    '(jwt) read token payload "eyJhbGciOi..."',
+                ]
+            ),
+            MethodInfo(
+                name="refresh_access_token",
+                description="Generate new access token from valid refresh token",
+                parameters={
+                    "refresh_token": "Valid refresh token string"
+                },
+                returns="New access token with same subject and additional claims",
+                examples=[
+                    '(jwt) refresh access token from refresh_token',
+                    '(jwt) get new access token from "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+                ]
+            ),
+            MethodInfo(
+                name="create_token_pair",
+                description="Create both access and refresh tokens simultaneously",
+                parameters={
+                    "subject": "Subject identifier (user ID, username, email, etc.)",
+                    "additional_claims": "Optional dict of extra claims for both tokens"
+                },
+                returns="Dictionary with 'access_token' and 'refresh_token' keys",
+                examples=[
+                    '(jwt) create token pair for subject "user123"',
+                    '(jwt) create token pair for "user@example.com" with claims {"role": "admin"}',
+                ]
+            ),
+            MethodInfo(
+                name="get_token_claims",
+                description="Extract all claims from token without verification",
+                parameters={
+                    "token": "JWT token string"
+                },
+                returns="Dictionary of all claims (sub, exp, iat, iss, aud, custom claims)",
+                examples=[
+                    '(jwt) get token claims from "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+                    '(jwt) extract claims from token',
+                ]
+            ),
+            MethodInfo(
+                name="get_token_header",
+                description="Extract header information from token (algorithm, type, key ID)",
+                parameters={
+                    "token": "JWT token string"
+                },
+                returns="Dictionary with header fields (alg, typ, kid if present)",
+                examples=[
+                    '(jwt) get token header from "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+                    '(jwt) show token algorithm and type',
+                ]
+            ),
+            MethodInfo(
+                name="is_token_expired",
+                description="Check if token is expired without full verification",
+                parameters={
+                    "token": "JWT token string"
+                },
+                returns="Boolean: True if expired, False if still valid",
+                examples=[
+                    '(jwt) check if token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." is expired',
+                    '(jwt) is token expired',
+                ]
+            ),
+            MethodInfo(
+                name="get_token_expiration",
+                description="Get expiration datetime of a token",
+                parameters={
+                    "token": "JWT token string"
+                },
+                returns="Datetime object representing expiration time, or None if no expiration",
+                examples=[
+                    '(jwt) get token expiration from "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+                    '(jwt) show when token expires',
+                ]
+            ),
+            MethodInfo(
+                name="validate_token_structure",
+                description="Validate JWT structure (three base64 parts separated by dots)",
+                parameters={
+                    "token": "Token string to validate"
+                },
+                returns="Boolean: True if valid JWT structure, False otherwise",
+                examples=[
+                    '(jwt) validate token structure "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+                    '(jwt) check if string is valid JWT format',
+                ]
+            ),
+            MethodInfo(
+                name="blacklist_check",
+                description="Check if token's JTI (JWT ID) is in a blacklist set",
+                parameters={
+                    "token": "JWT token string",
+                    "blacklist": "Set of blacklisted JTI values"
+                },
+                returns="Boolean: True if blacklisted, False otherwise",
+                examples=[
+                    '(jwt) check blacklist for token with jti_blacklist_set',
+                    '(jwt) is token blacklisted in revoked_tokens',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Basic token creation
+            '10 (jwt) create access token for subject "user123"',
+            '20 (jwt) create refresh token for subject "user123"',
+            '30 (jwt) create token pair for subject "user@example.com"',
+
+            # Token creation with custom claims
+            '40 (jwt) create access token for "admin@example.com" with claims {"role": "admin", "permissions": ["read", "write", "delete"]}',
+            '50 (jwt) create refresh token for "user123" with claims {"device": "mobile", "ip": "192.168.1.1"}',
+
+            # Custom expiration
+            '60 (jwt) create token with payload {"user_id": 123, "role": "user"} expires in 60 minutes',
+
+            # Token verification
+            '70 (jwt) verify token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+            '80 (jwt) verify token access_token',
+            '90 (jwt) verify token with audience "api.example.com"',
+
+            # Token decoding (without verification)
+            '100 (jwt) decode token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+            '110 (jwt) get token claims from access_token',
+            '120 (jwt) get token header from access_token',
+
+            # Token refresh
+            '130 (jwt) refresh access token from refresh_token',
+            '140 (jwt) get new access token from "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+
+            # Token inspection
+            '150 (jwt) is token "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." expired',
+            '160 (jwt) get token expiration from access_token',
+            '170 (jwt) validate token structure "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
+
+            # Token blacklist
+            '180 (jwt) check blacklist for token with blacklist_set',
+
+            # Complete authentication flow
+            '190 (jwt) create token pair for "user@example.com" with claims {"role": "user", "verified": true}',
+            '200 (jwt) verify token access_token',
+            '210 (jwt) refresh access token from refresh_token',
+
+            # Role-based tokens
+            '220 (jwt) create access token for "admin" with claims {"role": "admin", "permissions": ["users:read", "users:write", "users:delete"]}',
+            '230 (jwt) create access token for "viewer" with claims {"role": "viewer", "permissions": ["users:read"]}',
+
+            # Token inspection for debugging
+            '240 (jwt) decode token access_token',
+            '250 (jwt) get token header from access_token',
+            '260 (jwt) show when token access_token expires',
+        ]
 
 
 # Module metadata

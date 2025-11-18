@@ -75,8 +75,10 @@ except ImportError:
     NotFoundError = Exception
     RequestError = Exception
 
+from .module_base import AIbasicModuleBase
 
-class OpenSearchModule:
+
+class OpenSearchModule(AIbasicModuleBase):
     """
     OpenSearch connection manager with full authentication and SSL/TLS support.
 
@@ -616,3 +618,198 @@ class OpenSearchModule:
             self.close()
         except:
             pass
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="OpenSearch",
+            task_type="opensearch",
+            description="OpenSearch search and analytics engine with full-text search, indexing, aggregations, and AWS support",
+            version="1.0.0",
+            keywords=[
+                "opensearch", "elasticsearch", "search", "analytics", "full-text",
+                "indexing", "aggregations", "aws", "iam", "bulk-operations"
+            ],
+            dependencies=["opensearch-py>=2.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one client instance per application",
+            "Supports basic authentication (username/password)",
+            "Supports AWS IAM authentication for AWS OpenSearch Service",
+            "SSL/TLS connections supported with optional certificate verification",
+            "Set VERIFY_CERTS=false for self-signed certificates (development only)",
+            "Default port is 9200 (9243 for AWS OpenSearch)",
+            "Documents auto-generate ID if not specified",
+            "refresh=True makes documents immediately searchable (slower)",
+            "Index patterns supported (e.g., 'logs-*' searches multiple indices)",
+            "Query DSL used for complex searches (match, term, bool, range, etc.)",
+            "Aggregations provide analytics (terms, stats, histogram, date_histogram)",
+            "Bulk operations significantly faster for multiple documents",
+            "size=0 in aggregations returns only aggregation results",
+            "from_ and size parameters used for pagination",
+            "_source parameter controls which fields are returned",
+            "refresh_index() makes recent changes searchable",
+            "count() returns document count without retrieving documents",
+            "Timeout defaults to 30 seconds, configurable via TIMEOUT",
+            "Connection pool size defaults to 10, configurable via POOL_MAXSIZE",
+            "AWS authentication requires boto3 and requests-aws4auth packages"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="index_document",
+                description="Index a single document with optional ID",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "document": "dict (required) - Document to index",
+                    "doc_id": "str (optional) - Document ID (auto-generated if not provided)",
+                    "refresh": "bool (optional) - Refresh index after operation (default False)"
+                },
+                returns="dict - Response with _id, _index, result",
+                examples=['index {"name": "Widget", "price": 29.99} into "products"', 'index {"name": "Item"} into "products" with id "123"']
+            ),
+            MethodInfo(
+                name="get_document",
+                description="Get a document by ID from an index",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "doc_id": "str (required) - Document ID"
+                },
+                returns="dict/None - Document source or None if not found",
+                examples=['get document "123" from "products"']
+            ),
+            MethodInfo(
+                name="search",
+                description="Search documents using Query DSL",
+                parameters={
+                    "index_name": "str (required) - Index name or pattern",
+                    "query": "dict (optional) - Query DSL (None = match_all)",
+                    "size": "int (optional) - Number of results (default 10)",
+                    "from_": "int (optional) - Starting offset for pagination (default 0)",
+                    "sort": "list (optional) - Sort order",
+                    "source": "bool/list (optional) - Fields to return"
+                },
+                returns="dict - Search response with hits",
+                examples=['search "products" for {"match": {"name": "widget"}}', 'search "logs-*" size 100']
+            ),
+            MethodInfo(
+                name="search_simple",
+                description="Simple search for a value in a specific field",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "field": "str (required) - Field to search",
+                    "value": "str (required) - Value to search for",
+                    "size": "int (optional) - Number of results (default 10)"
+                },
+                returns="list - List of matching documents",
+                examples=['search "products" field "name" value "widget"']
+            ),
+            MethodInfo(
+                name="bulk_index",
+                description="Bulk index multiple documents at once",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "documents": "list (required) - List of documents to index",
+                    "doc_ids": "list (optional) - List of document IDs",
+                    "refresh": "bool (optional) - Refresh index after operation"
+                },
+                returns="dict - Bulk response with success/error information",
+                examples=['bulk index [{"name": "Item1"}, {"name": "Item2"}] into "products"']
+            ),
+            MethodInfo(
+                name="update_document",
+                description="Update an existing document by ID",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "doc_id": "str (required) - Document ID",
+                    "document": "dict (required) - Partial or full document update",
+                    "refresh": "bool (optional) - Refresh index after operation"
+                },
+                returns="dict - Response",
+                examples=['update document "123" in "products" with {"price": 39.99}']
+            ),
+            MethodInfo(
+                name="delete_document",
+                description="Delete a document by ID",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "doc_id": "str (required) - Document ID",
+                    "refresh": "bool (optional) - Refresh index after operation"
+                },
+                returns="dict - Response",
+                examples=['delete document "123" from "products"']
+            ),
+            MethodInfo(
+                name="create_index",
+                description="Create a new index with optional settings and mappings",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "body": "dict (optional) - Index settings and mappings"
+                },
+                returns="dict - Response",
+                examples=['create index "products"', 'create index "logs" with settings {...}']
+            ),
+            MethodInfo(
+                name="delete_index",
+                description="Delete an index",
+                parameters={"index_name": "str (required) - Index name"},
+                returns="dict - Response",
+                examples=['delete index "old_products"']
+            ),
+            MethodInfo(
+                name="count",
+                description="Count documents matching a query",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "query": "dict (optional) - Query DSL (None = count all)"
+                },
+                returns="int - Document count",
+                examples=['count documents in "products"', 'count "products" where {"match": {"category": "electronics"}}']
+            ),
+            MethodInfo(
+                name="aggregate",
+                description="Perform aggregations for analytics",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "aggregations": "dict (required) - Aggregation DSL",
+                    "query": "dict (optional) - Filter query",
+                    "size": "int (optional) - Number of documents to return (default 0)"
+                },
+                returns="dict - Aggregation results",
+                examples=['aggregate "sales" by {"by_category": {"terms": {"field": "category"}}}']
+            ),
+            MethodInfo(
+                name="cluster_health",
+                description="Get OpenSearch cluster health status",
+                parameters={},
+                returns="dict - Cluster health information",
+                examples=['get cluster health']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (opensearch) create index "products"',
+            '20 (opensearch) index {"name": "Widget", "price": 29.99, "category": "tools"} into "products" with id "123"',
+            '30 (opensearch) index {"name": "Gadget", "price": 49.99} into "products"',
+            '40 (opensearch) doc = get document "123" from "products"',
+            '50 (opensearch) results = search "products" for {"match": {"name": "widget"}}',
+            '60 (opensearch) results = search "products" field "category" value "tools"',
+            '70 (opensearch) update document "123" in "products" with {"price": 39.99}',
+            '80 (opensearch) bulk index [{"name": "Item1"}, {"name": "Item2"}, {"name": "Item3"}] into "products"',
+            '90 (opensearch) count = count documents in "products"',
+            '100 (opensearch) agg = aggregate "products" by {"avg_price": {"avg": {"field": "price"}}}',
+            '110 (opensearch) delete document "123" from "products"'
+        ]

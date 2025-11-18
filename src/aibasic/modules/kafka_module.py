@@ -71,8 +71,10 @@ from typing import Optional, List, Dict, Any, Union, Callable
 from kafka import KafkaProducer, KafkaConsumer
 from kafka.errors import KafkaError
 
+from .module_base import AIbasicModuleBase
 
-class KafkaModule:
+
+class KafkaModule(AIbasicModuleBase):
     """
     Apache Kafka producer and consumer manager.
 
@@ -501,3 +503,190 @@ class KafkaModule:
     def __del__(self):
         """Destructor to ensure connections are closed."""
         self.close()
+
+    # =============================================================================
+    # Metadata Methods for AIbasic Compiler
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Kafka",
+            task_type="kafka",
+            description="Apache Kafka distributed streaming platform for message publishing, consumption, and event-driven architectures",
+            version="1.0.0",
+            keywords=["kafka", "messaging", "streaming", "pubsub", "event-driven", "queue", "producer", "consumer", "topic"],
+            dependencies=["kafka-python>=2.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern via from_config() - one instance per application",
+            "Supports multiple security protocols: PLAINTEXT, SASL_PLAINTEXT, SASL_SSL, SSL",
+            "SASL mechanisms: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, GSSAPI (Kerberos)",
+            "Producer uses JSON serialization by default for dict messages",
+            "Producer acknowledgment modes: 0 (no ack), 1 (leader ack), all (all replicas ack)",
+            "Compression types: gzip, snappy, lz4, zstd (reduces network bandwidth)",
+            "Consumer groups enable parallel processing across multiple consumers",
+            "Auto offset reset: 'earliest' starts from beginning, 'latest' from newest messages",
+            "Auto-commit enabled by default - offsets committed automatically every 5 seconds",
+            "Message keys enable partitioning - messages with same key go to same partition",
+            "Headers support metadata without affecting message content",
+            "Batch publishing improves throughput for multiple messages",
+            "SSL/TLS verification can be disabled for development (ssl_verify=false)",
+            "Producer is lazy-loaded on first publish for efficiency",
+            "Consumer is created per consume_messages() call (not persistent)",
+            "flush_producer() ensures all buffered messages are sent before continuing",
+            "Connection pooling and retries handled automatically by kafka-python library",
+            "Key methods: publish_message, publish_batch, consume_messages, get_topic_metadata, flush_producer"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="publish_message",
+                description="Publish a single message to a Kafka topic with optional key, partition, and headers",
+                parameters={
+                    "topic": "Topic name (string)",
+                    "message": "Message value - dict (serialized to JSON), string, or bytes",
+                    "key": "Message key for partitioning (optional, string)",
+                    "partition": "Specific partition number (optional, int, overrides key-based partitioning)",
+                    "headers": "List of (key, value) tuples for metadata (optional, values must be bytes)"
+                },
+                returns="None - raises KafkaError on failure, prints confirmation on success",
+                examples=[
+                    '(kafka) publish message {"user_id": 123, "action": "login"} to topic "events"',
+                    '(kafka) publish message {"order": "12345", "total": 99.99} to topic "orders" with key "user_123"',
+                    '(kafka) publish message "Hello Kafka" to topic "notifications" with headers [("source", b"web")]',
+                ]
+            ),
+            MethodInfo(
+                name="publish_batch",
+                description="Publish multiple messages to a topic efficiently in a batch",
+                parameters={
+                    "topic": "Topic name (string)",
+                    "messages": "List of messages (dicts, strings, or bytes)",
+                    "keys": "Optional list of keys - must match length of messages (list of strings)"
+                },
+                returns="None - prints batch confirmation, logs individual failures",
+                examples=[
+                    '(kafka) publish batch [{"user": 1}, {"user": 2}, {"user": 3}] to topic "events"',
+                    '(kafka) publish batch of messages to topic "logs" with keys ["log1", "log2", "log3"]',
+                ]
+            ),
+            MethodInfo(
+                name="consume_messages",
+                description="Consume messages from one or more topics with optional callback or as iterator",
+                parameters={
+                    "topics": "List of topic names to subscribe to (list of strings)",
+                    "callback": "Optional function to process each message - receives ConsumerRecord (callable)",
+                    "max_messages": "Maximum messages to consume (optional, int, None=infinite)",
+                    "timeout_ms": "Poll timeout in milliseconds (default: 1000)"
+                },
+                returns="Generator yielding ConsumerRecord objects if no callback, otherwise None",
+                examples=[
+                    '(kafka) consume messages from topics ["events", "notifications"]',
+                    '(kafka) consume messages from topic "orders" with max 100 messages',
+                    '(kafka) consume from topics ["logs"] with callback process_log max 1000',
+                ]
+            ),
+            MethodInfo(
+                name="flush_producer",
+                description="Flush all pending messages from producer buffer to Kafka brokers",
+                parameters={},
+                returns="None - blocks until all buffered messages are sent",
+                examples=[
+                    '(kafka) flush producer',
+                    '(kafka) flush pending messages',
+                ]
+            ),
+            MethodInfo(
+                name="get_topic_metadata",
+                description="Get metadata information about a topic including partition details",
+                parameters={
+                    "topic": "Topic name (string)"
+                },
+                returns="Dict with 'topic' and 'partitions' (list of partition numbers)",
+                examples=[
+                    '(kafka) get topic metadata for "events"',
+                    '(kafka) show topic info for "orders"',
+                ]
+            ),
+            MethodInfo(
+                name="get_connection_info",
+                description="Get current Kafka connection configuration details",
+                parameters={},
+                returns="Dict with bootstrap_servers, security_protocol, sasl_mechanism, ssl_verify, consumer_group_id",
+                examples=[
+                    '(kafka) get connection info',
+                    '(kafka) show kafka configuration',
+                ]
+            ),
+            MethodInfo(
+                name="close",
+                description="Close producer and all active consumers to release resources",
+                parameters={},
+                returns="None - prints confirmation when connections closed",
+                examples=[
+                    '(kafka) close connections',
+                    '(kafka) disconnect from kafka',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Basic publishing
+            '10 (kafka) publish message {"event": "user_login", "user_id": 123} to topic "events"',
+            '20 (kafka) publish message {"order_id": "ORD-12345", "amount": 99.99} to topic "orders"',
+            '30 (kafka) publish message "System started" to topic "notifications"',
+
+            # Publishing with keys (for partitioning)
+            '40 (kafka) publish message {"user_id": 123, "action": "click"} to topic "events" with key "user_123"',
+            '50 (kafka) publish message {"product": "laptop", "price": 999} to topic "catalog" with key "electronics"',
+
+            # Publishing with headers
+            '60 (kafka) publish message {"data": "value"} to topic "events" with headers [("source", b"web-app"), ("version", b"1.0")]',
+
+            # Batch publishing
+            '70 (kafka) publish batch [{"user": 1, "action": "login"}, {"user": 2, "action": "logout"}] to topic "events"',
+            '80 (kafka) publish batch message_list to topic "logs" with keys key_list',
+
+            # Consuming messages
+            '90 (kafka) consume messages from topics ["events"]',
+            '100 (kafka) consume messages from topics ["orders", "notifications"] max 100 messages',
+            '110 (kafka) consume messages from topic "logs" with callback process_log_message',
+
+            # Topic metadata
+            '120 (kafka) get topic metadata for "events"',
+            '130 (kafka) show topic info for "orders"',
+
+            # Producer flush
+            '140 (kafka) flush producer',
+            '150 (kafka) publish message {"final": true} to topic "events"',
+            '160 (kafka) flush pending messages',
+
+            # Connection info
+            '170 (kafka) get connection info',
+            '180 (kafka) show kafka configuration',
+
+            # Event-driven workflow
+            '190 (kafka) publish message {"event_type": "user_signup", "user_id": 456, "timestamp": "2025-01-15T10:00:00"} to topic "user_events" with key "user_456"',
+            '200 (kafka) publish message {"event_type": "purchase", "user_id": 456, "order_id": "ORD-999", "amount": 149.99} to topic "user_events" with key "user_456"',
+
+            # Stream processing pattern
+            '210 (kafka) consume messages from topics ["raw_events"] with callback enrich_and_republish max 1000',
+
+            # Cleanup
+            '220 (kafka) flush producer',
+            '230 (kafka) close connections',
+        ]

@@ -1,0 +1,4 @@
+REM Test Discord module with new metadata system
+10 (discord) send message "Hello from AIbasic with new metadata!"
+20 (discord) send notification with title "Test" and message "Testing metadata system" and level "success"
+30 PRINT "Discord test complete"

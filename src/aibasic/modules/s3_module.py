@@ -101,8 +101,10 @@ except ImportError:
     Config = None
     print("[S3Module] Warning: boto3 not installed. Install with: pip install boto3")
 
+from .module_base import AIbasicModuleBase
 
-class S3Module:
+
+class S3Module(AIbasicModuleBase):
     """
     S3/MinIO object storage module with singleton pattern.
     Provides unified interface for S3-compatible object storage operations.
@@ -805,3 +807,160 @@ class S3Module:
     def close(self):
         """Close S3 client (boto3 handles this automatically)."""
         print("[S3Module] Connection closed")
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="S3",
+            task_type="s3",
+            description="S3-compatible object storage for AWS S3, MinIO, DigitalOcean Spaces with upload/download and presigned URLs",
+            version="1.0.0",
+            keywords=[
+                "s3", "aws", "minio", "object-storage", "bucket", "upload", "download",
+                "presigned-url", "multipart", "digitalocean-spaces"
+            ],
+            dependencies=["boto3>=1.26.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one S3 client per application",
+            "Works with AWS S3, MinIO, DigitalOcean Spaces, Wasabi, and S3-compatible services",
+            "Endpoint URL determines which service to use (S3, MinIO, Spaces, etc.)",
+            "Default bucket can be set in config with DEFAULT_BUCKET",
+            "Multipart upload automatically used for files > MULTIPART_THRESHOLD (default 8MB)",
+            "Presigned URLs provide temporary access without credentials",
+            "Server-side encryption supported (SSE-S3, SSE-KMS, SSE-C)",
+            "Object versioning must be enabled on bucket before use",
+            "upload_file() auto-detects content type from file extension",
+            "download_file() preserves original object metadata",
+            "list_objects() returns list of dicts with key, size, last_modified",
+            "Prefix filtering acts like directory path (e.g., 'uploads/')",
+            "delete_object() soft deletes if versioning enabled",
+            "copy_object() supports server-side copy (no download/upload)",
+            "get_object_metadata() returns ContentType, ContentLength, LastModified, etc.",
+            "VERIFY_SSL=false for MinIO dev with self-signed certs",
+            "Signature version s3v4 required for some regions (default)",
+            "Bucket names must be globally unique for AWS S3",
+            "Object keys (paths) case-sensitive and support slashes",
+            "Always check bucket exists before operations or handle ClientError"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="create_bucket",
+                description="Create a new S3 bucket",
+                parameters={
+                    "bucket_name": "str (required) - Bucket name (globally unique for AWS S3)",
+                    "region": "str (optional) - AWS region (default from config)"
+                },
+                returns="None",
+                examples=['create bucket "my-app-uploads"']
+            ),
+            MethodInfo(
+                name="upload_file",
+                description="Upload file to S3 bucket",
+                parameters={
+                    "local_file": "str (required) - Local file path",
+                    "bucket_name": "str (optional) - Bucket name (default from config)",
+                    "object_key": "str (optional) - Object key/path (default filename)",
+                    "metadata": "dict (optional) - Custom metadata",
+                    "encryption": "str (optional) - Server-side encryption (AES256, aws:kms)"
+                },
+                returns="None",
+                examples=['upload "data.csv" to bucket "my-bucket" as "uploads/data.csv"']
+            ),
+            MethodInfo(
+                name="download_file",
+                description="Download file from S3 bucket",
+                parameters={
+                    "bucket_name": "str (required) - Bucket name",
+                    "object_key": "str (required) - Object key/path",
+                    "local_file": "str (required) - Local destination path"
+                },
+                returns="None",
+                examples=['download "uploads/data.csv" from bucket "my-bucket" to "local_data.csv"']
+            ),
+            MethodInfo(
+                name="list_objects",
+                description="List objects in bucket with optional prefix filter",
+                parameters={
+                    "bucket_name": "str (optional) - Bucket name (default from config)",
+                    "prefix": "str (optional) - Filter by prefix (e.g., 'uploads/')",
+                    "max_keys": "int (optional) - Maximum objects to return (default 1000)"
+                },
+                returns="list - List of dicts with key, size, last_modified",
+                examples=['list objects in bucket "my-bucket" with prefix "uploads/"']
+            ),
+            MethodInfo(
+                name="delete_object",
+                description="Delete object from bucket",
+                parameters={
+                    "bucket_name": "str (required) - Bucket name",
+                    "object_key": "str (required) - Object key to delete"
+                },
+                returns="None",
+                examples=['delete object "uploads/old_data.csv" from bucket "my-bucket"']
+            ),
+            MethodInfo(
+                name="generate_presigned_url",
+                description="Generate temporary presigned URL for object access",
+                parameters={
+                    "bucket_name": "str (required) - Bucket name",
+                    "object_key": "str (required) - Object key",
+                    "expiration": "int (optional) - URL expiration in seconds (default 3600)"
+                },
+                returns="str - Presigned URL",
+                examples=['url = generate_presigned_url("my-bucket", "file.pdf", 7200)']
+            ),
+            MethodInfo(
+                name="copy_object",
+                description="Copy object from one location to another (server-side)",
+                parameters={
+                    "source_bucket": "str (required) - Source bucket name",
+                    "source_key": "str (required) - Source object key",
+                    "dest_bucket": "str (required) - Destination bucket name",
+                    "dest_key": "str (required) - Destination object key"
+                },
+                returns="None",
+                examples=['copy object "data.csv" from bucket "source" to bucket "dest" as "backup/data.csv"']
+            ),
+            MethodInfo(
+                name="bucket_exists",
+                description="Check if bucket exists",
+                parameters={"bucket_name": "str (required) - Bucket name"},
+                returns="bool - True if bucket exists",
+                examples=['if bucket_exists("my-bucket") then...']
+            ),
+            MethodInfo(
+                name="object_exists",
+                description="Check if object exists in bucket",
+                parameters={
+                    "bucket_name": "str (required) - Bucket name",
+                    "object_key": "str (required) - Object key"
+                },
+                returns="bool - True if object exists",
+                examples=['if object_exists("my-bucket", "data.csv") then...']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (s3) create bucket "my-app-data"',
+            '20 (s3) upload "local_file.csv" to bucket "my-app-data" as "uploads/file.csv"',
+            '30 (s3) download "uploads/file.csv" from bucket "my-app-data" to "downloaded.csv"',
+            '40 (s3) objects = list objects in bucket "my-app-data" with prefix "uploads/"',
+            '50 (s3) url = generate_presigned_url("my-app-data", "uploads/file.csv", 3600)',
+            '60 (s3) delete object "uploads/old_file.csv" from bucket "my-app-data"',
+            '70 (s3) if bucket_exists("my-app-data") then print "Bucket exists"'
+        ]

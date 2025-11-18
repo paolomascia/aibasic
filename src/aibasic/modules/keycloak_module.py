@@ -29,6 +29,7 @@ Usage:
 import threading
 import os
 from typing import Optional, Dict, Any, List
+from .module_base import AIbasicModuleBase
 
 # Keycloak Client Library
 try:
@@ -39,7 +40,7 @@ except ImportError:
     KEYCLOAK_AVAILABLE = False
 
 
-class KeycloakModule:
+class KeycloakModule(AIbasicModuleBase):
     """
     Keycloak module for Identity and Access Management.
 
@@ -581,6 +582,454 @@ class KeycloakModule:
             }
         except Exception as e:
             raise RuntimeError(f"Failed to get server info: {e}")
+
+    # =========================================================================
+    # Module Metadata
+    # =========================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Keycloak",
+            task_type="keycloak",
+            description="Keycloak Identity and Access Management (IAM) with user management, roles, groups, OAuth2/OIDC clients, realm management, and authentication",
+            version="1.0.0",
+            keywords=["keycloak", "iam", "identity", "access-management", "authentication", "authorization", "oauth2", "oidc", "sso", "users", "roles", "groups", "realms"],
+            dependencies=["python-keycloak>=2.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get usage notes and best practices."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "Requires Keycloak server running (default: http://localhost:8080)",
+            "Admin credentials required for management operations (KEYCLOAK_ADMIN_USERNAME, KEYCLOAK_ADMIN_PASSWORD)",
+            "Default realm is 'master', configure with KEYCLOAK_REALM",
+            "Default client is 'admin-cli' for admin operations",
+            "SSL/TLS verification enabled by default, set KEYCLOAK_VERIFY_SSL=false for dev",
+            "set_realm() switches to different realm for multi-realm operations",
+            "User passwords can be temporary (must change on first login) or permanent",
+            "Realm roles are global within realm, client roles are client-specific",
+            "Groups support hierarchical structure and role inheritance",
+            "OAuth2/OIDC clients support public (browser apps) and confidential (server apps) types",
+            "directAccessGrantsEnabled=true allows username/password authentication (Resource Owner Password Credentials flow)",
+            "redirectUris must be configured for Authorization Code flow",
+            "webOrigins controls CORS for browser-based apps",
+            "authenticate() returns JWT access_token and refresh_token",
+            "Access tokens expire (default 5 minutes), use refresh_token to get new ones",
+            "Always call logout() to invalidate refresh tokens when done",
+            "User attributes stored as dict, useful for custom profile fields",
+            "Email verification controlled by emailVerified flag",
+            "Federation allows integration with LDAP, Active Directory, external IDPs"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about available methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="set_realm",
+                description="Switch to a different realm for subsequent operations",
+                parameters={"realm_name": "str (required) - Realm name to switch to"},
+                returns="None",
+                examples=['keycloak set_realm "myapp"', 'keycloak set_realm "production"']
+            ),
+            MethodInfo(
+                name="realm_create",
+                description="Create a new realm",
+                parameters={
+                    "realm_name": "str (required) - Realm name",
+                    "enabled": "bool (optional) - Enable realm (default True)",
+                    "displayName": "str (optional) - Display name",
+                    "displayNameHtml": "str (optional) - HTML display name"
+                },
+                returns="dict - Result with realm name and created status",
+                examples=['keycloak realm_create "myapp" enabled true displayName "My Application"']
+            ),
+            MethodInfo(
+                name="realm_get",
+                description="Get realm details",
+                parameters={"realm_name": "str (optional) - Realm name (default current realm)"},
+                returns="dict - Realm configuration",
+                examples=['keycloak realm_get "myapp"', 'keycloak realm_get']
+            ),
+            MethodInfo(
+                name="realm_delete",
+                description="Delete a realm (caution: deletes all users, roles, clients)",
+                parameters={"realm_name": "str (required) - Realm name to delete"},
+                returns="dict - Result with deleted status",
+                examples=['keycloak realm_delete "test-realm"']
+            ),
+            MethodInfo(
+                name="user_create",
+                description="Create a new user",
+                parameters={
+                    "username": "str (required) - Username",
+                    "email": "str (optional) - Email address",
+                    "firstName": "str (optional) - First name",
+                    "lastName": "str (optional) - Last name",
+                    "password": "str (optional) - Password",
+                    "temporary": "bool (optional) - Temporary password (default False)",
+                    "enabled": "bool (optional) - Enable user (default True)",
+                    "emailVerified": "bool (optional) - Email verified (default False)",
+                    "attributes": "dict (optional) - Custom attributes"
+                },
+                returns="dict - Result with user_id and created status",
+                examples=[
+                    'keycloak user_create "john.doe" email "john@example.com" password "secret123"',
+                    'keycloak user_create "alice" firstName "Alice" lastName "Smith" enabled true'
+                ]
+            ),
+            MethodInfo(
+                name="user_get",
+                description="Get user details by username",
+                parameters={"username": "str (required) - Username"},
+                returns="dict - User details",
+                examples=['keycloak user_get "john.doe"']
+            ),
+            MethodInfo(
+                name="user_update",
+                description="Update user attributes",
+                parameters={
+                    "username": "str (required) - Username",
+                    "email": "str (optional) - New email",
+                    "firstName": "str (optional) - New first name",
+                    "lastName": "str (optional) - New last name",
+                    "enabled": "bool (optional) - Enable/disable user",
+                    "attributes": "dict (optional) - Custom attributes"
+                },
+                returns="dict - Result with updated status",
+                examples=['keycloak user_update "john.doe" email "newemail@example.com" enabled false']
+            ),
+            MethodInfo(
+                name="user_delete",
+                description="Delete a user",
+                parameters={"username": "str (required) - Username"},
+                returns="dict - Result with deleted status",
+                examples=['keycloak user_delete "old.user"']
+            ),
+            MethodInfo(
+                name="user_set_password",
+                description="Set or reset user password",
+                parameters={
+                    "username": "str (required) - Username",
+                    "password": "str (required) - New password",
+                    "temporary": "bool (optional) - Temporary password requiring change on first login (default False)"
+                },
+                returns="dict - Result with password_set status",
+                examples=['keycloak user_set_password "john.doe" "newpassword123" temporary true']
+            ),
+            MethodInfo(
+                name="user_list",
+                description="List users with optional filters",
+                parameters={"query": "dict (optional) - Filter parameters (username, email, firstName, lastName, etc.)"},
+                returns="list[dict] - List of users",
+                examples=['keycloak user_list', 'keycloak user_list query {"email": "example.com"}']
+            ),
+            MethodInfo(
+                name="role_create",
+                description="Create a realm role",
+                parameters={
+                    "role_name": "str (required) - Role name",
+                    "description": "str (optional) - Role description"
+                },
+                returns="dict - Result with created status",
+                examples=['keycloak role_create "admin" description "Administrator role"', 'keycloak role_create "user"']
+            ),
+            MethodInfo(
+                name="role_get",
+                description="Get role details",
+                parameters={"role_name": "str (required) - Role name"},
+                returns="dict - Role details",
+                examples=['keycloak role_get "admin"']
+            ),
+            MethodInfo(
+                name="role_delete",
+                description="Delete a realm role",
+                parameters={"role_name": "str (required) - Role name"},
+                returns="dict - Result with deleted status",
+                examples=['keycloak role_delete "old-role"']
+            ),
+            MethodInfo(
+                name="role_list",
+                description="List all realm roles",
+                parameters={},
+                returns="list[dict] - List of roles",
+                examples=['keycloak role_list']
+            ),
+            MethodInfo(
+                name="user_assign_role",
+                description="Assign a realm role to a user",
+                parameters={
+                    "username": "str (required) - Username",
+                    "role_name": "str (required) - Role name to assign"
+                },
+                returns="dict - Result with assigned status",
+                examples=['keycloak user_assign_role "john.doe" "admin"']
+            ),
+            MethodInfo(
+                name="user_remove_role",
+                description="Remove a realm role from a user",
+                parameters={
+                    "username": "str (required) - Username",
+                    "role_name": "str (required) - Role name to remove"
+                },
+                returns="dict - Result with removed status",
+                examples=['keycloak user_remove_role "john.doe" "admin"']
+            ),
+            MethodInfo(
+                name="user_get_roles",
+                description="Get all roles assigned to a user",
+                parameters={"username": "str (required) - Username"},
+                returns="list[dict] - List of assigned roles",
+                examples=['keycloak user_get_roles "john.doe"']
+            ),
+            MethodInfo(
+                name="group_create",
+                description="Create a group",
+                parameters={
+                    "group_name": "str (required) - Group name",
+                    "attributes": "dict (optional) - Custom attributes"
+                },
+                returns="dict - Result with group_id and created status",
+                examples=['keycloak group_create "developers"', 'keycloak group_create "admins" attributes {"department": "IT"}']
+            ),
+            MethodInfo(
+                name="group_get",
+                description="Get group by name",
+                parameters={"group_name": "str (required) - Group name"},
+                returns="dict - Group details",
+                examples=['keycloak group_get "developers"']
+            ),
+            MethodInfo(
+                name="group_delete",
+                description="Delete a group",
+                parameters={"group_name": "str (required) - Group name"},
+                returns="dict - Result with deleted status",
+                examples=['keycloak group_delete "old-group"']
+            ),
+            MethodInfo(
+                name="group_add_user",
+                description="Add user to a group",
+                parameters={
+                    "group_name": "str (required) - Group name",
+                    "username": "str (required) - Username"
+                },
+                returns="dict - Result with added status",
+                examples=['keycloak group_add_user "developers" "john.doe"']
+            ),
+            MethodInfo(
+                name="group_remove_user",
+                description="Remove user from a group",
+                parameters={
+                    "group_name": "str (required) - Group name",
+                    "username": "str (required) - Username"
+                },
+                returns="dict - Result with removed status",
+                examples=['keycloak group_remove_user "developers" "john.doe"']
+            ),
+            MethodInfo(
+                name="client_create",
+                description="Create an OAuth2/OIDC client application",
+                parameters={
+                    "client_id": "str (required) - Client ID",
+                    "enabled": "bool (optional) - Enable client (default True)",
+                    "protocol": "str (optional) - Protocol: openid-connect or saml (default openid-connect)",
+                    "publicClient": "bool (optional) - Public client (no secret) for browser apps (default False)",
+                    "directAccessGrantsEnabled": "bool (optional) - Enable password flow (default True)",
+                    "redirectUris": "list[str] (optional) - Redirect URIs for authorization code flow",
+                    "webOrigins": "list[str] (optional) - Web origins for CORS",
+                    "secret": "str (optional) - Client secret for confidential clients"
+                },
+                returns="dict - Result with client_uuid and created status",
+                examples=[
+                    'keycloak client_create "myapp" redirectUris ["http://localhost:3000/callback"]',
+                    'keycloak client_create "spa" publicClient true redirectUris ["http://localhost:8080/*"]'
+                ]
+            ),
+            MethodInfo(
+                name="client_get",
+                description="Get client by client ID",
+                parameters={"client_id": "str (required) - Client ID"},
+                returns="dict - Client configuration",
+                examples=['keycloak client_get "myapp"']
+            ),
+            MethodInfo(
+                name="client_delete",
+                description="Delete a client",
+                parameters={"client_id": "str (required) - Client ID"},
+                returns="dict - Result with deleted status",
+                examples=['keycloak client_delete "old-app"']
+            ),
+            MethodInfo(
+                name="authenticate",
+                description="Authenticate user and get access/refresh tokens",
+                parameters={
+                    "username": "str (required) - Username",
+                    "password": "str (required) - Password"
+                },
+                returns="dict - Tokens with access_token, refresh_token, expires_in, token_type",
+                examples=['keycloak authenticate "john.doe" "password123"']
+            ),
+            MethodInfo(
+                name="token_refresh",
+                description="Refresh access token using refresh token",
+                parameters={"refresh_token": "str (required) - Refresh token"},
+                returns="dict - New tokens with access_token, refresh_token, expires_in",
+                examples=['keycloak token_refresh refresh_token']
+            ),
+            MethodInfo(
+                name="logout",
+                description="Logout user and invalidate refresh token",
+                parameters={"refresh_token": "str (required) - Refresh token to invalidate"},
+                returns="dict - Result with logged_out status",
+                examples=['keycloak logout refresh_token']
+            ),
+            MethodInfo(
+                name="get_server_info",
+                description="Get Keycloak server connection information",
+                parameters={},
+                returns="dict - Server info with server_url, realm, client_id, connected",
+                examples=['keycloak get_server_info']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '''// Create realm and users
+keycloak = new keycloak
+keycloak realm_create "myapp" enabled true displayName "My Application"
+keycloak set_realm "myapp"
+keycloak user_create "admin" email "admin@example.com" password "admin123" firstName "Admin" lastName "User"
+keycloak user_create "john" email "john@example.com" password "secret123"''',
+
+            '''// Create roles and assign to users
+keycloak = new keycloak
+keycloak role_create "admin" description "Administrator role"
+keycloak role_create "user" description "Regular user role"
+keycloak user_assign_role "admin" "admin"
+keycloak user_assign_role "john" "user"''',
+
+            '''// Create groups and add users
+keycloak = new keycloak
+keycloak group_create "developers"
+keycloak group_create "managers"
+keycloak group_add_user "developers" "john"
+keycloak group_add_user "managers" "admin"''',
+
+            '''// Create OAuth2 client
+keycloak = new keycloak
+redirects = ["http://localhost:3000/callback", "http://localhost:3000/silent-refresh"]
+origins = ["http://localhost:3000"]
+keycloak client_create "webapp" redirectUris redirects webOrigins origins directAccessGrantsEnabled true''',
+
+            '''// User authentication flow
+keycloak = new keycloak
+tokens = keycloak authenticate "john" "secret123"
+access_token = tokens["access_token"]
+refresh_token = tokens["refresh_token"]
+print "Access token expires in: " + tokens["expires_in"]
+
+// Refresh token before expiry
+new_tokens = keycloak token_refresh refresh_token
+new_access_token = new_tokens["access_token"]
+
+// Logout when done
+keycloak logout refresh_token''',
+
+            '''// User management
+keycloak = new keycloak
+keycloak user_create "alice" email "alice@example.com" password "temp123" temporary true
+keycloak user_set_password "alice" "newpassword" temporary false
+keycloak user_update "alice" firstName "Alice" lastName "Johnson" enabled true
+roles = keycloak user_get_roles "alice"
+foreach role in roles {
+    print role["name"]
+}''',
+
+            '''// List and filter users
+keycloak = new keycloak
+all_users = keycloak user_list
+foreach user in all_users {
+    print user["username"] + " - " + user["email"]
+}
+
+// Filter by email domain
+filtered = keycloak user_list query {"email": "@example.com"}''',
+
+            '''// Role management
+keycloak = new keycloak
+keycloak role_create "viewer" description "Read-only access"
+keycloak role_create "editor" description "Read-write access"
+all_roles = keycloak role_list
+foreach role in all_roles {
+    print role["name"] + ": " + role["description"]
+}''',
+
+            '''// Multi-realm management
+keycloak = new keycloak
+keycloak realm_create "dev" enabled true
+keycloak realm_create "staging" enabled true
+keycloak realm_create "production" enabled true
+
+keycloak set_realm "dev"
+keycloak user_create "testuser" password "test123"
+
+keycloak set_realm "production"
+keycloak user_create "produser" password "secure123"''',
+
+            '''// Complete application setup
+keycloak = new keycloak
+
+// Create realm
+keycloak realm_create "myapp" enabled true displayName "My Application"
+keycloak set_realm "myapp"
+
+// Create roles
+keycloak role_create "admin" description "Administrator"
+keycloak role_create "user" description "Regular user"
+
+// Create groups
+keycloak group_create "staff"
+keycloak group_create "customers"
+
+// Create admin user
+keycloak user_create "admin" email "admin@myapp.com" password "admin123" firstName "App" lastName "Admin"
+keycloak user_assign_role "admin" "admin"
+keycloak group_add_user "staff" "admin"
+
+// Create OAuth2 client for web app
+keycloak client_create "webapp" redirectUris ["http://localhost:3000/*"] webOrigins ["http://localhost:3000"] publicClient false
+
+// Get server info
+info = keycloak get_server_info
+print "Connected to: " + info["server_url"]
+print "Current realm: " + info["realm"]''',
+
+            '''// Password reset workflow
+keycloak = new keycloak
+keycloak user_set_password "john" "temporary123" temporary true
+print "Temporary password set. User must change on next login."''',
+
+            '''// Check user roles and groups
+keycloak = new keycloak
+user = keycloak user_get "john"
+print "User ID: " + user["id"]
+print "Email: " + user["email"]
+print "Enabled: " + user["enabled"]
+
+roles = keycloak user_get_roles "john"
+print "Assigned roles:"
+foreach role in roles {
+    print "  - " + role["name"]
+}'''
+        ]
 
 
 # Singleton instance

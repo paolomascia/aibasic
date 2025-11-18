@@ -69,7 +69,10 @@ except ImportError:
     py7zr = None
 
 
-class CompressionModule:
+from .module_base import AIbasicModuleBase
+
+
+class CompressionModule(AIbasicModuleBase):
     """
     Multi-format compression and decompression module.
 
@@ -716,3 +719,284 @@ class CompressionModule:
         if include_pattern and not fnmatch.fnmatch(filename, include_pattern):
             return False
         return True
+
+    # =============================================================================
+    # Metadata Methods for AIbasic Compiler
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Compression",
+            task_type="compression",
+            description="Multi-format compression and decompression for ZIP, TAR, GZIP, BZIP2, XZ, and 7Z archives",
+            version="1.0.0",
+            keywords=["compression", "archive", "zip", "tar", "gzip", "bzip2", "xz", "7z", "extract", "decompress"],
+            dependencies=["py7zr>=0.20.0"]  # Optional, for 7Z support
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module supports multiple compression formats: ZIP, TAR, TAR.GZ, TAR.BZ2, TAR.XZ, GZIP, BZIP2, XZ, 7Z",
+            "No configuration required - works standalone without aibasic.conf",
+            "Automatic format detection from file extensions",
+            "ZIP and 7Z support password protection",
+            "TAR supports multiple compression modes: none, gz, bz2, xz",
+            "Compression level: 0 (no compression) to 9 (maximum compression)",
+            "Single file compression: GZIP, BZIP2, XZ for individual files",
+            "Archive compression: ZIP, TAR, 7Z for directories and multiple files",
+            "Selective extraction via patterns (*.txt) or member lists",
+            "Include/exclude patterns for filtering files during compression",
+            "compress_auto() and extract_auto() detect format from file extension",
+            "list_archive() inspects archive contents without extraction",
+            "get_archive_info() provides statistics (size, compression ratio, file count)",
+            "7Z support requires py7zr library (pip install py7zr)",
+            "Key methods: compress_zip, extract_zip, compress_targz, extract_tar, compress_auto, extract_auto, list_archive",
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="compress_zip",
+                description="Create a ZIP archive with optional password protection and file filtering",
+                parameters={
+                    "source": "File path, directory path, or list of paths to compress",
+                    "output_file": "Output ZIP file path (string)",
+                    "compression_level": "0-9 (0=store, 9=max compression, default: 6)",
+                    "password": "Optional password for encryption (string, default: None)",
+                    "include_pattern": "Only include files matching pattern, e.g., '*.txt' (optional)",
+                    "exclude_pattern": "Exclude files matching pattern, e.g., '*.tmp' (optional)"
+                },
+                returns="Dict with format, output_file, files_count, original_size, compressed_size, compression_ratio",
+                examples=[
+                    '(compression) compress zip "data/" to "archive.zip" with compression level 9',
+                    '(compression) compress zip "logs/" to "logs.zip" with password "secret123"',
+                    '(compression) compress zip "src/" to "source.zip" include pattern "*.py" compression level 9',
+                ]
+            ),
+            MethodInfo(
+                name="extract_zip",
+                description="Extract a ZIP archive with optional password and selective extraction",
+                parameters={
+                    "archive_path": "Path to ZIP file (string)",
+                    "output_dir": "Output directory for extracted files (string)",
+                    "password": "Password if archive is encrypted (optional)",
+                    "members": "List of specific files to extract (optional, None = all)",
+                    "pattern": "Only extract files matching pattern, e.g., '*.txt' (optional)"
+                },
+                returns="Dict with format, files_count, output_dir",
+                examples=[
+                    '(compression) extract zip "archive.zip" to "output/"',
+                    '(compression) extract zip "secure.zip" to "data/" with password "secret123"',
+                    '(compression) extract zip "logs.zip" to "logs/" pattern "*.log"',
+                ]
+            ),
+            MethodInfo(
+                name="compress_tar",
+                description="Create a TAR archive with optional compression (gzip, bzip2, xz)",
+                parameters={
+                    "source": "File path, directory path, or list of paths",
+                    "output_file": "Output TAR file path (string)",
+                    "compression": "'none', 'gz', 'bz2', or 'xz' (default: 'none')",
+                    "compression_level": "0-9 for gz/bz2 compression (default: 6)",
+                    "include_pattern": "Only include files matching pattern (optional)",
+                    "exclude_pattern": "Exclude files matching pattern (optional)"
+                },
+                returns="Dict with format, output_file, files_count, original_size, compressed_size, compression_ratio",
+                examples=[
+                    '(compression) compress tar "data/" to "archive.tar" compression "none"',
+                    '(compression) compress tar "logs/" to "logs.tar" compression "gz" level 9',
+                    '(compression) compress tar "backups/" to "backup.tar" compression "bz2"',
+                ]
+            ),
+            MethodInfo(
+                name="compress_targz",
+                description="Create a TAR.GZ archive (shorthand for compress_tar with gz)",
+                parameters={
+                    "source": "File path, directory path, or list of paths",
+                    "output_file": "Output TAR.GZ file path (string)",
+                    "compression_level": "0-9 (default: 6)"
+                },
+                returns="Dict with format, output_file, files_count, sizes, compression_ratio",
+                examples=[
+                    '(compression) compress targz "data/" to "archive.tar.gz"',
+                    '(compression) compress targz "project/" to "project.tgz" level 9',
+                ]
+            ),
+            MethodInfo(
+                name="compress_tarbz2",
+                description="Create a TAR.BZ2 archive (shorthand for compress_tar with bz2)",
+                parameters={
+                    "source": "File path, directory path, or list of paths",
+                    "output_file": "Output TAR.BZ2 file path (string)",
+                    "compression_level": "0-9 (default: 6)"
+                },
+                returns="Dict with format, output_file, files_count, sizes, compression_ratio",
+                examples=[
+                    '(compression) compress tarbz2 "data/" to "archive.tar.bz2"',
+                    '(compression) compress tarbz2 "backups/" to "backup.tbz2" level 9',
+                ]
+            ),
+            MethodInfo(
+                name="compress_tarxz",
+                description="Create a TAR.XZ archive with LZMA compression (best compression ratio)",
+                parameters={
+                    "source": "File path, directory path, or list of paths",
+                    "output_file": "Output TAR.XZ file path (string)",
+                    "compression_level": "0-9 (default: 6)"
+                },
+                returns="Dict with format, output_file, files_count, sizes, compression_ratio",
+                examples=[
+                    '(compression) compress tarxz "data/" to "archive.tar.xz"',
+                    '(compression) compress tarxz "source/" to "src.tar.xz" level 9',
+                ]
+            ),
+            MethodInfo(
+                name="extract_tar",
+                description="Extract a TAR archive (auto-detects compression: tar, tar.gz, tar.bz2, tar.xz)",
+                parameters={
+                    "archive_path": "Path to TAR file (string)",
+                    "output_dir": "Output directory (string)",
+                    "members": "List of specific files to extract (optional)",
+                    "pattern": "Only extract files matching pattern (optional)"
+                },
+                returns="Dict with format, files_count, output_dir",
+                examples=[
+                    '(compression) extract tar "archive.tar.gz" to "output/"',
+                    '(compression) extract tar "backup.tar.bz2" to "restore/"',
+                    '(compression) extract tar "logs.tar.gz" to "logs/" pattern "*.log"',
+                ]
+            ),
+            MethodInfo(
+                name="compress_7z",
+                description="Create a 7Z archive with LZMA2 compression and optional password (requires py7zr)",
+                parameters={
+                    "source": "File path, directory path, or list of paths",
+                    "output_file": "Output 7Z file path (string)",
+                    "password": "Optional password for encryption (string)",
+                    "compression_level": "0-9 (default: 5)"
+                },
+                returns="Dict with format, output_file, files_count, original_size, compressed_size, compression_ratio",
+                examples=[
+                    '(compression) compress 7z "data/" to "archive.7z" level 9',
+                    '(compression) compress 7z "confidential/" to "secure.7z" password "secret" level 9',
+                ]
+            ),
+            MethodInfo(
+                name="extract_7z",
+                description="Extract a 7Z archive with optional password (requires py7zr)",
+                parameters={
+                    "archive_path": "Path to 7Z file (string)",
+                    "output_dir": "Output directory (string)",
+                    "password": "Password if archive is encrypted (optional)",
+                    "targets": "List of specific files to extract (optional)"
+                },
+                returns="Dict with format, files_count, output_dir",
+                examples=[
+                    '(compression) extract 7z "archive.7z" to "output/"',
+                    '(compression) extract 7z "secure.7z" to "data/" password "secret"',
+                ]
+            ),
+            MethodInfo(
+                name="compress_auto",
+                description="Automatically compress based on output file extension (zip, tar, tar.gz, tar.bz2, tar.xz, 7z)",
+                parameters={
+                    "source": "File path, directory path, or list of paths",
+                    "output_file": "Output file path with extension indicating format (string)"
+                },
+                returns="Dict with format-specific results",
+                examples=[
+                    '(compression) compress auto "data/" to "archive.zip"',
+                    '(compression) compress auto "logs/" to "logs.tar.gz"',
+                    '(compression) compress auto "backups/" to "backup.7z"',
+                ]
+            ),
+            MethodInfo(
+                name="extract_auto",
+                description="Automatically extract based on archive file extension",
+                parameters={
+                    "archive_path": "Path to archive file (string)",
+                    "output_dir": "Output directory (string)"
+                },
+                returns="Dict with format-specific results",
+                examples=[
+                    '(compression) extract auto "archive.zip" to "output/"',
+                    '(compression) extract auto "backup.tar.gz" to "restore/"',
+                    '(compression) extract auto "data.7z" to "extracted/"',
+                ]
+            ),
+            MethodInfo(
+                name="list_archive",
+                description="List contents of an archive without extracting",
+                parameters={
+                    "archive_path": "Path to archive file (string)"
+                },
+                returns="List of dicts with file info: name, size, compressed_size, date, is_dir",
+                examples=[
+                    '(compression) list archive "archive.zip"',
+                    '(compression) show contents of "backup.tar.gz"',
+                    '(compression) list files in "data.7z"',
+                ]
+            ),
+            MethodInfo(
+                name="get_archive_info",
+                description="Get summary statistics about an archive",
+                parameters={
+                    "archive_path": "Path to archive file (string)"
+                },
+                returns="Dict with format, archive_path, archive_size, files_count, dirs_count, total_uncompressed_size, compression_ratio",
+                examples=[
+                    '(compression) get archive info "archive.zip"',
+                    '(compression) show stats for "backup.tar.gz"',
+                    '(compression) get info about "data.7z"',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # ZIP operations
+            '10 (compression) compress zip "data/" to "archive.zip" with compression level 9',
+            '20 (compression) compress zip "logs/" to "secure-logs.zip" password "mypass123" level 9',
+            '30 (compression) extract zip "archive.zip" to "output/"',
+            '40 (compression) extract zip "secure-logs.zip" to "logs/" password "mypass123"',
+
+            # TAR operations
+            '50 (compression) compress tar "data/" to "archive.tar" compression "none"',
+            '60 (compression) compress targz "data/" to "archive.tar.gz" level 9',
+            '70 (compression) compress tarbz2 "backups/" to "backup.tar.bz2" level 9',
+            '80 (compression) compress tarxz "source/" to "src.tar.xz" level 9',
+            '90 (compression) extract tar "archive.tar.gz" to "output/"',
+
+            # Single file compression
+            '100 (compression) compress gzip "large_file.txt" to "large_file.txt.gz" level 9',
+            '110 (compression) extract gzip "large_file.txt.gz" to "large_file.txt"',
+
+            # 7Z operations
+            '120 (compression) compress 7z "important/" to "important.7z" password "secret" level 9',
+            '130 (compression) extract 7z "important.7z" to "restored/" password "secret"',
+
+            # Auto-detection
+            '140 (compression) compress auto "project/" to "project.tar.gz"',
+            '150 (compression) extract auto "project.tar.gz" to "project/"',
+
+            # Inspection
+            '160 (compression) list archive "archive.zip"',
+            '170 (compression) get archive info "backup.tar.gz"',
+
+            # Selective extraction
+            '180 (compression) extract zip "logs.zip" to "logs/" pattern "*.log"',
+            '190 (compression) compress zip "src/" to "python-only.zip" include pattern "*.py"',
+
+            # Multi-file compression
+            '200 (compression) compress zip ["file1.txt", "file2.txt", "dir/"] to "multi.zip" level 9',
+        ]

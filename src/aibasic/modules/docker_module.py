@@ -48,7 +48,10 @@ except ImportError:
     DOCKER_AVAILABLE = False
 
 
-class DockerModule:
+from .module_base import AIbasicModuleBase
+
+
+class DockerModule(AIbasicModuleBase):
     """
     Docker module for container and image management.
 
@@ -647,6 +650,330 @@ class DockerModule:
         if self._client:
             self._client.close()
             self._client = None
+
+    # =============================================================================
+    # Metadata Methods for AIbasic Compiler
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Docker",
+            task_type="docker",
+            description="Docker container, image, volume, and network management through Docker Engine API",
+            version="1.0.0",
+            keywords=["docker", "container", "image", "volume", "network", "containerization", "dockerfile", "registry"],
+            dependencies=["docker>=7.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "Requires Docker daemon running (Docker Desktop on Windows/Mac, Docker Engine on Linux)",
+            "Docker client connects via unix socket (Linux/Mac) or named pipe (Windows)",
+            "TCP connection supported for remote Docker hosts with optional TLS",
+            "Container operations: run, start, stop, restart, remove, exec, logs, stats",
+            "Image operations: pull, build, push, tag, remove, search, inspect",
+            "Volume operations: create, remove, list, inspect for persistent data",
+            "Network operations: create, connect, disconnect for container networking",
+            "All operations use Docker SDK for Python (official Docker library)",
+            "Detach mode runs containers in background (detach=True)",
+            "Port mappings format: {'80/tcp': 8080} maps container port 80 to host port 8080",
+            "Volume mounts format: {'/host/path': {'bind': '/container/path', 'mode': 'rw'}}",
+            "Environment variables passed as dict: {'VAR': 'value'}",
+            "Container logs support tail, follow, and timestamp options",
+            "System prune removes unused containers, images, networks, and volumes",
+            "Key methods: container_run, container_list, image_pull, image_build, volume_create, network_create",
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="container_run",
+                description="Run a container from an image with full configuration options",
+                parameters={
+                    "image": "Image name and tag (e.g., 'nginx:latest', 'ubuntu:22.04')",
+                    "name": "Container name (optional, Docker generates if omitted)",
+                    "command": "Command to run (string or list, optional, uses image default)",
+                    "environment": "Environment variables dict (optional, e.g., {'DB_HOST': 'localhost'})",
+                    "ports": "Port mappings dict (optional, e.g., {'80/tcp': 8080})",
+                    "volumes": "Volume mounts dict (optional, e.g., {'/host': {'bind': '/container', 'mode': 'rw'}})",
+                    "detach": "Run in background (default: True)",
+                    "remove": "Auto-remove container when stopped (default: False)",
+                    "network": "Network to connect to (optional, e.g., 'bridge', 'host')"
+                },
+                returns="Container object if detach=True, otherwise container output",
+                examples=[
+                    '(docker) run container "nginx:latest" with name "web-server" ports {"80/tcp": 8080} detach True',
+                    '(docker) run container "ubuntu:22.04" command "echo Hello" detach False',
+                    '(docker) run container "postgres:15" environment {"POSTGRES_PASSWORD": "secret"} volumes {"/data": {"bind": "/var/lib/postgresql/data"}}',
+                ]
+            ),
+            MethodInfo(
+                name="container_start",
+                description="Start a stopped container",
+                parameters={
+                    "container_id": "Container ID or name (string)"
+                },
+                returns="Boolean True on success, raises RuntimeError on failure",
+                examples=[
+                    '(docker) start container "web-server"',
+                    '(docker) start container by id "a1b2c3d4"',
+                ]
+            ),
+            MethodInfo(
+                name="container_stop",
+                description="Stop a running container gracefully with timeout",
+                parameters={
+                    "container_id": "Container ID or name (string)",
+                    "timeout": "Seconds to wait before force kill (default: 10)"
+                },
+                returns="Boolean True on success",
+                examples=[
+                    '(docker) stop container "web-server"',
+                    '(docker) stop container "app" timeout 30',
+                ]
+            ),
+            MethodInfo(
+                name="container_restart",
+                description="Restart a container (stop then start)",
+                parameters={
+                    "container_id": "Container ID or name (string)",
+                    "timeout": "Seconds to wait before force kill (default: 10)"
+                },
+                returns="Boolean True on success",
+                examples=[
+                    '(docker) restart container "web-server"',
+                    '(docker) restart container "api-server" timeout 15',
+                ]
+            ),
+            MethodInfo(
+                name="container_remove",
+                description="Remove a container (must be stopped unless force=True)",
+                parameters={
+                    "container_id": "Container ID or name (string)",
+                    "force": "Force remove running container (default: False)",
+                    "volumes": "Remove associated anonymous volumes (default: False)"
+                },
+                returns="Boolean True on success",
+                examples=[
+                    '(docker) remove container "old-server"',
+                    '(docker) remove container "temp" force True volumes True',
+                ]
+            ),
+            MethodInfo(
+                name="container_list",
+                description="List containers (running by default, all with all=True)",
+                parameters={
+                    "all": "Include stopped containers (default: False)",
+                    "filters": "Filter dict (optional, e.g., {'status': 'running', 'name': 'web'})"
+                },
+                returns="List of Container objects with attributes: id, name, status, image",
+                examples=[
+                    '(docker) list containers',
+                    '(docker) list all containers',
+                    '(docker) list containers with filters {"status": "exited"}',
+                ]
+            ),
+            MethodInfo(
+                name="container_logs",
+                description="Get container logs with optional tail, follow, and timestamps",
+                parameters={
+                    "container_id": "Container ID or name (string)",
+                    "tail": "Number of lines from end (default: 100, 'all' for everything)",
+                    "follow": "Stream logs in real-time (default: False)",
+                    "timestamps": "Include timestamps (default: False)"
+                },
+                returns="String with container logs",
+                examples=[
+                    '(docker) get logs from container "web-server" tail 50',
+                    '(docker) get logs from container "app" timestamps True',
+                ]
+            ),
+            MethodInfo(
+                name="container_exec",
+                description="Execute a command inside a running container",
+                parameters={
+                    "container_id": "Container ID or name (string)",
+                    "command": "Command to execute (string or list, e.g., 'ls -la' or ['ls', '-la'])",
+                    "detach": "Run in background (default: False)",
+                    "tty": "Allocate pseudo-TTY (default: False)"
+                },
+                returns="Command output as string if detach=False, otherwise True",
+                examples=[
+                    '(docker) exec in container "web-server" command "cat /etc/nginx/nginx.conf"',
+                    '(docker) exec in container "db" command ["mysqldump", "-u", "root", "mydb"]',
+                ]
+            ),
+            MethodInfo(
+                name="image_pull",
+                description="Pull an image from Docker registry (Docker Hub by default)",
+                parameters={
+                    "repository": "Repository name (e.g., 'nginx', 'ubuntu', 'myuser/myimage')",
+                    "tag": "Image tag (default: 'latest')",
+                    "all_tags": "Pull all tags (default: False)"
+                },
+                returns="Image object",
+                examples=[
+                    '(docker) pull image "nginx" tag "latest"',
+                    '(docker) pull image "postgres" tag "15-alpine"',
+                    '(docker) pull image "python" tag "3.11-slim"',
+                ]
+            ),
+            MethodInfo(
+                name="image_build",
+                description="Build an image from a Dockerfile",
+                parameters={
+                    "path": "Build context path (directory containing Dockerfile)",
+                    "tag": "Tag for the image (optional, e.g., 'myapp:v1.0')",
+                    "dockerfile": "Dockerfile name (default: 'Dockerfile')",
+                    "buildargs": "Build arguments dict (optional, e.g., {'VERSION': '1.0'})",
+                    "nocache": "Don't use cache (default: False)",
+                    "rm": "Remove intermediate containers (default: True)"
+                },
+                returns="Image object",
+                examples=[
+                    '(docker) build image from "." tag "myapp:v1.0"',
+                    '(docker) build image from "/app" dockerfile "Dockerfile.prod" nocache True',
+                    '(docker) build image from "." tag "app:latest" buildargs {"NODE_ENV": "production"}',
+                ]
+            ),
+            MethodInfo(
+                name="image_push",
+                description="Push an image to Docker registry",
+                parameters={
+                    "repository": "Repository name (e.g., 'myuser/myimage')",
+                    "tag": "Image tag (default: 'latest')",
+                    "auth_config": "Auth dict with username/password (optional, uses config if omitted)"
+                },
+                returns="Boolean True on success",
+                examples=[
+                    '(docker) push image "myuser/myapp" tag "v1.0"',
+                    '(docker) push image "registry.example.com/app" tag "latest"',
+                ]
+            ),
+            MethodInfo(
+                name="image_list",
+                description="List Docker images on the system",
+                parameters={
+                    "all": "Include intermediate images (default: False)",
+                    "filters": "Filter dict (optional, e.g., {'dangling': True})"
+                },
+                returns="List of Image objects with attributes: id, tags, size",
+                examples=[
+                    '(docker) list images',
+                    '(docker) list all images',
+                ]
+            ),
+            MethodInfo(
+                name="volume_create",
+                description="Create a Docker volume for persistent data storage",
+                parameters={
+                    "name": "Volume name (optional, Docker generates if omitted)",
+                    "driver": "Volume driver (default: 'local')",
+                    "driver_opts": "Driver options dict (optional)",
+                    "labels": "Labels dict (optional)"
+                },
+                returns="Volume object",
+                examples=[
+                    '(docker) create volume "db-data"',
+                    '(docker) create volume "app-config" labels {"env": "prod"}',
+                ]
+            ),
+            MethodInfo(
+                name="volume_list",
+                description="List Docker volumes",
+                parameters={
+                    "filters": "Filter dict (optional)"
+                },
+                returns="List of Volume objects with attributes: name, driver, mountpoint",
+                examples=[
+                    '(docker) list volumes',
+                ]
+            ),
+            MethodInfo(
+                name="network_create",
+                description="Create a Docker network for container communication",
+                parameters={
+                    "name": "Network name (string)",
+                    "driver": "Network driver (default: 'bridge', options: 'host', 'overlay', 'macvlan')",
+                    "internal": "Internal network, no external access (default: False)",
+                    "enable_ipv6": "Enable IPv6 (default: False)"
+                },
+                returns="Network object",
+                examples=[
+                    '(docker) create network "app-network"',
+                    '(docker) create network "backend" driver "bridge" internal True',
+                ]
+            ),
+            MethodInfo(
+                name="network_connect",
+                description="Connect a container to a network",
+                parameters={
+                    "network_name": "Network name (string)",
+                    "container_id": "Container ID or name (string)",
+                    "aliases": "Network aliases list (optional)",
+                    "ipv4_address": "Static IPv4 address (optional)",
+                    "ipv6_address": "Static IPv6 address (optional)"
+                },
+                returns="Boolean True on success",
+                examples=[
+                    '(docker) connect container "web-server" to network "app-network"',
+                    '(docker) connect container "api" to network "backend" aliases ["api-service"]',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Container lifecycle
+            '10 (docker) pull image "nginx" tag "latest"',
+            '20 (docker) run container "nginx:latest" name "web" ports {"80/tcp": 8080} detach True',
+            '30 (docker) list containers',
+            '40 (docker) get logs from container "web" tail 100',
+            '50 (docker) stop container "web"',
+            '60 (docker) start container "web"',
+            '70 (docker) restart container "web"',
+            '80 (docker) remove container "web" force True',
+
+            # Image management
+            '90 (docker) pull image "postgres" tag "15-alpine"',
+            '100 (docker) build image from "." tag "myapp:v1.0"',
+            '110 (docker) list images',
+            '120 (docker) push image "myuser/myapp" tag "v1.0"',
+            '130 (docker) remove image "old-image:v0.1"',
+
+            # Container with environment and volumes
+            '140 (docker) run container "postgres:15" name "db" environment {"POSTGRES_PASSWORD": "secret", "POSTGRES_DB": "mydb"} volumes {"/var/lib/postgres": {"bind": "/var/lib/postgresql/data"}} ports {"5432/tcp": 5432}',
+
+            # Execute commands
+            '150 (docker) exec in container "web" command "nginx -s reload"',
+            '160 (docker) exec in container "db" command "pg_dump -U postgres mydb"',
+
+            # Volume management
+            '170 (docker) create volume "db-data"',
+            '180 (docker) list volumes',
+            '190 (docker) run container "mysql:8" volumes {"db-data": {"bind": "/var/lib/mysql"}}',
+
+            # Network management
+            '200 (docker) create network "app-network"',
+            '210 (docker) run container "nginx" network "app-network"',
+            '220 (docker) connect container "api-server" to network "app-network"',
+            '230 (docker) list networks',
+
+            # System operations
+            '240 (docker) system info',
+            '250 (docker) system version',
+        ]
 
 
 # Global instance

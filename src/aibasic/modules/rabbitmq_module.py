@@ -64,9 +64,10 @@ from typing import Optional, Callable, Dict, Any, Union
 
 import pika
 from pika import BasicProperties
+from .module_base import AIbasicModuleBase
 
 
-class RabbitMQModule:
+class RabbitMQModule(AIbasicModuleBase):
     """
     RabbitMQ connection manager with support for publishing and consuming messages.
 
@@ -505,3 +506,158 @@ class RabbitMQModule:
     def __del__(self):
         """Destructor to ensure connection is closed."""
         self.close()
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="RabbitMQ",
+            task_type="rabbitmq",
+            description="RabbitMQ message broker for publishing/consuming messages with exchanges, queues, and routing",
+            version="1.0.0",
+            keywords=[
+                "rabbitmq", "amqp", "messaging", "queue", "publish-subscribe",
+                "exchange", "routing", "message-broker", "async", "ssl"
+            ],
+            dependencies=["pika>=1.2.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern with automatic reconnection",
+            "Default port is 5672 for AMQP, 5671 for AMQPS (SSL)",
+            "Supports basic authentication with username/password",
+            "SSL/TLS supported with optional certificate verification",
+            "Set SSL_VERIFY=false for self-signed certificates (development only)",
+            "Virtual host (VHOST) defaults to '/' (root vhost)",
+            "Exchange types: direct, topic, fanout, headers",
+            "Durable exchanges/queues survive broker restart",
+            "Messages auto-serialized to JSON if dict provided",
+            "delivery_mode=2 makes messages persistent (survives restart)",
+            "auto_ack=False requires manual ch.basic_ack() in callback",
+            "prefetch_count limits unacknowledged messages per consumer",
+            "consume_messages() blocks until Ctrl+C pressed",
+            "get_message() non-blocking, returns (None, None, None) if empty",
+            "Routing key binds queue to exchange (exact match for 'direct')",
+            "Topic exchanges support wildcards: * (one word), # (zero or more words)",
+            "Fanout exchanges broadcast to all bound queues (ignores routing key)",
+            "Connection auto-reconnects if closed (via _ensure_connection)",
+            "Heartbeat defaults to 60 seconds to detect dead connections",
+            "Always acknowledge or reject messages to prevent queue buildup"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="declare_exchange",
+                description="Declare an exchange for message routing",
+                parameters={
+                    "exchange": "str (required) - Exchange name",
+                    "exchange_type": "str (optional) - Type: direct, topic, fanout, headers (default direct)",
+                    "durable": "bool (optional) - Survives broker restart (default True)",
+                    "auto_delete": "bool (optional) - Delete when last queue unbound (default False)"
+                },
+                returns="None",
+                examples=['declare exchange "my_exchange" type "topic"', 'declare exchange "logs" type "fanout" durable true']
+            ),
+            MethodInfo(
+                name="declare_queue",
+                description="Declare a queue for storing messages",
+                parameters={
+                    "queue": "str (required) - Queue name",
+                    "durable": "bool (optional) - Survives broker restart (default True)",
+                    "exclusive": "bool (optional) - Exclusive to this connection (default False)",
+                    "auto_delete": "bool (optional) - Delete when last consumer disconnects (default False)",
+                    "arguments": "dict (optional) - Queue arguments (TTL, max length, etc.)"
+                },
+                returns="Method frame with queue info",
+                examples=['declare queue "tasks"', 'declare queue "temp" exclusive true auto_delete true']
+            ),
+            MethodInfo(
+                name="bind_queue",
+                description="Bind queue to exchange with routing key",
+                parameters={
+                    "queue": "str (required) - Queue name",
+                    "exchange": "str (required) - Exchange name",
+                    "routing_key": "str (optional) - Routing key pattern (default empty)"
+                },
+                returns="None",
+                examples=['bind queue "tasks" to exchange "my_exchange" with key "task.#"', 'bind queue "logs" to exchange "fanout_logs"']
+            ),
+            MethodInfo(
+                name="publish_message",
+                description="Publish message to exchange with routing key",
+                parameters={
+                    "exchange": "str (required) - Exchange name (empty for default)",
+                    "routing_key": "str (required) - Routing key",
+                    "message": "str/dict/bytes (required) - Message body (dict auto-serialized to JSON)",
+                    "properties": "dict (optional) - Message properties (content_type, delivery_mode, etc.)",
+                    "mandatory": "bool (optional) - Must be routable (default False)"
+                },
+                returns="None",
+                examples=[
+                    'publish {"task": "process"} to exchange "tasks" key "task.process"',
+                    'publish "Hello" to queue "my_queue" (uses default exchange)'
+                ]
+            ),
+            MethodInfo(
+                name="consume_messages",
+                description="Start consuming messages from queue (blocking)",
+                parameters={
+                    "queue": "str (required) - Queue name",
+                    "callback": "function (required) - Callback(ch, method, properties, body)",
+                    "auto_ack": "bool (optional) - Auto-acknowledge messages (default False)",
+                    "prefetch_count": "int (optional) - Messages to prefetch (default 1)"
+                },
+                returns="None (blocks until Ctrl+C)",
+                examples=['consume from queue "tasks" with callback process_task']
+            ),
+            MethodInfo(
+                name="get_message",
+                description="Get single message from queue (non-blocking)",
+                parameters={
+                    "queue": "str (required) - Queue name",
+                    "auto_ack": "bool (optional) - Auto-acknowledge (default False)"
+                },
+                returns="tuple - (method, properties, body) or (None, None, None)",
+                examples=['method, props, body = get_message("tasks")']
+            ),
+            MethodInfo(
+                name="purge_queue",
+                description="Delete all messages from queue",
+                parameters={"queue": "str (required) - Queue name"},
+                returns="None",
+                examples=['purge queue "old_tasks"']
+            ),
+            MethodInfo(
+                name="delete_queue",
+                description="Delete a queue",
+                parameters={
+                    "queue": "str (required) - Queue name",
+                    "if_unused": "bool (optional) - Only if no consumers (default False)",
+                    "if_empty": "bool (optional) - Only if empty (default False)"
+                },
+                returns="None",
+                examples=['delete queue "temp_queue"']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (rabbitmq) declare exchange "tasks" type "topic" durable true',
+            '20 (rabbitmq) declare queue "process_queue" durable true',
+            '30 (rabbitmq) bind queue "process_queue" to exchange "tasks" with key "task.process"',
+            '40 (rabbitmq) publish {"job_id": 123, "action": "process"} to exchange "tasks" key "task.process"',
+            '50 (rabbitmq) publish "Simple message" to exchange "" key "my_queue"',
+            '60 (rabbitmq) method, props, body = get_message("process_queue")',
+            '70 (rabbitmq) purge queue "old_tasks"',
+            '80 (rabbitmq) delete queue "temp_queue"'
+        ]

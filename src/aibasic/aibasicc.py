@@ -10,6 +10,7 @@ from pathlib import Path
 from textwrap import indent
 
 from aibasic.aibasic_intent import determine_intent, InstructionHint
+from aibasic.modules.module_base import collect_all_modules_metadata, generate_prompt_context
 
 # ==========================
 # CONSTANTS
@@ -572,6 +573,66 @@ TASK_TYPES = {
     }
 }
 
+# ==========================
+# DYNAMIC MODULE METADATA
+# ==========================
+
+# Cache for module metadata (loaded once on first use)
+_MODULE_METADATA_CACHE = None
+
+def get_all_task_types():
+    """
+    Get combined task types from both static TASK_TYPES and dynamic module metadata.
+
+    Returns:
+        dict: Combined task type information
+    """
+    global _MODULE_METADATA_CACHE
+
+    # Load module metadata on first access
+    if _MODULE_METADATA_CACHE is None:
+        try:
+            _MODULE_METADATA_CACHE = collect_all_modules_metadata()
+        except Exception as e:
+            print(f"[WARNING] Failed to collect module metadata: {e}", file=sys.stderr)
+            _MODULE_METADATA_CACHE = {}
+
+    # Start with static TASK_TYPES
+    combined = dict(TASK_TYPES)
+
+    # Enhance with dynamic module metadata
+    for task_type, module_doc in _MODULE_METADATA_CACHE.items():
+        metadata = module_doc.get("metadata", {})
+
+        # Create enhanced task type info from module metadata
+        enhanced_info = {
+            "name": metadata.get("name", ""),
+            "description": metadata.get("description", ""),
+            "keywords": metadata.get("keywords", []),
+            "common_libraries": [],  # extracted from dependencies
+            "examples": [ex for ex in module_doc.get("examples", [])[:3]],  # first 3 examples
+            "module_metadata": module_doc  # full module documentation
+        }
+
+        # Extract library names from dependencies
+        if metadata.get("dependencies"):
+            enhanced_info["common_libraries"] = [
+                dep.split(">=")[0].split("==")[0].split("[")[0]
+                for dep in metadata["dependencies"]
+            ]
+
+        # Merge with static definition if exists, otherwise add new
+        if task_type in combined:
+            # Enhance existing with module metadata
+            combined[task_type]["module_metadata"] = module_doc
+            if not combined[task_type].get("keywords"):
+                combined[task_type]["keywords"] = enhanced_info["keywords"]
+        else:
+            # Add new task type from module
+            combined[task_type] = enhanced_info
+
+    return combined
+
 SYSTEM_PROMPT = (
     '''
     You are an AIBasic-to-Python compiler.
@@ -587,7 +648,15 @@ SYSTEM_PROMPT = (
     You MUST respond with a **single valid JSON object** with EXACTLY these keys:
     - "code": string — Python code for this single instruction. Must be runnable in sequence with previous code.
     - "context_updates": object — keys are variable names or meta info (e.g. "df", "last_output"), values are short human-readable descriptions.
-    - "needs_imports": array of strings — each string is an import, e.g. "pandas as pd", "os", "json".
+    - "needs_imports": array of strings — each string is ONLY what comes after "import" keyword.
+      EXAMPLES:
+      ✓ CORRECT: ["pandas as pd", "os", "json"]
+      ✓ CORRECT: [] (empty if imports already in code)
+      ✗ WRONG: ["import pandas as pd"]
+      ✗ WRONG: ["from os import path"]
+
+      NOTE: The compiler will add "import " prefix automatically.
+      If you need "from X import Y", put it directly in the "code" field instead.
 
     Rules:
     - Do NOT add explanations, introductions, markdown, or prose. JSON ONLY.
@@ -678,8 +747,9 @@ def parse_instruction(line: str):
         text = match.group(2).strip()
 
         # Validate task type
-        if task_type not in TASK_TYPES:
-            print(f"[WARNING] Unknown task type '({task_type})' - will be ignored. Valid types: {', '.join(TASK_TYPES.keys())}")
+        all_types = get_all_task_types()
+        if task_type not in all_types:
+            print(f"[WARNING] Unknown task type '({task_type})' - will be ignored. Valid types: {', '.join(all_types.keys())}")
             task_type = None
 
     # Check for RETURN statement
@@ -777,11 +847,31 @@ def call_llm(conf: dict, context: dict, instruction_text: str, task_type: str = 
 
     # Add module-specific information if available
     module_info = ""
-    if 'module' in task_info:
+
+    # Check if we have rich module metadata
+    if 'module_metadata' in task_info:
+        # Use the generate_prompt_context function for rich module documentation
+        try:
+            module_info = "\n" + generate_prompt_context(task_type) + "\n"
+        except Exception as e:
+            print(f"[WARNING] Failed to generate module context for {task_type}: {e}", file=sys.stderr)
+            # Fall back to basic module info
+            if 'module' in task_info:
+                module_info = f"\n** MODULE INFORMATION **\n"
+                module_info += f"This task type uses the AIBasic module: {task_info['module']}\n"
+                if 'setup_code' in task_info:
+                    module_info += f"Module setup code:\n{task_info['setup_code']}\n"
+                if 'usage_notes' in task_info:
+                    module_info += f"Usage notes:\n"
+                    for note in task_info['usage_notes']:
+                        module_info += f"  - {note}\n"
+                module_info += "\n"
+    elif 'module' in task_info:
+        # Fall back to legacy module info format
         module_info = f"\n** MODULE INFORMATION **\n"
         module_info += f"This task type uses the AIBasic module: {task_info['module']}\n"
         if 'setup_code' in task_info:
-            module_info += f"Module setup code (use if 'pg' not in context):\n{task_info['setup_code']}\n"
+            module_info += f"Module setup code (use if module not in context):\n{task_info['setup_code']}\n"
         if 'usage_notes' in task_info:
             module_info += f"Usage notes:\n"
             for note in task_info['usage_notes']:
@@ -803,14 +893,102 @@ def call_llm(conf: dict, context: dict, instruction_text: str, task_type: str = 
     )
 
     # Add module-specific requirements
-    if 'module' in task_info:
-        user_prompt += (
-            f"- If the module variable (e.g., 'pg') is not in context, include the setup code in your generated code\n"
-            f"- Add the module variable to context_updates so it can be reused in subsequent instructions\n"
-            f"- Follow the module's usage patterns as described in the usage notes\n"
-        )
+    if 'module_metadata' in task_info or 'module' in task_info:
+        module_doc = task_info.get('module_metadata', {})
+        metadata = module_doc.get('metadata', {})
+        module_name = metadata.get('name', task_info.get('module', 'module'))
+        task_type_name = metadata.get('task_type', task_type) if metadata else task_type
+
+        if 'module_metadata' in task_info:
+            # Rich metadata available - be very specific
+            user_prompt += "\n" + "=" * 70 + "\n"
+            user_prompt += "CRITICAL MODULE USAGE REQUIREMENTS:\n"
+            user_prompt += "=" * 70 + "\n"
+            user_prompt += f"1. MANDATORY: Import and use the {module_name}Module class\n"
+            user_prompt += f"   from aibasic.modules import {module_name}Module\n\n"
+            user_prompt += f"2. MANDATORY: Create module instance (use existing if in context):\n"
+            user_prompt += f"   {task_type_name} = {module_name}Module()\n\n"
+            user_prompt += f"3. MANDATORY: Call the appropriate method from the module\n"
+            user_prompt += f"   - DO NOT write custom code to implement the functionality\n"
+            user_prompt += f"   - DO NOT use external libraries directly (requests, discord.py, etc.)\n"
+            user_prompt += f"   - MUST use the module's pre-defined methods documented above\n\n"
+            user_prompt += f"4. MANDATORY: Follow the exact method signatures shown in documentation\n"
+            user_prompt += f"   - Use the parameter names exactly as documented\n"
+            user_prompt += f"   - Pass parameters in the correct format (dict, string, int, etc.)\n\n"
+            user_prompt += f"5. IMPORTS: Put the import statement DIRECTLY in your code\n"
+            user_prompt += f"   - Include: from aibasic.modules import {module_name}Module\n"
+            user_prompt += f"   - Put it in the \"code\" field, NOT in \"needs_imports\"\n"
+            user_prompt += f"   - \"needs_imports\" should be [] (empty) for module usage\n\n"
+            user_prompt += f"6. Example pattern (adapt to the specific instruction):\n"
+            user_prompt += f"   # Your generated code should be:\n"
+            user_prompt += f"   from aibasic.modules import {module_name}Module\n"
+            user_prompt += f"   {task_type_name} = {module_name}Module()\n"
+            user_prompt += f"   result = {task_type_name}.method_name(param1, param2, ...)\n\n"
+            user_prompt += "7. FORBIDDEN:\n"
+            user_prompt += "   - DO NOT implement webhook calls directly\n"
+            user_prompt += "   - DO NOT use requests.post() or similar\n"
+            user_prompt += "   - DO NOT create custom HTTP clients\n"
+            user_prompt += "   - DO NOT reimplement module functionality\n"
+            user_prompt += "   - DO NOT put module imports in \"needs_imports\"\n\n"
+            user_prompt += "8. The module methods are ALREADY IMPLEMENTED and TESTED\n"
+            user_prompt += "   - Simply call them with correct parameters\n"
+            user_prompt += "   - Trust the module to handle the implementation details\n\n"
+
+            # Add concrete example for this specific instruction
+            user_prompt += f"9. For THIS specific instruction: '{instruction_text}'\n"
+            user_prompt += f"   YOU MUST:\n"
+            user_prompt += f"   a) Check if '{task_type_name}' is already in context variables\n"
+            user_prompt += f"   b) If not, create it: {task_type_name} = {module_name}Module()\n"
+            user_prompt += f"   c) Identify which method matches the instruction (refer to methods list above)\n"
+            user_prompt += f"   d) Call that method: result = {task_type_name}.method_name(...)\n"
+            user_prompt += f"   e) Store result appropriately\n\n"
+            user_prompt += "   CORRECT JSON RESPONSE:\n"
+            user_prompt += "   ```json\n"
+            user_prompt += "   {\n"
+            user_prompt += f'     "code": "from aibasic.modules import {module_name}Module\\n{task_type_name} = {module_name}Module()\\nresult = {task_type_name}.method_name(params...)",\n'
+            user_prompt += '     "context_updates": {"' + task_type_name + '": "' + module_name + ' module instance", "result": "method result", "last_output": "result"},\n'
+            user_prompt += '     "needs_imports": []\n'
+            user_prompt += "   }\n"
+            user_prompt += "   ```\n\n"
+            user_prompt += "   WRONG JSON RESPONSE (DO NOT DO THIS):\n"
+            user_prompt += "   ```json\n"
+            user_prompt += "   {\n"
+            user_prompt += '     "code": "import requests\\nresponse = requests.post(...)",\n'
+            user_prompt += '     "needs_imports": ["from aibasic.modules import ' + module_name + 'Module"]  // WRONG!\n'
+            user_prompt += "   }\n"
+            user_prompt += "   ```\n"
+            user_prompt += "=" * 70 + "\n\n"
+        else:
+            # Legacy module format
+            user_prompt += (
+                f"- This instruction uses a specialized AIBasic module with pre-defined methods\n"
+                f"- Use the module's methods as documented above - do NOT reimplement functionality\n"
+                f"- Follow the parameter names and types exactly as specified in the method documentation\n"
+            )
+
+        # Add legacy module requirements if using old format
+        if 'module' in task_info and 'setup_code' in task_info:
+            user_prompt += (
+                f"- If the module variable is not in context, include the setup code in your generated code\n"
+                f"- Add the module variable to context_updates so it can be reused in subsequent instructions\n"
+            )
 
     user_prompt += "Return only JSON. Do NOT wrap in markdown.\n"
+
+    # Print prompt details if task type was explicitly specified
+    if task_type and 'module_metadata' in task_info:
+        print(f"\n[PROMPT] Generating rich prompt for task type: ({task_type})")
+        print(f"[PROMPT] Prompt size: {len(user_prompt)} characters")
+        print(f"[PROMPT] Module info size: {len(module_info)} characters")
+        print(f"[PROMPT] Task hint size: {len(task_hint)} characters")
+        print(f"[PROMPT] ---")
+        print(f"[PROMPT] Full user prompt being sent to LLM:")
+        print(f"[PROMPT] {'=' * 70}")
+        # Print prompt with line numbers for easier debugging
+        for i, line in enumerate(user_prompt.split('\n'), 1):
+            print(f"[PROMPT] {i:4d} | {line}")
+        print(f"[PROMPT] {'=' * 70}")
+        print(f"[PROMPT] End of prompt\n")
 
     payload = {
         "model": conf["model"],
@@ -885,7 +1063,8 @@ def detect_task_type(instruction: str) -> str:
 
     # Score each task type based on keyword matches
     scores = {}
-    for task_type, metadata in TASK_TYPES.items():
+    all_types = get_all_task_types()
+    for task_type, metadata in all_types.items():
         score = 0
         keywords = metadata.get("keywords", [])
         for keyword in keywords:
@@ -910,7 +1089,8 @@ def get_task_type_info(task_type: str) -> dict:
     Returns:
         dict: Task type metadata including description, libraries, examples
     """
-    return TASK_TYPES.get(task_type, TASK_TYPES["other"])
+    all_types = get_all_task_types()
+    return all_types.get(task_type, all_types.get("other", TASK_TYPES["other"]))
 
 def _try_parse_llm_json(text: str):
     try:
@@ -1000,16 +1180,48 @@ def main():
     for line_num, instr_text, explicit_task_type, jump_target, is_unconditional, error_handler, call_target, is_return in parsed_instructions:
         print(f"\n--- Compiling instruction {line_num} ---")
         print(f"Text: {instr_text}")
+
         if explicit_task_type:
-            print(f"Explicit Task Type: {explicit_task_type}")
+            print(f"[TASK TYPE] Explicit: ({explicit_task_type})")
+
+            # Get detailed task type information
+            task_info = get_task_type_info(explicit_task_type)
+            print(f"[TASK TYPE] Name: {task_info.get('name', 'Unknown')}")
+            print(f"[TASK TYPE] Description: {task_info.get('description', 'N/A')}")
+
+            # Check if module has rich metadata
+            if 'module_metadata' in task_info:
+                module_meta = task_info['module_metadata']
+                metadata = module_meta.get('metadata', {})
+                print(f"[METADATA] ✓ Rich module metadata available")
+                print(f"[METADATA]   Version: {metadata.get('version', 'N/A')}")
+                print(f"[METADATA]   Methods: {len(module_meta.get('methods', []))}")
+                print(f"[METADATA]   Usage Notes: {len(module_meta.get('usage_notes', []))}")
+                print(f"[METADATA]   Examples: {len(module_meta.get('examples', []))}")
+                print(f"[METADATA]   Dependencies: {', '.join(metadata.get('dependencies', []))}")
+
+                # Print first few methods
+                methods = module_meta.get('methods', [])
+                if methods:
+                    print(f"[METADATA]   Available methods:")
+                    for method in methods[:5]:  # Show first 5 methods
+                        print(f"[METADATA]     - {method.get('name')}: {method.get('description', '')[:60]}")
+                    if len(methods) > 5:
+                        print(f"[METADATA]     ... and {len(methods) - 5} more")
+            else:
+                print(f"[METADATA] Using legacy format (no rich metadata)")
+                libraries = task_info.get('common_libraries', [])
+                if libraries:
+                    print(f"[METADATA]   Common libraries: {', '.join(libraries)}")
+
         if jump_target:
-            print(f"Jump target: {jump_target} ({'unconditional' if is_unconditional else 'conditional'})")
+            print(f"[CONTROL] Jump target: {jump_target} ({'unconditional' if is_unconditional else 'conditional'})")
         if error_handler:
-            print(f"Error handler: on error goto {error_handler}")
+            print(f"[CONTROL] Error handler: on error goto {error_handler}")
         if call_target:
-            print(f"Subroutine call to line {call_target}")
+            print(f"[CONTROL] Subroutine call to line {call_target}")
         if is_return:
-            print(f"Return from subroutine")
+            print(f"[CONTROL] Return from subroutine")
 
         # Handle RETURN statement
         if is_return:

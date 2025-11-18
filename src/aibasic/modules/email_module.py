@@ -93,9 +93,10 @@ from typing import Optional, List, Union, Dict, Any
 import mimetypes
 import os
 import re
+from .module_base import AIbasicModuleBase
 
 
-class EmailModule:
+class EmailModule(AIbasicModuleBase):
     """
     SMTP email sending module with full attachment support.
 
@@ -659,3 +660,229 @@ class EmailModule:
             'from_name': self.from_name,
             'authenticated': bool(self.username and self.password)
         }
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Email",
+            task_type="email",
+            description="SMTP email sending with support for plain text, HTML, attachments, inline images, templates, and batch sending",
+            version="1.0.0",
+            keywords=["email", "smtp", "send-email", "html-email", "attachment", "mime", "mail", "newsletter", "notification"],
+            dependencies=[]  # Uses Python standard library only
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern via from_config() - one instance per application",
+            "Configuration loaded from [email] section in aibasic.conf",
+            "Supports both STARTTLS (port 587, use_tls=true) and SSL (port 465, use_ssl=true) encryption",
+            "Cannot use both TLS and SSL simultaneously - choose one based on server requirements",
+            "Common SMTP ports: 587 (TLS), 465 (SSL), 25 (plain, not recommended)",
+            "Gmail requires 'App Passwords' instead of regular passwords (2FA must be enabled)",
+            "Recipients can be single email string or list of email strings",
+            "CC and BCC recipients are supported - BCC recipients won't appear in headers",
+            "Attachments accept file paths as strings - any file type supported",
+            "HTML emails support inline images using Content-ID (cid:image_id) references",
+            "Templates use Python format strings with {variable} placeholders",
+            "Priority setting adds X-Priority headers ('low', 'normal', 'high')",
+            "Reply-To header allows specifying different reply address from sender",
+            "Batch sending supports optional delay between emails to avoid spam filters",
+            "Email validation uses regex pattern - validates format only, not deliverability",
+            "Module automatically detects MIME types for attachments",
+            "HTML emails can include plain text fallback for better compatibility",
+            "Sender name and email can be overridden per message or use defaults from config"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="send_email",
+                description="Send a plain text email with optional attachments and multiple recipients",
+                parameters={
+                    "to": "Recipient email address or list of addresses",
+                    "subject": "Email subject line",
+                    "body": "Plain text email body content",
+                    "cc": "CC recipient(s) - optional, string or list",
+                    "bcc": "BCC recipient(s) - optional, string or list (hidden from other recipients)",
+                    "attachments": "List of file paths to attach (optional, supports any file type)",
+                    "from_email": "Sender email address (optional, overrides default)",
+                    "from_name": "Sender display name (optional, overrides default)",
+                    "reply_to": "Reply-To email address (optional)",
+                    "priority": "Email priority - 'low', 'normal', or 'high' (default: 'normal')"
+                },
+                returns="Dictionary with success status, recipient count, and details",
+                examples=[
+                    '(email) send email to "user@example.com" subject "Hello" body "This is a test message"',
+                    '(email) send email to ["alice@example.com", "bob@example.com"] subject "Team Update" body "Meeting at 3pm"',
+                    '(email) send email to "client@example.com" subject "Report" body "Please find attached" attachments ["report.pdf", "data.xlsx"]',
+                    '(email) send email to "user@example.com" cc "manager@example.com" subject "Request" body "Approval needed"'
+                ]
+            ),
+            MethodInfo(
+                name="send_html_email",
+                description="Send an HTML email with styling, optional plain text fallback, and inline images",
+                parameters={
+                    "to": "Recipient email address or list of addresses",
+                    "subject": "Email subject line",
+                    "html_body": "HTML content with tags and styling",
+                    "text_body": "Plain text fallback for non-HTML clients (optional)",
+                    "cc": "CC recipient(s) - optional",
+                    "bcc": "BCC recipient(s) - optional",
+                    "attachments": "List of file paths to attach (optional)",
+                    "inline_images": "Dictionary of {cid: filepath} for embedded images (optional, use as <img src='cid:image_id'>)",
+                    "from_email": "Sender email (optional, overrides default)",
+                    "from_name": "Sender name (optional, overrides default)",
+                    "reply_to": "Reply-To address (optional)",
+                    "priority": "Email priority (optional, default: 'normal')"
+                },
+                returns="Dictionary with success status and details",
+                examples=[
+                    '(email) send html email to "user@example.com" subject "Newsletter" html_body "<h1>Welcome!</h1><p>Thanks for subscribing.</p>"',
+                    '(email) send html email to "customer@example.com" subject "Receipt" html_body "<html><body><h2>Order #123</h2><p>Total: $99.99</p></body></html>"',
+                    '(email) send html email to "user@example.com" subject "Report" html_body "<h1>Report</h1><img src=\'cid:logo\'>" inline_images {"logo": "logo.png"}',
+                    '(email) send html email to ["user1@example.com", "user2@example.com"] subject "Announcement" html_body "<p>Important update</p>" priority "high"'
+                ]
+            ),
+            MethodInfo(
+                name="send_template_email",
+                description="Send email using template with variable substitution for personalized messages",
+                parameters={
+                    "to": "Recipient email address or list of addresses",
+                    "subject": "Email subject (can include {variable} placeholders)",
+                    "template": "Email body template with {variable} placeholders (auto-detects HTML)",
+                    "variables": "Dictionary mapping variable names to values",
+                    "**kwargs": "Additional arguments passed to send_email() or send_html_email()"
+                },
+                returns="Dictionary with success status",
+                examples=[
+                    '(email) send template email to "user@example.com" subject "Hello {name}" template "Dear {name}, Welcome to {company}!" variables {"name": "John", "company": "Acme Corp"}',
+                    '(email) send template email to "customer@example.com" subject "Order {order_id}" template "Order {order_id} total: ${total}" variables {"order_id": "12345", "total": "99.99"}',
+                    '(email) send template email to "user@example.com" subject "Welcome" template "<html><body><h1>Hello {name}!</h1></body></html>" variables {"name": "Alice"}'
+                ]
+            ),
+            MethodInfo(
+                name="send_batch_emails",
+                description="Send multiple emails in batch with optional delay to avoid spam filters",
+                parameters={
+                    "emails": "List of email dictionaries, each with 'to', 'subject', 'body', etc.",
+                    "delay": "Delay between emails in seconds (default: 0, recommended: 1-2 for large batches)"
+                },
+                returns="Dictionary with total, sent, failed counts and error details",
+                examples=[
+                    '(email) send batch emails [{"to": "user1@example.com", "subject": "Hello", "body": "Message 1"}, {"to": "user2@example.com", "subject": "Hello", "body": "Message 2"}]',
+                    '(email) send batch emails from list with delay 1.5',
+                    '(email) send 100 emails with delay 2 seconds'
+                ]
+            ),
+            MethodInfo(
+                name="validate_email",
+                description="Validate email address format using regex (static method, validates format only)",
+                parameters={
+                    "email": "Email address string to validate"
+                },
+                returns="Boolean: True if format is valid, False otherwise",
+                examples=[
+                    '(email) validate email "user@example.com"',
+                    '(email) check if email "invalid@" is valid',
+                    '(email) validate email address "test.user+tag@domain.co.uk"'
+                ]
+            ),
+            MethodInfo(
+                name="extract_email",
+                description="Extract email address from formatted string like 'Name <email@example.com>' (static method)",
+                parameters={
+                    "email_string": "Email string with optional display name"
+                },
+                returns="Email address string without display name",
+                examples=[
+                    '(email) extract email from "John Doe <john@example.com>"',
+                    '(email) extract email address from "user@example.com"',
+                    '(email) parse email from "Alice Smith <alice.smith@company.com>"'
+                ]
+            ),
+            MethodInfo(
+                name="test_connection",
+                description="Test SMTP connection to verify configuration and credentials",
+                parameters={},
+                returns="Boolean: True if connection successful, False otherwise",
+                examples=[
+                    '(email) test connection',
+                    '(email) test smtp connection',
+                    '(email) verify email server connection'
+                ]
+            ),
+            MethodInfo(
+                name="get_config_info",
+                description="Get current email configuration details",
+                parameters={},
+                returns="Dictionary with SMTP host, port, encryption, sender info, and authentication status",
+                examples=[
+                    '(email) get config info',
+                    '(email) show email configuration',
+                    '(email) display smtp settings'
+                ]
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Basic email sending
+            '10 (email) send email to "user@example.com" subject "Test" body "This is a test message"',
+            '20 (email) send email to "client@example.com" subject "Hello" body "Nice to meet you!"',
+
+            # Multiple recipients
+            '30 (email) send email to ["alice@example.com", "bob@example.com"] subject "Team Meeting" body "Meeting at 3pm in conference room"',
+            '40 (email) send email to "user@example.com" cc "manager@example.com" subject "Request" body "Please review this request"',
+            '50 (email) send email to "team@example.com" cc ["manager@example.com", "director@example.com"] subject "Update" body "Project status update"',
+            '60 (email) send email to "public@example.com" bcc ["admin@example.com", "log@example.com"] subject "Announcement" body "Public announcement"',
+
+            # Attachments
+            '70 (email) send email to "client@example.com" subject "Report" body "Please find the report attached" attachments ["report.pdf"]',
+            '80 (email) send email to "user@example.com" subject "Documents" body "Attached files" attachments ["contract.pdf", "invoice.xlsx", "summary.docx"]',
+            '90 (email) send email to "team@example.com" subject "Data" body "Analysis results" attachments ["data.csv", "charts.png"]',
+
+            # HTML emails
+            '100 (email) send html email to "user@example.com" subject "Welcome" html_body "<h1>Welcome!</h1><p>Thank you for signing up.</p>"',
+            '110 (email) send html email to "customer@example.com" subject "Order Confirmation" html_body "<html><body><h2>Order #12345</h2><p>Total: $99.99</p><p>Shipping to: 123 Main St</p></body></html>"',
+            '120 (email) send html email to "subscriber@example.com" subject "Newsletter" html_body "<h1>Monthly Newsletter</h1><ul><li>News 1</li><li>News 2</li></ul>"',
+
+            # HTML with inline images
+            '130 (email) send html email to "user@example.com" subject "Logo Test" html_body "<html><body><img src=\'cid:logo\'/><p>Our company</p></body></html>" inline_images {"logo": "logo.png"}',
+            '140 (email) send html email to "customer@example.com" subject "Product" html_body "<h2>New Product</h2><img src=\'cid:product\'/>" inline_images {"product": "product.jpg"}',
+
+            # Priority and reply-to
+            '150 (email) send email to "urgent@example.com" subject "URGENT" body "Immediate action required" priority "high"',
+            '160 (email) send email to "user@example.com" subject "Survey" body "Please reply to support" reply_to "support@example.com"',
+            '170 (email) send email to "team@example.com" subject "FYI" body "For your information" priority "low"',
+
+            # Template emails
+            '180 (email) send template email to "john@example.com" subject "Hello {name}" template "Dear {name}, Welcome to {company}!" variables {"name": "John", "company": "Acme Corp"}',
+            '190 (email) send template email to "customer@example.com" subject "Order {order_id}" template "Your order {order_id} for ${amount} has been confirmed" variables {"order_id": "12345", "amount": "99.99"}',
+            '200 (email) send template email to "user@example.com" subject "Welcome {username}" template "<html><body><h1>Hello {username}!</h1><p>Thanks for joining {site}</p></body></html>" variables {"username": "alice", "site": "Example.com"}',
+
+            # Batch sending
+            '210 (email) send batch emails [{"to": "user1@example.com", "subject": "Hello", "body": "Message 1"}, {"to": "user2@example.com", "subject": "Hello", "body": "Message 2"}]',
+            '220 (email) send batch emails from email_list with delay 1',
+            '230 (email) send batch emails to customers with delay 2',
+
+            # Utility methods
+            '240 (email) validate email "user@example.com"',
+            '250 (email) validate email "invalid-email"',
+            '260 (email) extract email from "John Doe <john@example.com>"',
+            '270 (email) test connection',
+            '280 (email) get config info',
+
+            # Advanced combinations
+            '290 (email) send html email to "vip@example.com" subject "Exclusive Offer" html_body "<h1>Special Deal</h1><p>Just for you!</p>" attachments ["coupon.pdf"] priority "high"',
+            '300 (email) send email to "client@example.com" cc "sales@example.com" bcc "log@example.com" subject "Proposal" body "Please review" attachments ["proposal.pdf", "pricing.xlsx"] reply_to "sales@example.com"'
+        ]

@@ -26,6 +26,7 @@ License: MIT
 import threading
 import os
 from typing import Optional, List, Dict, Any, Union
+from .module_base import AIbasicModuleBase
 from cassandra.cluster import Cluster, Session, ExecutionProfile, EXEC_PROFILE_DEFAULT
 from cassandra.policies import (
     DCAwareRoundRobinPolicy, TokenAwarePolicy,
@@ -36,7 +37,7 @@ from cassandra.query import SimpleStatement, BatchStatement, BatchType, Consiste
 from cassandra import ConsistencyLevel as CL
 
 
-class ScyllaDBModule:
+class ScyllaDBModule(AIbasicModuleBase):
     """
     ScyllaDB module for high-performance NoSQL database operations.
 
@@ -671,3 +672,263 @@ class ScyllaDBModule:
             }
         except Exception as e:
             raise RuntimeError(f"Failed to get cluster metadata: {e}")
+
+    # ============================================================================
+    # Metadata Methods (for AIbasic compiler prompt generation)
+    # ============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="ScyllaDB",
+            task_type="scylladb",
+            description="High-performance NoSQL database (Cassandra-compatible) with CQL queries, tunable consistency, batch operations, and materialized views",
+            version="1.0.0",
+            keywords=[
+                "scylladb", "cassandra", "nosql", "cql", "wide-column", "distributed",
+                "consistency", "batch", "counter", "materialized-view", "time-series"
+            ],
+            dependencies=["cassandra-driver>=3.25.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "ScyllaDB is Cassandra-compatible but offers better performance (C++ vs Java)",
+            "Supports tunable consistency levels: ONE, QUORUM, LOCAL_QUORUM, ALL",
+            "Keyspaces require replication strategy: SimpleStrategy or NetworkTopologyStrategy",
+            "Tables require PRIMARY KEY definition (partition key + clustering columns)",
+            "Partition key determines data distribution across cluster nodes",
+            "Clustering columns determine sort order within partition",
+            "WHERE clauses must include partition key for efficient queries",
+            "Secondary indexes enable queries on non-primary-key columns (use sparingly)",
+            "Materialized views provide pre-computed query results with automatic updates",
+            "Batch operations support three types: LOGGED (atomic), UNLOGGED (faster), COUNTER",
+            "LOGGED batches ensure atomicity but have performance cost",
+            "UNLOGGED batches are faster but not atomic across partitions",
+            "Prepared statements improve performance for repeated queries (cached)",
+            "Counter columns are distributed counters (increment/decrement only)",
+            "TTL (Time To Live) enables automatic expiration of data",
+            "Contact points should include multiple nodes for high availability",
+            "Token-aware policy routes queries to nodes owning data (better performance)",
+            "Connection pooling managed automatically by driver",
+            "Use time-based partition keys for time-series data (e.g., bucket by day)"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="create_keyspace",
+                description="Create a keyspace with replication strategy",
+                parameters={
+                    "keyspace": "str (required) - Keyspace name",
+                    "replication_strategy": "str (optional) - SimpleStrategy or NetworkTopologyStrategy",
+                    "replication_factor": "int (optional) - Number of replicas",
+                    "durable_writes": "bool (optional) - Enable durable writes (default true)"
+                },
+                returns="bool - Success status",
+                examples=[
+                    'create keyspace "myapp" replication_strategy "SimpleStrategy" replication_factor 3'
+                ]
+            ),
+            MethodInfo(
+                name="use_keyspace",
+                description="Set the current keyspace for subsequent operations",
+                parameters={
+                    "keyspace": "str (required) - Keyspace name"
+                },
+                returns="bool - Success status",
+                examples=['use keyspace "myapp"']
+            ),
+            MethodInfo(
+                name="create_table",
+                description="Create a table with schema definition",
+                parameters={
+                    "table": "str (required) - Table name",
+                    "schema": "str (required) - Schema definition with columns and PRIMARY KEY",
+                    "if_not_exists": "bool (optional) - Add IF NOT EXISTS clause (default true)"
+                },
+                returns="bool - Success status",
+                examples=[
+                    'create table "users" schema "id UUID, name TEXT, email TEXT, created TIMESTAMP, PRIMARY KEY (id)"',
+                    'create table "events" schema "device_id TEXT, timestamp TIMESTAMP, value DOUBLE, PRIMARY KEY ((device_id), timestamp)"'
+                ]
+            ),
+            MethodInfo(
+                name="insert",
+                description="Insert data into a table",
+                parameters={
+                    "table": "str (required) - Table name",
+                    "data": "dict (required) - Column:value pairs",
+                    "consistency": "str (optional) - Consistency level (ONE, QUORUM, ALL, etc.)",
+                    "ttl": "int (optional) - Time to live in seconds"
+                },
+                returns="bool - Success status",
+                examples=[
+                    'insert into "users" data {"id": "uuid-value", "name": "John", "email": "john@example.com"}',
+                    'insert into "sessions" data {"session_id": "abc123", "user_id": "xyz"} ttl 3600'
+                ]
+            ),
+            MethodInfo(
+                name="select",
+                description="Query data from a table",
+                parameters={
+                    "table": "str (required) - Table name",
+                    "columns": "str (optional) - Columns to select (default '*')",
+                    "where": "dict (optional) - WHERE clause conditions",
+                    "limit": "int (optional) - Maximum rows to return",
+                    "consistency": "str (optional) - Consistency level"
+                },
+                returns="list[dict] - List of rows as dictionaries",
+                examples=[
+                    'select from "users" columns "*" where {"id": "uuid-value"}',
+                    'select from "events" columns "timestamp, value" where {"device_id": "sensor1"} limit 100'
+                ]
+            ),
+            MethodInfo(
+                name="update",
+                description="Update data in a table",
+                parameters={
+                    "table": "str (required) - Table name",
+                    "set_values": "dict (required) - Columns to update",
+                    "where": "dict (required) - WHERE clause conditions (must include primary key)",
+                    "consistency": "str (optional) - Consistency level",
+                    "ttl": "int (optional) - Time to live in seconds"
+                },
+                returns="bool - Success status",
+                examples=[
+                    'update "users" set {"email": "newemail@example.com"} where {"id": "uuid-value"}'
+                ]
+            ),
+            MethodInfo(
+                name="delete",
+                description="Delete data from a table",
+                parameters={
+                    "table": "str (required) - Table name",
+                    "where": "dict (required) - WHERE clause conditions (must include primary key)",
+                    "consistency": "str (optional) - Consistency level"
+                },
+                returns="bool - Success status",
+                examples=['delete from "users" where {"id": "uuid-value"}']
+            ),
+            MethodInfo(
+                name="batch_insert",
+                description="Insert multiple rows efficiently in a batch",
+                parameters={
+                    "table": "str (required) - Table name",
+                    "data_list": "list[dict] (required) - List of rows to insert",
+                    "batch_type": "str (optional) - LOGGED, UNLOGGED, or COUNTER (default LOGGED)",
+                    "consistency": "str (optional) - Consistency level"
+                },
+                returns="bool - Success status",
+                examples=[
+                    'batch insert into "events" data_list [{"device_id": "s1", "timestamp": "2024-01-01", "value": 23.5}, {"device_id": "s2", "timestamp": "2024-01-01", "value": 24.1}] batch_type "UNLOGGED"'
+                ]
+            ),
+            MethodInfo(
+                name="execute",
+                description="Execute arbitrary CQL statement",
+                parameters={
+                    "cql": "str (required) - CQL statement",
+                    "consistency": "str (optional) - Consistency level"
+                },
+                returns="ResultSet - Query result",
+                examples=[
+                    'execute "SELECT * FROM users WHERE name = \'John\'" consistency "QUORUM"',
+                    'execute "CREATE INDEX ON users (email)"'
+                ]
+            ),
+            MethodInfo(
+                name="create_index",
+                description="Create a secondary index on a column",
+                parameters={
+                    "index_name": "str (required) - Index name",
+                    "table": "str (required) - Table name",
+                    "column": "str (required) - Column to index",
+                    "if_not_exists": "bool (optional) - Add IF NOT EXISTS (default true)"
+                },
+                returns="bool - Success status",
+                examples=['create index "users_email_idx" on "users" column "email"']
+            ),
+            MethodInfo(
+                name="create_materialized_view",
+                description="Create a materialized view for optimized queries",
+                parameters={
+                    "view_name": "str (required) - View name",
+                    "table": "str (required) - Source table name",
+                    "select_columns": "str (required) - Columns to include",
+                    "where_clause": "str (required) - WHERE clause for view",
+                    "primary_key": "str (required) - Primary key definition",
+                    "if_not_exists": "bool (optional) - Add IF NOT EXISTS (default true)"
+                },
+                returns="bool - Success status",
+                examples=[
+                    'create materialized view "users_by_email" from "users" columns "*" where "email IS NOT NULL AND id IS NOT NULL" primary_key "(email, id)"'
+                ]
+            ),
+            MethodInfo(
+                name="increment_counter",
+                description="Increment a counter column value",
+                parameters={
+                    "table": "str (required) - Table name (with counter column)",
+                    "counter_column": "str (required) - Counter column name",
+                    "increment": "int (required) - Value to add (can be negative)",
+                    "where": "dict (required) - WHERE clause conditions",
+                    "consistency": "str (optional) - Consistency level"
+                },
+                returns="bool - Success status",
+                examples=[
+                    'increment counter in "page_views" column "views" by 1 where {"page_id": "home"}',
+                    'increment counter in "counters" column "value" by -5 where {"counter_id": "test"}'
+                ]
+            ),
+            MethodInfo(
+                name="prepare",
+                description="Prepare a CQL statement for efficient reuse",
+                parameters={
+                    "cql": "str (required) - CQL statement with ? placeholders"
+                },
+                returns="str - Statement ID for execute_prepared",
+                examples=[
+                    'prepare "INSERT INTO users (id, name, email) VALUES (?, ?, ?)"'
+                ]
+            ),
+            MethodInfo(
+                name="execute_prepared",
+                description="Execute a prepared statement with parameters",
+                parameters={
+                    "stmt_id": "str (required) - Statement ID from prepare()",
+                    "values": "list (required) - Parameter values",
+                    "consistency": "str (optional) - Consistency level"
+                },
+                returns="ResultSet - Query result",
+                examples=[
+                    'execute prepared "stmt_id_123" values ["uuid-value", "John", "john@example.com"]'
+                ]
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (scylladb) create keyspace "myapp" replication_strategy "SimpleStrategy" replication_factor 3',
+            '20 (scylladb) use keyspace "myapp"',
+            '30 (scylladb) create table "users" schema "id UUID, name TEXT, email TEXT, created TIMESTAMP, PRIMARY KEY (id)"',
+            '40 (scylladb) insert into "users" data {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "John Doe", "email": "john@example.com", "created": "2024-01-01 10:00:00"}',
+            '50 (scylladb) select from "users" columns "*" where {"id": "550e8400-e29b-41d4-a716-446655440000"}',
+            '60 (scylladb) create table "events" schema "device_id TEXT, timestamp TIMESTAMP, value DOUBLE, PRIMARY KEY ((device_id), timestamp)"',
+            '70 (scylladb) batch insert into "events" data_list [{"device_id": "sensor1", "timestamp": "2024-01-01 10:00:00", "value": 23.5}, {"device_id": "sensor1", "timestamp": "2024-01-01 10:01:00", "value": 23.7}] batch_type "UNLOGGED"',
+            '80 (scylladb) create index "users_email_idx" on "users" column "email"',
+            '90 (scylladb) execute "SELECT * FROM events WHERE device_id = \'sensor1\' AND timestamp > \'2024-01-01\'" consistency "LOCAL_QUORUM"',
+            '100 (scylladb) create table "page_views" schema "page_id TEXT, views COUNTER, PRIMARY KEY (page_id)"',
+            '110 (scylladb) increment counter in "page_views" column "views" by 1 where {"page_id": "home"}',
+            '120 (scylladb) update "users" set {"email": "newemail@example.com"} where {"id": "550e8400-e29b-41d4-a716-446655440000"}'
+        ]

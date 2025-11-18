@@ -95,6 +95,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List, Union, BinaryIO
 from datetime import datetime, timedelta
 import mimetypes
+from .module_base import AIbasicModuleBase
 
 try:
     import boto3
@@ -113,7 +114,7 @@ except ImportError:
     BotoConfig = None
 
 
-class AWSModule:
+class AWSModule(AIbasicModuleBase):
     """
     AWS Module for comprehensive Amazon Web Services integration.
 
@@ -1164,6 +1165,245 @@ class AWSModule:
         # boto3 clients don't need explicit cleanup
         # This method is here for consistency with other modules
         pass
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="AWS",
+            task_type="aws",
+            description="Amazon Web Services integration for S3, DynamoDB, SQS, SNS, Lambda, EC2, and more",
+            version="1.0.0",
+            keywords=["aws", "amazon", "cloud", "s3", "dynamodb", "sqs", "sns", "lambda", "ec2"],
+            dependencies=["boto3>=1.26.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "AWS credentials: Use IAM roles, environment variables, or aibasic.conf [aws] section",
+            "Supports multiple AWS services: S3, DynamoDB, SQS, SNS, Lambda, EC2, CloudWatch, Secrets Manager, SES",
+            "Module uses singleton pattern - one session shared across operations",
+            "S3 methods: upload_file(), download_file(), list_objects(), delete_object()",
+            "DynamoDB methods: put_item(), get_item(), query(), scan(), update_item(), delete_item()",
+            "SQS methods: send_message(), receive_messages(), delete_message()",
+            "SNS methods: publish(), create_topic(), subscribe()",
+            "Lambda methods: invoke_function(), create_function()",
+            "Secrets Manager: get_secret(), create_secret(), update_secret()",
+            "CloudWatch: put_metric_data(), get_metric_statistics()",
+            "LocalStack support: Set ENDPOINT_URL in config for local development",
+            "Auto-retry on transient errors with exponential backoff",
+            "All methods return dict with operation results",
+            "Region can be specified in config or per-method call",
+            "Supports multipart uploads for large S3 files (>5GB)",
+            "DynamoDB supports batch operations for efficiency"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            # S3 Methods
+            MethodInfo(
+                name="s3_upload_file",
+                description="Upload a file to S3 bucket",
+                parameters={
+                    "file_path": "Local file path to upload",
+                    "bucket": "S3 bucket name (optional: uses default)",
+                    "key": "S3 object key/path (optional: uses filename)",
+                    "metadata": "Optional: Dict of metadata tags",
+                    "acl": "Optional: Access control (private, public-read, etc.)"
+                },
+                returns="Dict with bucket, key, etag, and upload status",
+                examples=[
+                    '(aws) upload file "data.csv" to S3 bucket "my-bucket"',
+                    '(aws) upload file "report.pdf" to S3 with key "reports/2025/report.pdf"'
+                ]
+            ),
+            MethodInfo(
+                name="s3_download_file",
+                description="Download a file from S3 bucket",
+                parameters={
+                    "key": "S3 object key to download",
+                    "local_path": "Local path to save file",
+                    "bucket": "Optional: S3 bucket name"
+                },
+                returns="Dict with local path and download status",
+                examples=[
+                    '(aws) download from S3 key "data.csv" to "local_data.csv"',
+                    '(aws) download from S3 bucket "my-bucket" key "reports/report.pdf"'
+                ]
+            ),
+            MethodInfo(
+                name="s3_list_objects",
+                description="List objects in S3 bucket",
+                parameters={
+                    "bucket": "Optional: S3 bucket name",
+                    "prefix": "Optional: Filter by prefix/folder",
+                    "max_keys": "Optional: Maximum objects to return (default: 1000)"
+                },
+                returns="List of dicts with object keys, sizes, last modified dates",
+                examples=[
+                    '(aws) list S3 objects in bucket "my-bucket"',
+                    '(aws) list S3 objects with prefix "reports/2025/"'
+                ]
+            ),
+            # DynamoDB Methods
+            MethodInfo(
+                name="dynamodb_put_item",
+                description="Put an item into DynamoDB table",
+                parameters={
+                    "item": "Dict representing the item to store",
+                    "table": "Optional: Table name (uses default if not provided)"
+                },
+                returns="Dict with operation status",
+                examples=[
+                    'LET item = {"id": "123", "name": "John", "age": 30}',
+                    '(aws) put item into DynamoDB table "users"'
+                ]
+            ),
+            MethodInfo(
+                name="dynamodb_get_item",
+                description="Get an item from DynamoDB by key",
+                parameters={
+                    "key": "Dict with partition key (and sort key if needed)",
+                    "table": "Optional: Table name"
+                },
+                returns="Dict with item data or None if not found",
+                examples=[
+                    'LET key = {"id": "123"}',
+                    'LET user = (aws) get item from DynamoDB with key',
+                    'PRINT user["name"]'
+                ]
+            ),
+            MethodInfo(
+                name="dynamodb_query",
+                description="Query DynamoDB table with conditions",
+                parameters={
+                    "key_condition": "Key condition expression (e.g., 'id = :id')",
+                    "expression_values": "Dict mapping expression variable names to values",
+                    "table": "Optional: Table name",
+                    "index": "Optional: Index name for GSI/LSI queries"
+                },
+                returns="List of items matching the query",
+                examples=[
+                    '(aws) query DynamoDB where "id = :id" with values {":id": "123"}',
+                    '(aws) query DynamoDB table "orders" where "user_id = :uid" with values {":uid": "user123"}'
+                ]
+            ),
+            # SQS Methods
+            MethodInfo(
+                name="sqs_send_message",
+                description="Send a message to SQS queue",
+                parameters={
+                    "message": "Message body (string or dict that will be JSON encoded)",
+                    "queue_url": "Optional: Queue URL (uses default if not provided)",
+                    "delay_seconds": "Optional: Delay before message becomes available (0-900)",
+                    "attributes": "Optional: Dict of message attributes"
+                },
+                returns="Dict with message ID and MD5 hash",
+                examples=[
+                    '(aws) send SQS message "Process order 123"',
+                    'LET data = {"order_id": "123", "action": "process"}',
+                    '(aws) send SQS message data to queue "my-queue"'
+                ]
+            ),
+            MethodInfo(
+                name="sqs_receive_messages",
+                description="Receive messages from SQS queue",
+                parameters={
+                    "queue_url": "Optional: Queue URL",
+                    "max_messages": "Optional: Max messages to receive (1-10, default: 1)",
+                    "wait_time": "Optional: Long polling wait time in seconds (0-20)",
+                    "visibility_timeout": "Optional: Message visibility timeout"
+                },
+                returns="List of message dicts with body, receipt_handle, attributes",
+                examples=[
+                    'LET messages = (aws) receive SQS messages max 10',
+                    'FOR EACH msg IN messages: PRINT msg["body"]'
+                ]
+            ),
+            # SNS Methods
+            MethodInfo(
+                name="sns_publish",
+                description="Publish a message to SNS topic",
+                parameters={
+                    "message": "Message to publish (string or dict)",
+                    "topic_arn": "Optional: Topic ARN (uses default if not provided)",
+                    "subject": "Optional: Message subject (for email subscriptions)",
+                    "attributes": "Optional: Message attributes"
+                },
+                returns="Dict with message ID",
+                examples=[
+                    '(aws) publish SNS message "Alert: High CPU usage" with subject "Server Alert"',
+                    '(aws) publish to SNS topic "arn:aws:sns:us-east-1:123456789012:alerts" message "Error occurred"'
+                ]
+            ),
+            # Lambda Methods
+            MethodInfo(
+                name="lambda_invoke",
+                description="Invoke an AWS Lambda function",
+                parameters={
+                    "function_name": "Name or ARN of Lambda function",
+                    "payload": "Optional: Input data for function (dict)",
+                    "invocation_type": "Optional: RequestResponse, Event, or DryRun (default: RequestResponse)"
+                },
+                returns="Dict with status code, payload response, logs",
+                examples=[
+                    '(aws) invoke Lambda function "process-data"',
+                    'LET input = {"file": "data.csv", "action": "process"}',
+                    'LET result = (aws) invoke Lambda "data-processor" with payload input'
+                ]
+            ),
+            # Secrets Manager
+            MethodInfo(
+                name="secrets_get_secret",
+                description="Retrieve a secret from AWS Secrets Manager",
+                parameters={
+                    "secret_id": "Secret name or ARN"
+                },
+                returns="Dict with secret string or binary, version info",
+                examples=[
+                    'LET db_password = (aws) get secret "prod/db/password"',
+                    'PRINT db_password["SecretString"]'
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            '10 REM S3 Operations',
+            '20 (aws) upload file "data.csv" to S3 bucket "my-bucket"',
+            '30 (aws) list S3 objects in bucket "my-bucket"',
+            '40 (aws) download from S3 key "reports/report.pdf" to "local_report.pdf"',
+            '',
+            '50 REM DynamoDB Operations',
+            '60 LET user = {"id": "123", "name": "John", "email": "john@example.com"}',
+            '70 (aws) put user into DynamoDB table "users"',
+            '80 LET key = {"id": "123"}',
+            '90 LET retrieved = (aws) get item from DynamoDB with key',
+            '',
+            '100 REM SQS Messaging',
+            '110 (aws) send SQS message "Process order 456"',
+            '120 LET messages = (aws) receive SQS messages max 5',
+            '130 FOR EACH msg IN messages: PRINT msg["body"]',
+            '',
+            '140 REM SNS Notifications',
+            '150 (aws) publish SNS message "Deployment complete" with subject "CI/CD Alert"',
+            '',
+            '160 REM Lambda Invocation',
+            '170 LET payload = {"bucket": "my-bucket", "key": "data.csv"}',
+            '180 LET result = (aws) invoke Lambda "data-processor" with payload',
+            '',
+            '190 REM Secrets Manager',
+            '200 LET secret = (aws) get secret "prod/api/key"',
+            '210 LET api_key = secret["SecretString"]'
+        ]
 
 
 # Convenience function for quick access

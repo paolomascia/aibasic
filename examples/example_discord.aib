@@ -1,0 +1,756 @@
+REM ============================================================================
+REM AIbasic - Discord Module Examples
+REM ============================================================================
+REM
+REM This file demonstrates the comprehensive capabilities of the Discord module
+REM for sending messages, notifications, and alerts to Discord channels.
+REM
+REM Module: (discord)
+REM Dependencies: requests>=2.31.0
+REM
+REM Table of Contents:
+REM   1. Basic Text Messages
+REM   2. Rich Embeds
+REM   3. Custom Embed Creation
+REM   4. File Attachments
+REM   5. Message Editing and Deletion
+REM   6. Notifications
+REM   7. Alerts and Mentions
+REM   8. Status Updates
+REM   9. Log Messages
+REM  10. Error Monitoring
+REM  11. Deployment Notifications
+REM  12. Application Monitoring
+REM  13. User Activity Tracking
+REM  14. Server Health Checks
+REM  15. Backup Status Reports
+REM  16. Performance Metrics
+REM  17. Security Alerts
+REM  18. Build Pipeline Integration
+REM  19. Database Monitoring
+REM  20. API Usage Tracking
+REM
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Text Messages
+REM ============================================================================
+REM Demonstrates sending simple text messages
+REM ============================================================================
+
+10 PRINT "=== Example 1: Basic Text Messages ==="
+20 REM Send a simple message
+30 (discord) send message "Hello from AIbasic!"
+40 PRINT "Simple message sent"
+
+50 REM Send message with custom username
+60 (discord) send message "This is a custom bot" with username "My Custom Bot"
+70 PRINT "Message sent with custom username"
+
+80 REM Send message with custom avatar
+90 (discord) send message "Message with custom avatar" with username "Avatar Bot" and avatar_url "https://example.com/avatar.png"
+100 PRINT "Message sent with custom avatar"
+
+110 REM Send text-to-speech message
+120 (discord) send message "This is a TTS message" with tts true
+130 PRINT "TTS message sent"
+
+140 REM Send message with markdown formatting
+150 (discord) send message "**Bold text** *italic text* __underline__ ~~strikethrough~~ `code` ```code block```"
+160 PRINT "Formatted message sent"
+
+170 REM Send message with emojis
+180 (discord) send message "🚀 Launch successful! ✅ All systems operational 🎉"
+190 PRINT "Message with emojis sent"
+200 PRINT ""
+
+REM ============================================================================
+REM Example 2: Rich Embeds
+REM ============================================================================
+REM Demonstrates sending rich embed messages
+REM ============================================================================
+
+300 PRINT "=== Example 2: Rich Embeds ==="
+310 REM Create a simple embed
+320 LET embed = (discord) create embed with title "Welcome" and description "Welcome to our Discord server!" and color 0x00FF00
+330 (discord) send embed embed
+340 PRINT "Simple embed sent"
+
+350 REM Create embed with URL
+360 LET embed = (discord) create embed with title "Check this out!" and description "Click the title to visit" and url "https://example.com" and color 0x3498DB
+370 (discord) send embed embed
+380 PRINT "Embed with URL sent"
+
+390 REM Create embed with footer
+400 LET footer = {"text": "AIbasic Bot", "icon_url": "https://example.com/icon.png"}
+410 LET embed = (discord) create embed with title "Info" and description "Some information" and footer footer and color 0x9B59B6
+420 (discord) send embed embed
+430 PRINT "Embed with footer sent"
+
+440 REM Create embed with timestamp
+450 LET timestamp = "2025-01-17T12:00:00.000Z"
+460 LET embed = (discord) create embed with title "Timed Event" and description "This happened at a specific time" and timestamp timestamp and color 0xE91E63
+470 (discord) send embed embed
+480 PRINT "Embed with timestamp sent"
+
+490 REM Create embed with author
+500 LET author = {"name": "John Doe", "url": "https://example.com/john", "icon_url": "https://example.com/john.png"}
+510 LET embed = (discord) create embed with title "Article" and description "Written by an author" and author author and color 0xFF5722
+520 (discord) send embed embed
+530 PRINT "Embed with author sent"
+540 PRINT ""
+
+REM ============================================================================
+REM Example 3: Custom Embed Creation
+REM ============================================================================
+REM Demonstrates creating embeds with fields, images, and thumbnails
+REM ============================================================================
+
+600 PRINT "=== Example 3: Custom Embed Creation ==="
+610 REM Create embed with fields
+620 LET fields = [
+630   {"name": "Field 1", "value": "Value 1", "inline": true},
+640   {"name": "Field 2", "value": "Value 2", "inline": true},
+650   {"name": "Field 3", "value": "This is a longer field that spans the full width", "inline": false}
+660 ]
+670 LET embed = (discord) create embed with title "Report" and description "Monthly report" and fields fields and color 0x2ECC71
+680 (discord) send embed embed
+690 PRINT "Embed with fields sent"
+
+700 REM Create embed with image
+710 LET embed = (discord) create embed with title "Screenshot" and description "Check out this image" and image "https://example.com/image.png" and color 0x3498DB
+720 (discord) send embed embed
+730 PRINT "Embed with image sent"
+
+740 REM Create embed with thumbnail
+750 LET embed = (discord) create embed with title "User Profile" and description "User information" and thumbnail "https://example.com/avatar.png" and color 0x9B59B6
+760 (discord) send embed embed
+770 PRINT "Embed with thumbnail sent"
+
+780 REM Create comprehensive embed
+790 LET author = {"name": "AIbasic System", "icon_url": "https://example.com/icon.png"}
+800 LET footer = {"text": "Generated by AIbasic", "icon_url": "https://example.com/footer.png"}
+810 LET fields = [
+820   {"name": "Status", "value": "✅ Online", "inline": true},
+830   {"name": "Uptime", "value": "99.9%", "inline": true},
+840   {"name": "Version", "value": "1.0.0", "inline": true}
+850 ]
+860 LET embed = (discord) create embed with title "System Status" and description "All systems operational" and color 0x2ECC71 and author author and footer footer and fields fields and thumbnail "https://example.com/status.png"
+870 (discord) send embed embed
+880 PRINT "Comprehensive embed sent"
+890 PRINT ""
+
+REM ============================================================================
+REM Example 4: File Attachments
+REM ============================================================================
+REM Demonstrates sending files and images
+REM ============================================================================
+
+1000 PRINT "=== Example 4: File Attachments ==="
+1010 REM Create a sample file
+1020 OPEN "report.txt" FOR OUTPUT AS #1
+1030 PRINT #1, "Sample Report"
+1040 PRINT #1, "=============="
+1050 PRINT #1, "This is a sample report file."
+1060 CLOSE #1
+
+1070 REM Send file
+1080 (discord) send file "report.txt" with content "Here is the report"
+1090 PRINT "File sent"
+
+1100 REM Send file with custom filename
+1110 (discord) send file "report.txt" with filename "monthly_report.txt" and content "Monthly report attached"
+1120 PRINT "File sent with custom filename"
+
+1130 REM Send image with message
+1140 REM (discord) send file "screenshot.png" with content "Check out this screenshot!"
+1150 REM PRINT "Image sent"
+
+1160 REM Send CSV file
+1170 OPEN "data.csv" FOR OUTPUT AS #1
+1180 PRINT #1, "Name,Email,Status"
+1190 PRINT #1, "John Doe,john@example.com,Active"
+1200 PRINT #1, "Jane Smith,jane@example.com,Inactive"
+1210 CLOSE #1
+1220 (discord) send file "data.csv" with content "User data export"
+1230 PRINT "CSV file sent"
+1240 PRINT ""
+
+REM ============================================================================
+REM Example 5: Message Editing and Deletion
+REM ============================================================================
+REM Demonstrates editing and deleting webhook messages
+REM ============================================================================
+
+1300 PRINT "=== Example 5: Message Editing and Deletion ==="
+1310 REM Send a message and get its ID
+1320 LET response = (discord) send message "This message will be edited"
+1330 LET message_id = response["id"]
+1340 PRINT "Message sent with ID: " + message_id
+
+1350 REM Wait a bit
+1360 SLEEP 2
+
+1370 REM Edit the message
+1380 (discord) edit message message_id with content "This message has been edited!"
+1390 PRINT "Message edited"
+
+1400 REM Wait a bit
+1410 SLEEP 2
+
+1420 REM Delete the message
+1430 (discord) delete message message_id
+1440 PRINT "Message deleted"
+1450 PRINT ""
+
+REM ============================================================================
+REM Example 6: Notifications
+REM ============================================================================
+REM Demonstrates sending formatted notifications
+REM ============================================================================
+
+1500 PRINT "=== Example 6: Notifications ==="
+1510 REM Send info notification
+1520 (discord) send notification with title "Information" and message "This is an informational message" and level "info"
+1530 PRINT "Info notification sent"
+
+1540 REM Send success notification
+1550 (discord) send notification with title "Success" and message "Operation completed successfully!" and level "success"
+1560 PRINT "Success notification sent"
+
+1570 REM Send warning notification
+1580 (discord) send notification with title "Warning" and message "This is a warning message" and level "warning"
+1590 PRINT "Warning notification sent"
+
+1600 REM Send error notification
+1610 (discord) send notification with title "Error" and message "An error has occurred" and level "error"
+1620 PRINT "Error notification sent"
+
+1630 REM Send custom color notification
+1640 (discord) send notification with title "Custom" and message "Custom colored notification" and color 0xFF00FF
+1650 PRINT "Custom notification sent"
+1660 PRINT ""
+
+REM ============================================================================
+REM Example 7: Alerts and Mentions
+REM ============================================================================
+REM Demonstrates sending alerts with mentions
+REM ============================================================================
+
+1700 PRINT "=== Example 7: Alerts and Mentions ==="
+1710 REM Send simple alert
+1720 (discord) send alert "Server CPU usage is high!"
+1730 PRINT "Alert sent"
+
+1740 REM Send alert with @everyone mention
+1750 (discord) send alert "Critical system failure!" with mention_everyone true
+1760 PRINT "Alert with @everyone sent"
+
+1770 REM Send alert mentioning specific users
+1780 LET users = ["123456789", "987654321"]
+1790 (discord) send alert "Your attention is required" with mention_users users
+1800 PRINT "Alert with user mentions sent"
+
+1810 REM Send alert mentioning roles
+1820 LET roles = ["111111111", "222222222"]
+1830 (discord) send alert "Admins please check this" with mention_roles roles
+1840 PRINT "Alert with role mentions sent"
+1850 PRINT ""
+
+REM ============================================================================
+REM Example 8: Status Updates
+REM ============================================================================
+REM Demonstrates sending service status updates
+REM ============================================================================
+
+1900 PRINT "=== Example 8: Status Updates ==="
+1910 REM Service online
+1920 (discord) send status update for service "Web Server" with status "online"
+1930 PRINT "Online status sent"
+
+1940 REM Service degraded
+1950 (discord) send status update for service "Database" with status "degraded" and details "Experiencing high latency"
+1960 PRINT "Degraded status sent"
+
+1970 REM Service offline
+1980 (discord) send status update for service "API Gateway" with status "offline" and details "Connection timeout"
+1990 PRINT "Offline status sent"
+
+2000 REM Multiple service updates
+2010 (discord) send status update for service "Cache Server" with status "online"
+2020 (discord) send status update for service "Message Queue" with status "online"
+2030 (discord) send status update for service "File Storage" with status "degraded" and details "Disk space low"
+2040 PRINT "Multiple status updates sent"
+2050 PRINT ""
+
+REM ============================================================================
+REM Example 9: Log Messages
+REM ============================================================================
+REM Demonstrates sending log messages
+REM ============================================================================
+
+2100 PRINT "=== Example 9: Log Messages ==="
+2110 REM Debug log
+2120 (discord) send log with level "DEBUG" and message "Debugging information" and source "app.py"
+2130 PRINT "Debug log sent"
+
+2140 REM Info log
+2150 (discord) send log with level "INFO" and message "Application started successfully" and source "main.py"
+2160 PRINT "Info log sent"
+
+2170 REM Warning log
+2180 (discord) send log with level "WARNING" and message "Memory usage above 80%" and source "monitor.py"
+2190 PRINT "Warning log sent"
+
+2200 REM Error log
+2210 (discord) send log with level "ERROR" and message "Failed to connect to database" and source "db.py"
+2220 PRINT "Error log sent"
+
+2230 REM Critical log
+2240 (discord) send log with level "CRITICAL" and message "System crash imminent" and source "system.py"
+2250 PRINT "Critical log sent"
+2260 PRINT ""
+
+REM ============================================================================
+REM Example 10: Error Monitoring
+REM ============================================================================
+REM Demonstrates monitoring and reporting errors
+REM ============================================================================
+
+2300 PRINT "=== Example 10: Error Monitoring ==="
+2310 ON ERROR GOTO 2400
+
+2320 REM Simulate an error
+2330 LET result = 10 / 0
+2340 PRINT "This won't execute"
+2350 GOTO 2500
+
+2400 REM Error handler
+2410 PRINT "Error caught!"
+2420 LET error_msg = STR(_last_error)
+2430 LET error_line = STR(_last_error_line)
+
+2440 REM Send error notification to Discord
+2450 LET fields = [
+2460   {"name": "Error", "value": error_msg, "inline": false},
+2470   {"name": "Line", "value": error_line, "inline": true},
+2480   {"name": "Time", "value": "2025-01-17 12:00:00", "inline": true}
+2490 ]
+2500 LET embed = (discord) create embed with title "⚠️ Application Error" and description "An error occurred in the application" and color 0xE74C3C and fields fields
+2510 (discord) send embed embed
+2520 PRINT "Error notification sent to Discord"
+
+2530 REM Send alert
+2540 (discord) send alert "Critical error detected at line " + error_line
+2550 PRINT "Alert sent"
+2560 PRINT ""
+
+REM ============================================================================
+REM Example 11: Deployment Notifications
+REM ============================================================================
+REM Demonstrates deployment status notifications
+REM ============================================================================
+
+2600 PRINT "=== Example 11: Deployment Notifications ==="
+2610 REM Deployment started
+2620 LET fields = [
+2630   {"name": "Environment", "value": "Production", "inline": true},
+2640   {"name": "Version", "value": "v2.5.0", "inline": true},
+2650   {"name": "Deployer", "value": "CI/CD Pipeline", "inline": true}
+2660 ]
+2670 LET embed = (discord) create embed with title "🚀 Deployment Started" and description "Deploying new version to production" and color 0x3498DB and fields fields
+2680 (discord) send embed embed
+2690 PRINT "Deployment started notification sent"
+
+2700 REM Wait for deployment (simulated)
+2710 SLEEP 3
+
+2720 REM Deployment successful
+2730 LET fields = [
+2740   {"name": "Environment", "value": "Production", "inline": true},
+2750   {"name": "Version", "value": "v2.5.0", "inline": true},
+2760   {"name": "Duration", "value": "3 minutes", "inline": true},
+2770   {"name": "Changes", "value": "- Bug fixes\n- Performance improvements\n- New features", "inline": false}
+2780 ]
+2790 LET embed = (discord) create embed with title "✅ Deployment Successful" and description "Production deployment completed successfully" and color 0x2ECC71 and fields fields
+2800 (discord) send embed embed
+2810 PRINT "Deployment success notification sent"
+2820 PRINT ""
+
+REM ============================================================================
+REM Example 12: Application Monitoring
+REM ============================================================================
+REM Demonstrates application health monitoring
+REM ============================================================================
+
+2900 PRINT "=== Example 12: Application Monitoring ==="
+2910 REM Collect metrics (simulated)
+2920 LET cpu_usage = 45
+2930 LET memory_usage = 62
+2940 LET disk_usage = 78
+2950 LET active_users = 1250
+
+2960 REM Create monitoring report
+2970 LET fields = [
+2980   {"name": "CPU Usage", "value": STR(cpu_usage) + "%", "inline": true},
+2990   {"name": "Memory Usage", "value": STR(memory_usage) + "%", "inline": true},
+3000   {"name": "Disk Usage", "value": STR(disk_usage) + "%", "inline": true},
+3010   {"name": "Active Users", "value": STR(active_users), "inline": true},
+3020   {"name": "Status", "value": "🟢 Healthy", "inline": true},
+3030   {"name": "Uptime", "value": "7 days, 14 hours", "inline": true}
+3040 ]
+
+3050 LET footer = {"text": "Last updated: 2025-01-17 12:00:00"}
+3060 LET embed = (discord) create embed with title "📊 Application Health Report" and description "Current system metrics" and color 0x2ECC71 and fields fields and footer footer
+3070 (discord) send embed embed
+3080 PRINT "Monitoring report sent"
+
+3090 REM Check for alerts
+3100 IF disk_usage > 75 THEN
+3110   (discord) send notification with title "Disk Space Warning" and message "Disk usage is at " + STR(disk_usage) + "%. Consider cleanup." and level "warning"
+3120   PRINT "Disk space warning sent"
+3130 END IF
+3140 PRINT ""
+
+REM ============================================================================
+REM Example 13: User Activity Tracking
+REM ============================================================================
+REM Demonstrates tracking user activities
+REM ============================================================================
+
+3200 PRINT "=== Example 13: User Activity Tracking ==="
+3210 REM New user registration
+3220 LET fields = [
+3230   {"name": "User", "value": "john.doe@example.com", "inline": true},
+3240   {"name": "IP Address", "value": "192.168.1.100", "inline": true},
+3250   {"name": "Registration Date", "value": "2025-01-17", "inline": true}
+3260 ]
+3270 LET embed = (discord) create embed with title "👤 New User Registration" and description "A new user has registered" and color 0x3498DB and fields fields
+3280 (discord) send embed embed
+3290 PRINT "User registration notification sent"
+
+3300 REM User login
+3310 LET fields = [
+3320   {"name": "User", "value": "jane.smith@example.com", "inline": true},
+3330   {"name": "Location", "value": "New York, USA", "inline": true},
+3340   {"name": "Device", "value": "Chrome on Windows", "inline": true}
+3350 ]
+3360 LET embed = (discord) create embed with title "🔐 User Login" and description "User logged in successfully" and color 0x9B59B6 and fields fields
+3370 (discord) send embed embed
+3380 PRINT "Login notification sent"
+
+3390 REM Suspicious activity
+3400 LET fields = [
+3410   {"name": "User", "value": "admin@example.com", "inline": true},
+3420   {"name": "Activity", "value": "Multiple failed login attempts", "inline": false},
+3430   {"name": "IP Address", "value": "Unknown location", "inline": true},
+3440   {"name": "Count", "value": "5 attempts in 2 minutes", "inline": true}
+3450 ]
+3460 LET embed = (discord) create embed with title "⚠️ Suspicious Activity Detected" and description "Potential security threat" and color 0xE74C3C and fields fields
+3470 (discord) send embed embed
+3480 (discord) send alert "Security team: Please investigate suspicious login attempts"
+3490 PRINT "Suspicious activity alert sent"
+3500 PRINT ""
+
+REM ============================================================================
+REM Example 14: Server Health Checks
+REM ============================================================================
+REM Demonstrates automated server health monitoring
+REM ============================================================================
+
+3600 PRINT "=== Example 14: Server Health Checks ==="
+3610 REM Check multiple servers
+3620 DIM servers$(3, 2)
+3630 LET servers$(0, 0) = "web-server-01"
+3640 LET servers$(0, 1) = "online"
+3650 LET servers$(1, 0) = "web-server-02"
+3660 LET servers$(1, 1) = "online"
+3670 LET servers$(2, 0) = "db-server-01"
+3680 LET servers$(2, 1) = "degraded"
+
+3690 REM Create health check report
+3700 LET description = "Server health check completed"
+3710 LET fields = []
+
+3720 FOR i = 0 TO 2
+3730   LET server_name = servers$(i, 0)
+3740   LET server_status = servers$(i, 1)
+3750
+3760   LET status_emoji = "🟢"
+3770   IF server_status = "degraded" THEN LET status_emoji = "🟡"
+3780   IF server_status = "offline" THEN LET status_emoji = "🔴"
+3790
+3800   LET field = {"name": server_name, "value": status_emoji + " " + server_status, "inline": true}
+3810   REM Add field to fields array (simulated)
+3820 NEXT i
+
+3830 LET fields = [
+3840   {"name": "web-server-01", "value": "🟢 online", "inline": true},
+3850   {"name": "web-server-02", "value": "🟢 online", "inline": true},
+3860   {"name": "db-server-01", "value": "🟡 degraded", "inline": true}
+3870 ]
+
+3880 LET embed = (discord) create embed with title "🖥️ Server Health Check" and description description and color 0xF39C12 and fields fields
+3890 (discord) send embed embed
+3900 PRINT "Health check report sent"
+
+3910 REM Send alert for degraded server
+3920 (discord) send notification with title "Server Degraded" and message "db-server-01 is experiencing degraded performance" and level "warning"
+3930 PRINT "Degraded server alert sent"
+3940 PRINT ""
+
+REM ============================================================================
+REM Example 15: Backup Status Reports
+REM ============================================================================
+REM Demonstrates backup job status reporting
+REM ============================================================================
+
+4000 PRINT "=== Example 15: Backup Status Reports ==="
+4010 REM Backup started
+4020 (discord) send notification with title "Backup Started" and message "Daily database backup initiated" and level "info"
+4030 PRINT "Backup start notification sent"
+
+4040 REM Simulate backup process
+4050 SLEEP 2
+
+4060 REM Backup completed
+4070 LET fields = [
+4080   {"name": "Database", "value": "production_db", "inline": true},
+4090   {"name": "Size", "value": "2.5 GB", "inline": true},
+4100   {"name": "Duration", "value": "12 minutes", "inline": true},
+4110   {"name": "Location", "value": "s3://backups/2025-01-17/", "inline": false},
+4120   {"name": "Compression", "value": "gzip", "inline": true},
+4130   {"name": "Status", "value": "✅ Success", "inline": true}
+4140 ]
+
+4150 LET footer = {"text": "Next backup: 2025-01-18 00:00:00"}
+4160 LET embed = (discord) create embed with title "💾 Backup Completed" and description "Database backup finished successfully" and color 0x2ECC71 and fields fields and footer footer
+4170 (discord) send embed embed
+4180 PRINT "Backup completion report sent"
+
+4190 REM Backup verification
+4200 (discord) send log with level "INFO" and message "Backup integrity verified successfully" and source "backup_service"
+4210 PRINT "Backup verification log sent"
+4220 PRINT ""
+
+REM ============================================================================
+REM Example 16: Performance Metrics
+REM ============================================================================
+REM Demonstrates performance metrics reporting
+REM ============================================================================
+
+4300 PRINT "=== Example 16: Performance Metrics ==="
+4310 REM API response time metrics
+4320 LET fields = [
+4330   {"name": "Avg Response Time", "value": "145ms", "inline": true},
+4340   {"name": "Min Response Time", "value": "45ms", "inline": true},
+4350   {"name": "Max Response Time", "value": "890ms", "inline": true},
+4360   {"name": "Total Requests", "value": "15,432", "inline": true},
+4370   {"name": "Success Rate", "value": "99.8%", "inline": true},
+4380   {"name": "Error Rate", "value": "0.2%", "inline": true}
+4390 ]
+
+4400 LET embed = (discord) create embed with title "📈 API Performance Metrics" and description "Last 24 hours" and color 0x3498DB and fields fields
+4410 (discord) send embed embed
+4420 PRINT "Performance metrics sent"
+
+4430 REM Database query performance
+4440 LET fields = [
+4450   {"name": "Avg Query Time", "value": "23ms", "inline": true},
+4460   {"name": "Slow Queries", "value": "12", "inline": true},
+4470   {"name": "Total Queries", "value": "45,678", "inline": true},
+4480   {"name": "Cache Hit Rate", "value": "87%", "inline": true},
+4490   {"name": "Connections", "value": "45/100", "inline": true},
+4500   {"name": "Deadlocks", "value": "0", "inline": true}
+4510 ]
+
+4520 LET embed = (discord) create embed with title "🗄️ Database Performance" and description "Last 24 hours" and color 0x9B59B6 and fields fields
+4530 (discord) send embed embed
+4540 PRINT "Database metrics sent"
+4550 PRINT ""
+
+REM ============================================================================
+REM Example 17: Security Alerts
+REM ============================================================================
+REM Demonstrates security monitoring and alerts
+REM ============================================================================
+
+4600 PRINT "=== Example 17: Security Alerts ==="
+4610 REM Failed login attempts
+4620 LET fields = [
+4630   {"name": "User", "value": "admin", "inline": true},
+4640   {"name": "IP Address", "value": "203.0.113.45", "inline": true},
+4650   {"name": "Attempts", "value": "10", "inline": true},
+4660   {"name": "Time Window", "value": "5 minutes", "inline": true},
+4670   {"name": "Action Taken", "value": "IP temporarily blocked", "inline": false}
+4680 ]
+
+4690 LET embed = (discord) create embed with title "🔒 Security Alert: Failed Login Attempts" and description "Multiple failed login attempts detected" and color 0xE74C3C and fields fields
+4700 (discord) send embed embed
+4710 (discord) send alert "Security team: Potential brute force attack detected"
+4720 PRINT "Security alert sent"
+
+4730 REM SSL certificate expiry warning
+4740 LET fields = [
+4750   {"name": "Domain", "value": "example.com", "inline": true},
+4760   {"name": "Expires In", "value": "7 days", "inline": true},
+4770   {"name": "Issuer", "value": "Let's Encrypt", "inline": true},
+4780   {"name": "Action Required", "value": "Renew certificate", "inline": false}
+4790 ]
+
+4800 LET embed = (discord) create embed with title "⚠️ SSL Certificate Expiring Soon" and description "Certificate renewal required" and color 0xF39C12 and fields fields
+4810 (discord) send embed embed
+4820 PRINT "SSL expiry warning sent"
+
+4830 REM Unauthorized API access attempt
+4840 LET fields = [
+4850   {"name": "Endpoint", "value": "/api/admin/users", "inline": true},
+4860   {"name": "Method", "value": "DELETE", "inline": true},
+4870   {"name": "IP Address", "value": "198.51.100.89", "inline": true},
+4880   {"name": "API Key", "value": "Invalid key used", "inline": true},
+4890   {"name": "Response", "value": "403 Forbidden", "inline": true}
+4900 ]
+
+4910 LET embed = (discord) create embed with title "🚨 Unauthorized API Access Attempt" and description "Blocked unauthorized access" and color 0xC0392B and fields fields
+4920 (discord) send embed embed
+4930 PRINT "Unauthorized access alert sent"
+4940 PRINT ""
+
+REM ============================================================================
+REM Example 18: Build Pipeline Integration
+REM ============================================================================
+REM Demonstrates CI/CD pipeline notifications
+REM ============================================================================
+
+5000 PRINT "=== Example 18: Build Pipeline Integration ==="
+5010 REM Build started
+5020 LET fields = [
+5030   {"name": "Branch", "value": "main", "inline": true},
+5040   {"name": "Commit", "value": "a1b2c3d", "inline": true},
+5050   {"name": "Author", "value": "developer@example.com", "inline": true}
+5060 ]
+
+5070 LET embed = (discord) create embed with title "⚙️ Build Started" and description "CI/CD pipeline initiated" and color 0x3498DB and fields fields
+5080 (discord) send embed embed
+5090 PRINT "Build start notification sent"
+
+5100 REM Test results
+5110 LET fields = [
+5120   {"name": "Total Tests", "value": "245", "inline": true},
+5130   {"name": "Passed", "value": "✅ 242", "inline": true},
+5140   {"name": "Failed", "value": "❌ 3", "inline": true},
+5150   {"name": "Coverage", "value": "87%", "inline": true},
+5160   {"name": "Duration", "value": "4m 32s", "inline": true}
+5170 ]
+
+5180 LET embed = (discord) create embed with title "🧪 Test Results" and description "Unit and integration tests completed" and color 0xF39C12 and fields fields
+5190 (discord) send embed embed
+5200 PRINT "Test results sent"
+
+5210 REM Build failed
+5220 LET fields = [
+5230   {"name": "Branch", "value": "main", "inline": true},
+5240   {"name": "Commit", "value": "a1b2c3d", "inline": true},
+5250   {"name": "Stage", "value": "Testing", "inline": true},
+5260   {"name": "Error", "value": "3 tests failed", "inline": false},
+5270   {"name": "Failed Tests", "value": "- test_user_auth\n- test_payment_flow\n- test_data_validation", "inline": false}
+5280 ]
+
+5290 LET embed = (discord) create embed with title "❌ Build Failed" and description "Pipeline failed during testing stage" and color 0xE74C3C and fields fields
+5300 (discord) send embed embed
+5310 (discord) send alert "Build failed on main branch - immediate attention required!"
+5320 PRINT "Build failure notification sent"
+5330 PRINT ""
+
+REM ============================================================================
+REM Example 19: Database Monitoring
+REM ============================================================================
+REM Demonstrates database health and performance monitoring
+REM ============================================================================
+
+5400 PRINT "=== Example 19: Database Monitoring ==="
+5410 REM Connection pool status
+5420 LET fields = [
+5430   {"name": "Active Connections", "value": "45", "inline": true},
+5440   {"name": "Idle Connections", "value": "15", "inline": true},
+5450   {"name": "Max Connections", "value": "100", "inline": true},
+5460   {"name": "Pool Utilization", "value": "60%", "inline": true}
+5470 ]
+
+5480 LET embed = (discord) create embed with title "🔌 Database Connection Pool" and description "Current connection status" and color 0x3498DB and fields fields
+5490 (discord) send embed embed
+5500 PRINT "Connection pool status sent"
+
+5510 REM Long-running queries detected
+5520 LET fields = [
+5530   {"name": "Query", "value": "SELECT * FROM large_table WHERE...", "inline": false},
+5540   {"name": "Duration", "value": "15 minutes", "inline": true},
+5550   {"name": "User", "value": "analytics_user", "inline": true},
+5560   {"name": "Status", "value": "Running", "inline": true}
+5570 ]
+
+5580 LET embed = (discord) create embed with title "⏱️ Long-Running Query Detected" and description "Query exceeds threshold" and color 0xF39C12 and fields fields
+5590 (discord) send embed embed
+5600 PRINT "Long-running query alert sent"
+
+5610 REM Database disk space warning
+5620 (discord) send notification with title "Database Storage Warning" and message "Database disk usage at 85%. Consider cleanup or expansion." and level "warning"
+5630 PRINT "Disk space warning sent"
+5640 PRINT ""
+
+REM ============================================================================
+REM Example 20: API Usage Tracking
+REM ============================================================================
+REM Demonstrates API usage statistics and quota monitoring
+REM ============================================================================
+
+5700 PRINT "=== Example 20: API Usage Tracking ==="
+5710 REM Daily API usage summary
+5720 LET fields = [
+5730   {"name": "Total Requests", "value": "125,430", "inline": true},
+5740   {"name": "Unique Users", "value": "3,245", "inline": true},
+5750   {"name": "Avg Requests/User", "value": "38.6", "inline": true},
+5760   {"name": "Top Endpoint", "value": "/api/v1/users", "inline": true},
+5770   {"name": "Peak Hour", "value": "14:00-15:00 UTC", "inline": true},
+5780   {"name": "Peak Requests", "value": "8,950/hour", "inline": true}
+5790 ]
+
+5800 LET footer = {"text": "Report generated: 2025-01-17 23:59:59"}
+5810 LET embed = (discord) create embed with title "📊 Daily API Usage Report" and description "Usage statistics for 2025-01-17" and color 0x2ECC71 and fields fields and footer footer
+5820 (discord) send embed embed
+5830 PRINT "API usage report sent"
+
+5840 REM Rate limit exceeded alert
+5850 LET fields = [
+5860   {"name": "User", "value": "api_user_12345", "inline": true},
+5870   {"name": "IP Address", "value": "192.0.2.100", "inline": true},
+5880   {"name": "Limit", "value": "1000 req/hour", "inline": true},
+5890   {"name": "Actual", "value": "1523 req/hour", "inline": true},
+5900   {"name": "Action", "value": "Temporarily throttled", "inline": false}
+5910 ]
+
+5920 LET embed = (discord) create embed with title "🚦 Rate Limit Exceeded" and description "User exceeded API rate limit" and color 0xE67E22 and fields fields
+5930 (discord) send embed embed
+5940 PRINT "Rate limit alert sent"
+
+5950 REM API quota warning
+5960 LET fields = [
+5970   {"name": "Customer", "value": "Acme Corp", "inline": true},
+5980   {"name": "Plan", "value": "Professional", "inline": true},
+5990   {"name": "Usage", "value": "850,000 / 1,000,000", "inline": true},
+6000   {"name": "Percentage", "value": "85%", "inline": true},
+6010   {"name": "Resets In", "value": "7 days", "inline": true}
+6020 ]
+
+6030 LET embed = (discord) create embed with title "⚠️ API Quota Warning" and description "Customer approaching monthly quota limit" and color 0xF39C12 and fields fields
+6040 (discord) send embed embed
+6050 PRINT "API quota warning sent"
+6060 PRINT ""
+
+REM ============================================================================
+REM Cleanup
+REM ============================================================================
+
+9000 PRINT "=== All Discord Examples Completed ==="
+9010 PRINT "Check your Discord channel for all the messages!"
+9020 END

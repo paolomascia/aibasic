@@ -36,7 +36,7 @@
 
 <div class="container grid">
   <aside class="sidebar">
-    <strong>Modules (33)</strong>
+    <strong>Modules (35)</strong>
     <a href="#postgres">PostgreSQL</a>
     <a href="#mysql">MySQL</a>
     <a href="#mongodb">MongoDB</a>
@@ -59,6 +59,7 @@
     <a href="#api">REST API</a>
     <a href="#teams">Microsoft Teams</a>
     <a href="#slack">Slack</a>
+    <a href="#discord">Discord</a>
     <a href="#terraform">Terraform</a>
     <a href="#docker">Docker</a>
     <a href="#kubernetes">Kubernetes</a>
@@ -73,7 +74,7 @@
   </aside>
   <main>
     <h1>Modules Reference</h1>
-    <p class="muted">AIbasic includes 33 production-ready modules for databases, messaging, storage, networking, collaboration, analytics, cloud, IaC, containers, orchestration, security, identity management, token authentication, IoT messaging, monitoring, and web browser automation.</p>
+    <p class="muted">AIbasic includes 34 production-ready modules for databases, messaging, storage, networking, team collaboration, analytics, cloud, IaC, containers, orchestration, security, identity management, token authentication, IoT messaging, monitoring, and web browser automation.</p>
 
     <h2 id="postgres">1. PostgreSQL Module</h2>
     <div class="panel">
@@ -1477,12 +1478,66 @@ FIREFOX_DRIVER_PATH =</code></pre>
       </ul>
     </div>
 
+    <h2 id="discord">34. Discord Module</h2>
+    <div class="panel">
+      <p><strong>Task Type:</strong> <code>(discord)</code></p>
+      <p><strong>Purpose:</strong> Discord integration via webhooks for notifications, alerts, and team communication</p>
+
+      <h3>Configuration</h3>
+      <pre><code>[discord]
+WEBHOOK_URL = https://discord.com/api/webhooks/...
+BOT_TOKEN =
+DEFAULT_USERNAME = AIbasic Bot
+DEFAULT_AVATAR_URL =
+RATE_LIMIT_RETRY = true
+MAX_RETRIES = 3</code></pre>
+
+      <h3>Common Operations</h3>
+      <pre><code>10 REM Send simple message
+20 (discord) send message "Hello from AIbasic!"
+
+30 REM Send notification
+40 (discord) send notification with title "Success" and message "Operation completed" and level "success"
+
+50 REM Send rich embed
+60 LET embed = (discord) create embed with title "Report" and description "Monthly report" and color 0x2ECC71
+70 (discord) send embed embed
+
+80 REM Send alert
+90 (discord) send alert "Server CPU usage is high!"
+
+100 REM Send status update
+110 (discord) send status update for service "Web Server" with status "online"
+
+120 REM Send log message
+130 (discord) send log with level "ERROR" and message "Failed to connect" and source "app.py"
+
+140 REM Send file
+150 (discord) send file "report.pdf" with content "Monthly report attached"</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Webhook Integration: Simple message sending without authentication</li>
+        <li>Rich Embeds: Formatted messages with colors, fields, images</li>
+        <li>File Attachments: Send files, images, documents</li>
+        <li>Notifications: Pre-formatted info, success, warning, error messages</li>
+        <li>Alerts: Urgent messages with optional @mentions</li>
+        <li>Status Updates: Service health monitoring (online, degraded, offline)</li>
+        <li>Log Messages: Structured logging with levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)</li>
+        <li>Message Editing: Edit previously sent webhook messages</li>
+        <li>Rate Limiting: Automatic retry with exponential backoff</li>
+        <li>Markdown Support: Bold, italic, code blocks, links</li>
+        <li>Color Coding: Visual severity indicators</li>
+        <li>Timestamps: ISO8601 timestamps for time-sensitive events</li>
+      </ul>
+    </div>
+
     <div class="panel">
       <h3>Module Usage Tips</h3>
       <ul>
         <li>Configure modules in <code>aibasic.conf</code> before use</li>
-        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(scylladb)</code>, <code>(s3)</code>, <code>(terraform)</code>, <code>(docker)</code>, <code>(kubernetes)</code>, <code>(azure)</code>, <code>(gcp)</code>, <code>(ldap)</code>, <code>(keycloak)</code>, <code>(jwt)</code>, <code>(mqtt)</code>, <code>(prometheus)</code>, <code>(selenium)</code></li>
-        <li>Combine modules for powerful workflows (e.g., Postgres → DataFrame → S3 or Selenium → MongoDB)</li>
+        <li>Use task type hints: <code>(postgres)</code>, <code>(mongodb)</code>, <code>(scylladb)</code>, <code>(s3)</code>, <code>(terraform)</code>, <code>(docker)</code>, <code>(kubernetes)</code>, <code>(azure)</code>, <code>(gcp)</code>, <code>(ldap)</code>, <code>(keycloak)</code>, <code>(jwt)</code>, <code>(mqtt)</code>, <code>(prometheus)</code>, <code>(selenium)</code>, <code>(discord)</code></li>
+        <li>Combine modules for powerful workflows (e.g., Postgres → DataFrame → S3, Selenium → MongoDB, or Monitor → Discord)</li>
         <li>Use error handling (<code>ON ERROR GOTO</code>) with I/O operations</li>
         <li>Close connections explicitly or rely on automatic cleanup</li>
       </ul>
@@ -1491,7 +1546,7 @@ FIREFOX_DRIVER_PATH =</code></pre>
 </div>
 
 <div class="container" style="border-top:1px solid var(--border);margin-top:2rem;padding-top:1rem;color:var(--muted)">
-  © 2025 AIbasic v1.0 — Complete documentation with 33 integrated modules
+  © 2025 AIbasic v1.0 — Complete documentation with 35 integrated modules
 </div>
 <script src="script.js"></script>
 </body></html>

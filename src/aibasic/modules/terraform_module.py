@@ -84,6 +84,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List, Union
 import subprocess
 import shutil
+from .module_base import AIbasicModuleBase
 
 try:
     from python_terraform import Terraform, IsFlagged, IsNotFlagged
@@ -93,7 +94,7 @@ except ImportError:
     IsNotFlagged = None
 
 
-class TerraformModule:
+class TerraformModule(AIbasicModuleBase):
     """
     Terraform Module for Infrastructure as Code management.
 
@@ -771,6 +772,332 @@ class TerraformModule:
                 return stdout
 
         return stdout
+
+    # ============================================================================
+    # Metadata Methods (for AIbasic compiler prompt generation)
+    # ============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Terraform",
+            task_type="terraform",
+            description="HashiCorp Terraform Infrastructure as Code (IaC) for provisioning and managing cloud resources with init, plan, apply, destroy, and workspace management",
+            version="1.0.0",
+            keywords=[
+                "terraform", "iac", "infrastructure", "cloud", "provisioning",
+                "aws", "azure", "gcp", "devops", "automation", "state", "workspace"
+            ],
+            dependencies=["python-terraform>=0.10.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one instance per working directory",
+            "Requires Terraform CLI installed and in PATH or specified via terraform_bin",
+            "Working directory must contain .tf configuration files",
+            "Always run init() before other operations to initialize Terraform",
+            "Supports 2000+ cloud providers: AWS, Azure, GCP, DigitalOcean, etc.",
+            "State files track infrastructure resources (local or remote backend)",
+            "Remote backends (S3, Azure Storage, GCS) enable team collaboration",
+            "Workspaces provide environment isolation (dev, staging, production)",
+            "Variables can be set via default_variables or per-operation",
+            "plan() creates execution plan without making changes (dry-run)",
+            "apply() provisions/modifies infrastructure resources",
+            "destroy() tears down all managed infrastructure (use with caution!)",
+            "auto_approve=True skips confirmation prompts (use carefully!)",
+            "Parallelism controls concurrent resource operations (default 10)",
+            "Detailed exit codes: 0=no changes, 1=error, 2=has changes",
+            "Outputs retrieve values like IP addresses, URLs after apply",
+            "State operations (list, show, rm) manage resource state",
+            "import_resource() brings existing resources under Terraform management",
+            "validate() checks configuration syntax without accessing providers",
+            "fmt() formats .tf files to canonical style",
+            "Target specific resources with target parameter for selective operations",
+            "Always backup state files before manual state operations",
+            "Use version constraints in .tf files for provider compatibility",
+            "Sensitive outputs marked with 'sensitive=true' hidden by default"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="init",
+                description="Initialize Terraform working directory, download providers and modules",
+                parameters={
+                    "backend": "bool (optional) - Configure backend (default True)",
+                    "reconfigure": "bool (optional) - Reconfigure backend ignoring saved config (default False)",
+                    "upgrade": "bool (optional) - Upgrade modules and plugins (default False)",
+                    "plugin_dir": "str (optional) - Custom plugin directory path"
+                },
+                returns="dict - Result with return_code, stdout, stderr, success",
+                examples=[
+                    'terraform init',
+                    'terraform init reconfigure true upgrade true'
+                ]
+            ),
+            MethodInfo(
+                name="plan",
+                description="Create execution plan showing what changes Terraform will make",
+                parameters={
+                    "variables": "dict (optional) - Variables to pass (merged with defaults)",
+                    "out": "str (optional) - Save plan to file path",
+                    "destroy": "bool (optional) - Create destroy plan (default False)",
+                    "detailed_exitcode": "bool (optional) - Return detailed exit code (default False)"
+                },
+                returns="dict - Result with return_code, stdout, stderr, success, has_changes",
+                examples=[
+                    'terraform plan',
+                    'terraform plan variables {"environment": "production", "instance_count": 3}',
+                    'terraform plan out "prod.tfplan" detailed_exitcode true'
+                ]
+            ),
+            MethodInfo(
+                name="apply",
+                description="Apply Terraform changes to provision/modify infrastructure",
+                parameters={
+                    "variables": "dict (optional) - Variables to pass",
+                    "plan_file": "str (optional) - Apply specific saved plan file",
+                    "auto_approve": "bool (optional) - Skip confirmation prompt (default from config)",
+                    "target": "list[str] (optional) - Apply only to specific resources"
+                },
+                returns="dict - Result with return_code, stdout, stderr, success",
+                examples=[
+                    'terraform apply auto_approve true',
+                    'terraform apply variables {"env": "prod"} auto_approve true',
+                    'terraform apply plan_file "prod.tfplan"',
+                    'terraform apply target ["aws_instance.web", "aws_security_group.web"]'
+                ]
+            ),
+            MethodInfo(
+                name="destroy",
+                description="Destroy all Terraform-managed infrastructure resources",
+                parameters={
+                    "variables": "dict (optional) - Variables to pass",
+                    "auto_approve": "bool (optional) - Skip confirmation prompt",
+                    "target": "list[str] (optional) - Destroy only specific resources"
+                },
+                returns="dict - Result with return_code, stdout, stderr, success",
+                examples=[
+                    'terraform destroy auto_approve true',
+                    'terraform destroy variables {"environment": "dev"}',
+                    'terraform destroy target ["aws_instance.test"]'
+                ]
+            ),
+            MethodInfo(
+                name="output",
+                description="Read Terraform output values (e.g., IP addresses, URLs)",
+                parameters={
+                    "name": "str (optional) - Specific output name (returns all if None)",
+                    "json_format": "bool (optional) - Parse as JSON (default True)"
+                },
+                returns="dict or any - Output value(s)",
+                examples=[
+                    'terraform output',
+                    'server_ip = terraform output "server_public_ip"',
+                    'all_outputs = terraform output'
+                ]
+            ),
+            MethodInfo(
+                name="workspace_list",
+                description="List all available Terraform workspaces",
+                parameters={},
+                returns="list[str] - List of workspace names",
+                examples=['workspaces = terraform workspace_list']
+            ),
+            MethodInfo(
+                name="workspace_select",
+                description="Switch to a different Terraform workspace",
+                parameters={"name": "str (required) - Workspace name to switch to"},
+                returns="dict - Result with success status",
+                examples=[
+                    'terraform workspace_select "production"',
+                    'terraform workspace_select "dev"'
+                ]
+            ),
+            MethodInfo(
+                name="workspace_new",
+                description="Create and switch to new Terraform workspace",
+                parameters={"name": "str (required) - New workspace name"},
+                returns="dict - Result with success status",
+                examples=[
+                    'terraform workspace_new "staging"',
+                    'terraform workspace_new "feature-test"'
+                ]
+            ),
+            MethodInfo(
+                name="workspace_delete",
+                description="Delete a Terraform workspace (cannot delete current workspace)",
+                parameters={"name": "str (required) - Workspace name to delete"},
+                returns="dict - Result with success status",
+                examples=['terraform workspace_delete "old-test"']
+            ),
+            MethodInfo(
+                name="import_resource",
+                description="Import existing infrastructure resource into Terraform state",
+                parameters={
+                    "address": "str (required) - Terraform resource address (e.g., 'aws_instance.web')",
+                    "id": "str (required) - Provider-specific resource ID",
+                    "variables": "dict (optional) - Variables to pass"
+                },
+                returns="dict - Result with success status",
+                examples=[
+                    'terraform import_resource "aws_instance.web" "i-0123456789abcdef"',
+                    'terraform import_resource "azurerm_virtual_machine.vm" "/subscriptions/.../vm-name"'
+                ]
+            ),
+            MethodInfo(
+                name="validate",
+                description="Validate Terraform configuration syntax without accessing providers",
+                parameters={},
+                returns="dict - Result with return_code, stdout, stderr, valid, success",
+                examples=['result = terraform validate']
+            ),
+            MethodInfo(
+                name="fmt",
+                description="Format Terraform configuration files to canonical style",
+                parameters={
+                    "check": "bool (optional) - Check if files are formatted without modifying (default False)",
+                    "recursive": "bool (optional) - Process subdirectories (default True)",
+                    "diff": "bool (optional) - Show formatting differences (default False)"
+                },
+                returns="dict - Result with formatted_files list",
+                examples=[
+                    'terraform fmt',
+                    'terraform fmt check true',
+                    'terraform fmt diff true'
+                ]
+            ),
+            MethodInfo(
+                name="state_list",
+                description="List all resources in Terraform state",
+                parameters={},
+                returns="list[str] - List of resource addresses",
+                examples=['resources = terraform state_list']
+            ),
+            MethodInfo(
+                name="state_show",
+                description="Show detailed information about a resource in state",
+                parameters={"address": "str (required) - Resource address"},
+                returns="dict - Result with resource details",
+                examples=['info = terraform state_show "aws_instance.web"']
+            ),
+            MethodInfo(
+                name="state_rm",
+                description="Remove resource from Terraform state (does not destroy resource)",
+                parameters={"address": "str (required) - Resource address to remove"},
+                returns="dict - Result with success status",
+                examples=['terraform state_rm "aws_instance.old"']
+            ),
+            MethodInfo(
+                name="refresh",
+                description="Refresh Terraform state to match real infrastructure",
+                parameters={"variables": "dict (optional) - Variables to pass"},
+                returns="dict - Result with success status",
+                examples=['terraform refresh', 'terraform refresh variables {"region": "us-east-1"}']
+            ),
+            MethodInfo(
+                name="show",
+                description="Show Terraform state or plan in human-readable format",
+                parameters={
+                    "plan_file": "str (optional) - Show specific plan file",
+                    "json_format": "bool (optional) - Output as JSON (default True)"
+                },
+                returns="dict or str - State/plan data",
+                examples=['state = terraform show', 'plan_data = terraform show plan_file "prod.tfplan"']
+            ),
+            MethodInfo(
+                name="get_version",
+                description="Get installed Terraform CLI version",
+                parameters={},
+                returns="str - Version string",
+                examples=['version = terraform get_version']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            # Basic workflow
+            '10 (terraform) terraform init',
+            '20 (terraform) result = terraform validate',
+            '30 (terraform) plan_result = terraform plan detailed_exitcode true',
+            '40 (terraform) if plan_result["has_changes"] then terraform apply auto_approve true',
+            '50 (terraform) outputs = terraform output',
+            '60 (terraform) print "Server IP:", outputs["server_ip"]',
+
+            # With variables
+            '10 (terraform) terraform init',
+            '20 (terraform) vars = {"environment": "production", "instance_type": "t3.large", "instance_count": 5}',
+            '30 (terraform) terraform plan variables vars',
+            '40 (terraform) terraform apply variables vars auto_approve true',
+            '50 (terraform) web_url = terraform output "website_url"',
+
+            # Workspace management
+            '10 (terraform) terraform init',
+            '20 (terraform) workspaces = terraform workspace_list',
+            '30 (terraform) terraform workspace_new "staging"',
+            '40 (terraform) terraform apply auto_approve true',
+            '50 (terraform) terraform workspace_select "production"',
+            '60 (terraform) terraform apply auto_approve true',
+
+            # Targeted operations
+            '10 (terraform) terraform init',
+            '20 (terraform) terraform apply target ["aws_instance.web"] auto_approve true',
+            '30 (terraform) terraform destroy target ["aws_instance.test"] auto_approve true',
+
+            # State management
+            '10 (terraform) resources = terraform state_list',
+            '20 (terraform) for resource in resources: print resource',
+            '30 (terraform) info = terraform state_show "aws_instance.web"',
+            '40 (terraform) terraform state_rm "aws_instance.old"',
+
+            # Import existing resources
+            '10 (terraform) terraform init',
+            '20 (terraform) terraform import_resource "aws_instance.existing" "i-0123456789abcdef"',
+            '30 (terraform) terraform plan',
+
+            # Format and validate
+            '10 (terraform) terraform fmt',
+            '20 (terraform) result = terraform validate',
+            '30 (terraform) if result["valid"]: print "Configuration is valid"',
+
+            # Save and apply plan
+            '10 (terraform) terraform init',
+            '20 (terraform) terraform plan out "prod.tfplan" variables {"env": "prod"}',
+            '30 (terraform) terraform apply plan_file "prod.tfplan"',
+
+            # Refresh state
+            '10 (terraform) terraform init',
+            '20 (terraform) terraform refresh',
+            '30 (terraform) state = terraform show',
+
+            # Complete infrastructure lifecycle
+            '10 (terraform) version = terraform get_version',
+            '20 (terraform) print "Terraform version:", version',
+            '30 (terraform) terraform init upgrade true',
+            '40 (terraform) terraform fmt',
+            '50 (terraform) terraform validate',
+            '60 (terraform) terraform workspace_new "production"',
+            '70 (terraform) prod_vars = {"environment": "prod", "region": "us-east-1"}',
+            '80 (terraform) terraform plan variables prod_vars out "prod.tfplan"',
+            '90 (terraform) terraform apply plan_file "prod.tfplan"',
+            '100 (terraform) outputs = terraform output',
+            '110 (terraform) print "Infrastructure deployed. Load balancer:", outputs["lb_dns"]',
+
+            # Cleanup
+            '10 (terraform) terraform workspace_select "dev"',
+            '20 (terraform) terraform destroy auto_approve true',
+            '30 (terraform) terraform workspace_delete "old-staging"'
+        ]
 
 
 # Convenience function for quick access

@@ -42,8 +42,10 @@ try:
 except ImportError:
     LDAP_AVAILABLE = False
 
+from .module_base import AIbasicModuleBase
 
-class LDAPModule:
+
+class LDAPModule(AIbasicModuleBase):
     """
     LDAP/Active Directory module for directory services management.
 
@@ -615,6 +617,361 @@ class LDAPModule:
             "is_active_directory": self.is_active_directory,
             "connected": self._connection is not None and self._connection.bound
         }
+
+    # =============================================================================
+    # Metadata Methods for AIbasic Compiler
+    # =============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="LDAP",
+            task_type="ldap",
+            description="LDAP and Active Directory integration for user, group, and organizational unit management with authentication support",
+            version="1.0.0",
+            keywords=["ldap", "active-directory", "directory-services", "authentication", "users", "groups", "ou", "ad", "openldap"],
+            dependencies=["ldap3>=2.9.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes."""
+        return [
+            "Module uses singleton pattern - one instance shared across all operations",
+            "Supports both OpenLDAP and Microsoft Active Directory",
+            "Authentication via simple bind (username/password) or SASL mechanisms",
+            "SSL/TLS encryption supported for secure connections (LDAPS or STARTTLS)",
+            "Connection pooling automatically managed by ldap3 library",
+            "Active Directory mode (LDAP_IS_AD=true) uses AD-specific attributes and object classes",
+            "User object class: inetOrgPerson (OpenLDAP) or user (Active Directory)",
+            "Group object class: groupOfNames (OpenLDAP) or group (Active Directory)",
+            "Default user OU: ou=users, configurable via LDAP_USER_OU",
+            "Default group OU: ou=groups, configurable via LDAP_GROUP_OU",
+            "Search operations support LDAP filter syntax (e.g., '(uid=john*)', '(&(cn=*)(mail=*@example.com))')",
+            "Attribute mapping: email->mail, firstName->givenName, lastName->sn, phone->telephoneNumber",
+            "User DN auto-discovery - methods accept username, find DN automatically",
+            "Group membership uses 'member' attribute containing user DNs",
+            "Certificate verification can be disabled for development (LDAP_VERIFY_CERT=false)",
+            "Connection automatically established on first operation (lazy connection)",
+            "Base DN (e.g., 'dc=example,dc=com') must be configured for searches",
+            "Key methods: connect, authenticate, user_create, user_modify, user_delete, group_create, group_add_member, search, search_users, search_groups",
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about module methods."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="connect",
+                description="Establish connection to LDAP server and bind with credentials",
+                parameters={
+                    "server_uri": "LDAP server URI (optional, uses LDAP_SERVER env var, e.g., 'ldap://server.example.com')",
+                    "bind_dn": "Bind DN for authentication (optional, uses LDAP_BIND_DN, e.g., 'cn=admin,dc=example,dc=com')",
+                    "bind_password": "Bind password (optional, uses LDAP_BIND_PASSWORD)"
+                },
+                returns="None - raises RuntimeError on connection failure",
+                examples=[
+                    '(ldap) connect to server "ldap://ldap.example.com"',
+                    '(ldap) connect with bind dn "cn=admin,dc=example,dc=com" and password "secret"',
+                ]
+            ),
+            MethodInfo(
+                name="disconnect",
+                description="Close connection to LDAP server and release resources",
+                parameters={},
+                returns="None",
+                examples=[
+                    '(ldap) disconnect from server',
+                    '(ldap) close ldap connection',
+                ]
+            ),
+            MethodInfo(
+                name="authenticate",
+                description="Verify user credentials against LDAP directory",
+                parameters={
+                    "username": "Username to authenticate (string)",
+                    "password": "User password (string)"
+                },
+                returns="Boolean True if authentication successful, False otherwise",
+                examples=[
+                    '(ldap) authenticate user "jdoe" with password "userpass123"',
+                    '(ldap) verify credentials for "alice" with password',
+                ]
+            ),
+            MethodInfo(
+                name="search",
+                description="Execute LDAP search with custom filter and scope",
+                parameters={
+                    "search_base": "Search base DN (optional, defaults to base_dn, e.g., 'ou=people,dc=example,dc=com')",
+                    "search_filter": "LDAP filter string (default: '(objectClass=*)', e.g., '(uid=john*)', '(&(cn=*)(mail=*))')",
+                    "attributes": "List of attributes to return (optional, default: all attributes ['*'])",
+                    "search_scope": "Search scope - BASE, LEVEL, or SUBTREE (default: SUBTREE)"
+                },
+                returns="List of dicts with 'dn' and 'attributes' keys",
+                examples=[
+                    '(ldap) search with filter "(uid=john*)"',
+                    '(ldap) search in "ou=users,dc=example,dc=com" with filter "(mail=*@example.com)" attributes ["cn", "mail"]',
+                    '(ldap) search with filter "(&(objectClass=person)(sn=Smith))" scope "SUBTREE"',
+                ]
+            ),
+            MethodInfo(
+                name="search_users",
+                description="Search for users in default user OU with simplified filter",
+                parameters={
+                    "filter_str": "Username filter pattern (default: '*', supports wildcards, e.g., 'john*', '*doe')",
+                    "attributes": "List of attributes to return (optional)"
+                },
+                returns="List of user dicts with 'dn' and 'attributes'",
+                examples=[
+                    '(ldap) search users with filter "john*"',
+                    '(ldap) search users with filter "*" attributes ["cn", "mail", "uid"]',
+                    '(ldap) find all users',
+                ]
+            ),
+            MethodInfo(
+                name="search_groups",
+                description="Search for groups in default group OU",
+                parameters={
+                    "filter_str": "Group name filter pattern (default: '*', supports wildcards)",
+                    "attributes": "List of attributes to return (optional)"
+                },
+                returns="List of group dicts with 'dn' and 'attributes'",
+                examples=[
+                    '(ldap) search groups with filter "dev*"',
+                    '(ldap) search groups with filter "*admin*"',
+                    '(ldap) find all groups',
+                ]
+            ),
+            MethodInfo(
+                name="user_create",
+                description="Create a new user in LDAP directory",
+                parameters={
+                    "username": "Username (string, becomes uid or sAMAccountName)",
+                    "**attributes": "User attributes: email, displayName, firstName, lastName, phone, description, cn, sn"
+                },
+                returns="Dict with 'dn', 'username', and 'attributes'",
+                examples=[
+                    '(ldap) create user "jdoe" with email "jdoe@example.com"',
+                    '(ldap) create user "alice" with firstName "Alice" lastName "Smith" email "alice@example.com" phone "555-1234"',
+                    '(ldap) create user "bob" with displayName "Bob Jones" description "Developer"',
+                ]
+            ),
+            MethodInfo(
+                name="user_modify",
+                description="Modify existing user attributes",
+                parameters={
+                    "username": "Username to modify (string)",
+                    "**attributes": "Attributes to update: email, displayName, firstName, lastName, phone, description"
+                },
+                returns="Dict with 'dn', 'username', and 'modified_attributes' list",
+                examples=[
+                    '(ldap) modify user "jdoe" with email "newemail@example.com"',
+                    '(ldap) update user "alice" with phone "555-9999" displayName "Alice Johnson"',
+                ]
+            ),
+            MethodInfo(
+                name="user_delete",
+                description="Delete a user from LDAP directory",
+                parameters={
+                    "username": "Username to delete (string)"
+                },
+                returns="Dict with 'dn', 'username', and 'deleted' boolean",
+                examples=[
+                    '(ldap) delete user "jdoe"',
+                    '(ldap) remove user "obsolete_account"',
+                ]
+            ),
+            MethodInfo(
+                name="user_get",
+                description="Retrieve user details from directory",
+                parameters={
+                    "username": "Username to retrieve (string)",
+                    "attributes": "List of specific attributes to fetch (optional, default: all)"
+                },
+                returns="Dict with 'dn' and 'attributes' containing user data",
+                examples=[
+                    '(ldap) get user "jdoe"',
+                    '(ldap) get user "alice" attributes ["cn", "mail", "telephoneNumber"]',
+                ]
+            ),
+            MethodInfo(
+                name="user_set_password",
+                description="Set or change user password",
+                parameters={
+                    "username": "Username (string)",
+                    "password": "New password (string)"
+                },
+                returns="Dict with 'dn', 'username', and 'password_changed' boolean",
+                examples=[
+                    '(ldap) set password for user "jdoe" to "NewSecureP@ss123"',
+                    '(ldap) change password for "alice" to "AliceNewPass456"',
+                ]
+            ),
+            MethodInfo(
+                name="group_create",
+                description="Create a new group in LDAP directory",
+                parameters={
+                    "group_name": "Group name (string, becomes cn)",
+                    "**attributes": "Optional attributes: description"
+                },
+                returns="Dict with 'dn', 'group_name', and 'attributes'",
+                examples=[
+                    '(ldap) create group "developers"',
+                    '(ldap) create group "admins" with description "System administrators"',
+                ]
+            ),
+            MethodInfo(
+                name="group_delete",
+                description="Delete a group from LDAP directory",
+                parameters={
+                    "group_name": "Group name to delete (string)"
+                },
+                returns="Dict with 'dn', 'group_name', and 'deleted' boolean",
+                examples=[
+                    '(ldap) delete group "old-team"',
+                    '(ldap) remove group "obsolete-group"',
+                ]
+            ),
+            MethodInfo(
+                name="group_add_member",
+                description="Add a user to a group",
+                parameters={
+                    "group_name": "Group name (string)",
+                    "username": "Username to add (string)"
+                },
+                returns="Dict with 'group_dn', 'user_dn', 'group_name', 'username', and 'added' boolean",
+                examples=[
+                    '(ldap) add user "jdoe" to group "developers"',
+                    '(ldap) add member "alice" to group "admins"',
+                ]
+            ),
+            MethodInfo(
+                name="group_remove_member",
+                description="Remove a user from a group",
+                parameters={
+                    "group_name": "Group name (string)",
+                    "username": "Username to remove (string)"
+                },
+                returns="Dict with 'group_dn', 'user_dn', 'group_name', 'username', and 'removed' boolean",
+                examples=[
+                    '(ldap) remove user "jdoe" from group "developers"',
+                    '(ldap) remove member "bob" from group "contractors"',
+                ]
+            ),
+            MethodInfo(
+                name="group_get_members",
+                description="List all members of a group",
+                parameters={
+                    "group_name": "Group name (string)"
+                },
+                returns="List of member DNs (strings)",
+                examples=[
+                    '(ldap) get members of group "developers"',
+                    '(ldap) list members in group "admins"',
+                ]
+            ),
+            MethodInfo(
+                name="ou_create",
+                description="Create an organizational unit",
+                parameters={
+                    "ou_name": "OU name (string)",
+                    "parent_dn": "Parent DN (optional, defaults to base_dn, e.g., 'dc=example,dc=com')"
+                },
+                returns="Dict with 'dn', 'ou_name', and 'parent_dn'",
+                examples=[
+                    '(ldap) create ou "engineering"',
+                    '(ldap) create ou "sales" with parent "ou=departments,dc=example,dc=com"',
+                ]
+            ),
+            MethodInfo(
+                name="ou_delete",
+                description="Delete an organizational unit (must be empty)",
+                parameters={
+                    "ou_name": "OU name to delete (string)",
+                    "parent_dn": "Parent DN (optional, defaults to base_dn)"
+                },
+                returns="Dict with 'dn', 'ou_name', and 'deleted' boolean",
+                examples=[
+                    '(ldap) delete ou "old-department"',
+                    '(ldap) remove ou "obsolete"',
+                ]
+            ),
+            MethodInfo(
+                name="get_server_info",
+                description="Get LDAP server configuration and connection status",
+                parameters={},
+                returns="Dict with server_uri, port, base_dn, use_ssl, use_tls, is_active_directory, connected",
+                examples=[
+                    '(ldap) get server info',
+                    '(ldap) show ldap configuration',
+                ]
+            ),
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get AIbasic usage examples."""
+        return [
+            # Connection
+            '10 (ldap) connect to server "ldap://ldap.example.com"',
+            '20 (ldap) get server info',
+
+            # Authentication
+            '30 (ldap) authenticate user "jdoe" with password "password123"',
+
+            # User management
+            '40 (ldap) create user "jdoe" with email "jdoe@example.com" firstName "John" lastName "Doe"',
+            '50 (ldap) create user "alice" with email "alice@example.com" displayName "Alice Smith" phone "555-1234"',
+            '60 (ldap) get user "jdoe"',
+            '70 (ldap) modify user "jdoe" with phone "555-5678" displayName "John Doe Jr."',
+            '80 (ldap) set password for user "jdoe" to "NewSecurePassword123"',
+
+            # User search
+            '90 (ldap) search users with filter "*"',
+            '100 (ldap) search users with filter "john*"',
+            '110 (ldap) search users with filter "*smith*" attributes ["cn", "mail", "telephoneNumber"]',
+
+            # Group management
+            '120 (ldap) create group "developers" with description "Development team"',
+            '130 (ldap) create group "admins" with description "System administrators"',
+            '140 (ldap) add user "jdoe" to group "developers"',
+            '150 (ldap) add user "alice" to group "developers"',
+            '160 (ldap) add user "alice" to group "admins"',
+            '170 (ldap) get members of group "developers"',
+            '180 (ldap) remove user "jdoe" from group "developers"',
+
+            # Group search
+            '190 (ldap) search groups with filter "*"',
+            '200 (ldap) search groups with filter "dev*"',
+
+            # Organizational units
+            '210 (ldap) create ou "engineering"',
+            '220 (ldap) create ou "sales"',
+            '230 (ldap) create ou "contractors" with parent "ou=engineering,dc=example,dc=com"',
+
+            # Advanced search
+            '240 (ldap) search in "ou=users,dc=example,dc=com" with filter "(mail=*@example.com)"',
+            '250 (ldap) search with filter "(&(objectClass=person)(cn=*Smith*))" attributes ["cn", "mail"]',
+
+            # User lifecycle
+            '260 (ldap) create user "temp_user" with email "temp@example.com"',
+            '270 (ldap) add user "temp_user" to group "contractors"',
+            '280 (ldap) remove user "temp_user" from group "contractors"',
+            '290 (ldap) delete user "temp_user"',
+
+            # Group lifecycle
+            '300 (ldap) create group "project-team"',
+            '310 (ldap) add user "alice" to group "project-team"',
+            '320 (ldap) add user "bob" to group "project-team"',
+            '330 (ldap) get members of group "project-team"',
+            '340 (ldap) delete group "project-team"',
+
+            # Cleanup
+            '350 (ldap) disconnect from server',
+        ]
 
 
 # Singleton instance

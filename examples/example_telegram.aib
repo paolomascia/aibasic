@@ -1,0 +1,425 @@
+REM ============================================================================
+REM AIbasic - Telegram Module Examples
+REM ============================================================================
+REM
+REM This file demonstrates the comprehensive capabilities of the Telegram module
+REM for sending messages, media, and bot automation via Telegram Bot API.
+REM
+REM Module: (telegram)
+REM Dependencies: requests>=2.31.0
+REM
+REM Setup:
+REM   1. Create a bot via @BotFather on Telegram
+REM   2. Get your bot token from @BotFather
+REM   3. Get your chat ID (send a message to your bot, then visit:
+REM      https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates)
+REM   4. Add to aibasic.conf:
+REM      [telegram]
+REM      BOT_TOKEN = your_bot_token_here
+REM      CHAT_ID = your_chat_id_here
+REM
+REM Table of Contents:
+REM   1. Basic Text Messages
+REM   2. Formatted Messages (Markdown, HTML)
+REM   3. Media Messages (Photos, Videos, Documents)
+REM   4. Locations
+REM   5. Message Management (Edit, Delete, Pin)
+REM   6. Notifications
+REM   7. Alerts
+REM   8. Status Updates
+REM   9. Log Messages
+REM  10. Error Monitoring
+REM  11. Deployment Notifications
+REM  12. Server Health Monitoring
+REM  13. Backup Status Reports
+REM  14. Security Alerts
+REM  15. CI/CD Pipeline Integration
+REM
+REM ============================================================================
+
+REM ============================================================================
+REM Example 1: Basic Text Messages
+REM ============================================================================
+
+10 PRINT "=== Example 1: Basic Text Messages ==="
+20 REM Send simple message
+30 (telegram) send message "Hello from AIbasic!"
+40 PRINT "Simple message sent"
+
+50 REM Send message with emojis
+60 (telegram) send message "🚀 Launch successful! ✅ All systems operational 🎉"
+70 PRINT "Message with emojis sent"
+
+80 REM Send silent message (no notification)
+90 (telegram) send message "Silent notification" with disable_notification true
+100 PRINT "Silent message sent"
+
+110 REM Send message without link preview
+120 (telegram) send message "Check this out: https://example.com" with disable_web_page_preview true
+130 PRINT "Message without preview sent"
+140 PRINT ""
+
+REM ============================================================================
+REM Example 2: Formatted Messages (Markdown, HTML)
+REM ============================================================================
+
+200 PRINT "=== Example 2: Formatted Messages ==="
+210 REM Markdown formatting
+220 (telegram) send message "*Bold text* _italic text_ `code` ```code block```" with parse_mode "Markdown"
+230 PRINT "Markdown message sent"
+
+240 REM MarkdownV2 formatting (strikethrough, etc.)
+250 (telegram) send message "*Bold* _italic_ __underline__ ~strikethrough~" with parse_mode "MarkdownV2"
+260 PRINT "MarkdownV2 message sent"
+
+270 REM HTML formatting
+280 (telegram) send message "<b>Bold</b> <i>italic</i> <code>code</code> <pre>code block</pre>" with parse_mode "HTML"
+290 PRINT "HTML message sent"
+
+300 REM Links in Markdown
+310 (telegram) send message "[Click here](https://example.com)" with parse_mode "Markdown"
+320 PRINT "Link sent"
+
+330 REM Mentions
+340 (telegram) send message "Hello @username!" with parse_mode "Markdown"
+350 PRINT "Mention sent"
+360 PRINT ""
+
+REM ============================================================================
+REM Example 3: Media Messages (Photos, Videos, Documents)
+REM ============================================================================
+
+400 PRINT "=== Example 3: Media Messages ==="
+410 REM Send photo by URL
+420 (telegram) send photo "https://example.com/image.jpg" with caption "Beautiful sunset"
+430 PRINT "Photo sent by URL"
+
+440 REM Send photo from file
+450 REM (telegram) send photo "screenshot.png" with caption "App screenshot"
+460 REM PRINT "Photo sent from file"
+
+470 REM Send document
+480 OPEN "report.txt" FOR OUTPUT AS #1
+490 PRINT #1, "Monthly Report"
+500 PRINT #1, "=============="
+510 PRINT #1, "Revenue: $50,000"
+520 CLOSE #1
+530 (telegram) send document "report.txt" with caption "Monthly report"
+540 PRINT "Document sent"
+
+550 REM Send document with custom filename
+560 (telegram) send document "report.txt" with filename "january_report.txt" and caption "January report"
+570 PRINT "Document with custom filename sent"
+
+580 REM Send video
+590 REM (telegram) send video "demo.mp4" with caption "Product demo"
+600 REM PRINT "Video sent"
+610 PRINT ""
+
+REM ============================================================================
+REM Example 4: Locations
+REM ============================================================================
+
+700 PRINT "=== Example 4: Locations ==="
+710 REM Send location (latitude, longitude)
+720 (telegram) send location 40.7128 -74.0060
+730 PRINT "Location sent (New York City)"
+
+740 REM Send location (San Francisco)
+750 (telegram) send location 37.7749 -122.4194
+760 PRINT "Location sent (San Francisco)"
+770 PRINT ""
+
+REM ============================================================================
+REM Example 5: Message Management (Edit, Delete, Pin)
+REM ============================================================================
+
+800 PRINT "=== Example 5: Message Management ==="
+810 REM Send a message
+820 LET response = (telegram) send message "This message will be edited"
+830 LET message_id = response["result"]["message_id"]
+840 PRINT "Message sent with ID: " + STR(message_id)
+
+850 REM Wait a bit
+860 SLEEP 2
+
+870 REM Edit the message
+880 (telegram) edit message message_id with text "This message has been *edited*!"
+890 PRINT "Message edited"
+
+900 REM Pin the message
+910 (telegram) pin message message_id
+920 PRINT "Message pinned"
+
+930 REM Wait a bit
+940 SLEEP 2
+
+950 REM Unpin the message
+960 (telegram) unpin message message_id
+970 PRINT "Message unpinned"
+
+980 REM Delete the message
+990 (telegram) delete message message_id
+1000 PRINT "Message deleted"
+1010 PRINT ""
+
+REM ============================================================================
+REM Example 6: Notifications
+REM ============================================================================
+
+1100 PRINT "=== Example 6: Notifications ==="
+1110 REM Info notification
+1120 (telegram) send notification with title "Information" and message "System update available" and level "info"
+1130 PRINT "Info notification sent"
+
+1140 REM Success notification
+1150 (telegram) send notification with title "Success" and message "Deployment completed successfully" and level "success"
+1160 PRINT "Success notification sent"
+
+1170 REM Warning notification
+1180 (telegram) send notification with title "Warning" and message "Disk space low" and level "warning"
+1190 PRINT "Warning notification sent"
+
+1200 REM Error notification
+1210 (telegram) send notification with title "Error" and message "Database connection failed" and level "error"
+1220 PRINT "Error notification sent"
+1230 PRINT ""
+
+REM ============================================================================
+REM Example 7: Alerts
+REM ============================================================================
+
+1300 PRINT "=== Example 7: Alerts ==="
+1310 REM Simple alert
+1320 (telegram) send alert "Server CPU usage is high!"
+1330 PRINT "Alert sent"
+
+1340 REM Alert with mentions
+1350 LET users = ["username1", "username2"]
+1360 (telegram) send alert "Immediate attention required!" with mention_users users
+1370 PRINT "Alert with mentions sent"
+
+1380 REM Critical alert
+1390 (telegram) send alert "Critical system failure detected!"
+1400 PRINT "Critical alert sent"
+1410 PRINT ""
+
+REM ============================================================================
+REM Example 8: Status Updates
+REM ============================================================================
+
+1500 PRINT "=== Example 8: Status Updates ==="
+1510 REM Service online
+1520 (telegram) send status update for service "Web Server" with status "online"
+1530 PRINT "Online status sent"
+
+1540 REM Service degraded
+1550 (telegram) send status update for service "Database" with status "degraded" and details "High latency detected"
+1560 PRINT "Degraded status sent"
+
+1570 REM Service offline
+1580 (telegram) send status update for service "API Gateway" with status "offline" and details "Connection timeout"
+1590 PRINT "Offline status sent"
+1600 PRINT ""
+
+REM ============================================================================
+REM Example 9: Log Messages
+REM ============================================================================
+
+1700 PRINT "=== Example 9: Log Messages ==="
+1710 REM Debug log
+1720 (telegram) send log with level "DEBUG" and message "Variable value: 42" and source "app.py"
+1730 PRINT "Debug log sent"
+
+1740 REM Info log
+1750 (telegram) send log with level "INFO" and message "Application started successfully" and source "main.py"
+1760 PRINT "Info log sent"
+
+1770 REM Warning log
+1780 (telegram) send log with level "WARNING" and message "Memory usage at 85%" and source "monitor.py"
+1790 PRINT "Warning log sent"
+
+1800 REM Error log
+1810 (telegram) send log with level "ERROR" and message "Failed to connect to database" and source "db.py"
+1820 PRINT "Error log sent"
+
+1830 REM Critical log
+1840 (telegram) send log with level "CRITICAL" and message "System crash imminent" and source "system.py"
+1850 PRINT "Critical log sent"
+1860 PRINT ""
+
+REM ============================================================================
+REM Example 10: Error Monitoring
+REM ============================================================================
+
+1900 PRINT "=== Example 10: Error Monitoring ==="
+1910 ON ERROR GOTO 2000
+
+1920 REM Simulate an error
+1930 LET result = 10 / 0
+1940 GOTO 2100
+
+2000 REM Error handler
+2010 PRINT "Error caught!"
+2020 LET error_msg = STR(_last_error)
+2030 LET error_line = STR(_last_error_line)
+
+2040 REM Send error notification
+2050 LET message = "Error: " + error_msg + "\nLine: " + error_line
+2060 (telegram) send notification with title "Application Error" and message message and level "error"
+2070 (telegram) send alert "Critical error detected at line " + error_line
+2080 PRINT "Error notification sent"
+
+2100 PRINT ""
+
+REM ============================================================================
+REM Example 11: Deployment Notifications
+REM ============================================================================
+
+2200 PRINT "=== Example 11: Deployment Notifications ==="
+2210 REM Deployment started
+2220 LET msg = "*Environment:* Production\n*Version:* v2.5.0\n*Deployer:* CI/CD Pipeline"
+2230 (telegram) send notification with title "Deployment Started" and message msg and level "info"
+2240 PRINT "Deployment started notification sent"
+
+2250 REM Simulate deployment
+2260 SLEEP 2
+
+2270 REM Deployment successful
+2280 LET msg = "*Environment:* Production\n*Version:* v2.5.0\n*Duration:* 2 minutes\n*Changes:*\n- Bug fixes\n- Performance improvements"
+2290 (telegram) send notification with title "Deployment Successful" and message msg and level "success"
+2300 PRINT "Deployment success notification sent"
+2310 PRINT ""
+
+REM ============================================================================
+REM Example 12: Server Health Monitoring
+REM ============================================================================
+
+2400 PRINT "=== Example 12: Server Health Monitoring ==="
+2410 REM Collect metrics
+2420 LET cpu = 45
+2430 LET memory = 62
+2440 LET disk = 78
+
+2450 REM Send health report
+2460 LET msg = "*CPU Usage:* " + STR(cpu) + "%\n"
+2470 LET msg = msg + "*Memory Usage:* " + STR(memory) + "%\n"
+2480 LET msg = msg + "*Disk Usage:* " + STR(disk) + "%\n"
+2490 LET msg = msg + "*Status:* 🟢 Healthy"
+2500 (telegram) send notification with title "Server Health Report" and message msg and level "info"
+2510 PRINT "Health report sent"
+
+2520 REM Alert if disk high
+2530 IF disk > 75 THEN
+2540   (telegram) send notification with title "Disk Space Warning" and message "Disk usage at " + STR(disk) + "%" and level "warning"
+2550   PRINT "Disk warning sent"
+2560 END IF
+2570 PRINT ""
+
+REM ============================================================================
+REM Example 13: Backup Status Reports
+REM ============================================================================
+
+2600 PRINT "=== Example 13: Backup Status Reports ==="
+2610 (telegram) send notification with title "Backup Started" and message "Daily database backup initiated" and level "info"
+2620 PRINT "Backup start notification sent"
+
+2630 REM Simulate backup
+2640 SLEEP 2
+
+2650 REM Backup complete
+2660 LET msg = "*Database:* production_db\n"
+2670 LET msg = msg + "*Size:* 2.5 GB\n"
+2680 LET msg = msg + "*Duration:* 12 minutes\n"
+2690 LET msg = msg + "*Location:* s3://backups/2025-01-17/\n"
+2700 LET msg = msg + "*Status:* ✅ Success"
+2710 (telegram) send notification with title "Backup Completed" and message msg and level "success"
+2720 PRINT "Backup completion sent"
+2730 PRINT ""
+
+REM ============================================================================
+REM Example 14: Security Alerts
+REM ============================================================================
+
+2800 PRINT "=== Example 14: Security Alerts ==="
+2810 REM Failed login attempts
+2820 LET msg = "*User:* admin\n"
+2830 LET msg = msg + "*IP Address:* 203.0.113.45\n"
+2840 LET msg = msg + "*Attempts:* 10\n"
+2850 LET msg = msg + "*Time Window:* 5 minutes\n"
+2860 LET msg = msg + "*Action:* IP blocked"
+2870 (telegram) send notification with title "Security Alert: Failed Logins" and message msg and level "error"
+2880 (telegram) send alert "Potential brute force attack detected!"
+2890 PRINT "Security alert sent"
+
+2900 REM SSL certificate expiry
+2910 LET msg = "*Domain:* example.com\n"
+2920 LET msg = msg + "*Expires In:* 7 days\n"
+2930 LET msg = msg + "*Action Required:* Renew certificate"
+2940 (telegram) send notification with title "SSL Certificate Expiring" and message msg and level "warning"
+2950 PRINT "SSL expiry warning sent"
+2960 PRINT ""
+
+REM ============================================================================
+REM Example 15: CI/CD Pipeline Integration
+REM ============================================================================
+
+3000 PRINT "=== Example 15: CI/CD Pipeline Integration ==="
+3010 REM Build started
+3020 LET msg = "*Branch:* main\n*Commit:* a1b2c3d\n*Author:* developer@example.com"
+3030 (telegram) send notification with title "Build Started" and message msg and level "info"
+3040 PRINT "Build start notification sent"
+
+3050 REM Test results
+3060 LET msg = "*Total Tests:* 245\n*Passed:* ✅ 242\n*Failed:* ❌ 3\n*Coverage:* 87%"
+3070 (telegram) send notification with title "Test Results" and message msg and level "warning"
+3080 PRINT "Test results sent"
+
+3090 REM Build failed
+3100 LET msg = "*Branch:* main\n*Stage:* Testing\n*Error:* 3 tests failed\n*Failed Tests:*\n- test_user_auth\n- test_payment_flow\n- test_data_validation"
+3110 (telegram) send notification with title "Build Failed" and message msg and level "error"
+3120 (telegram) send alert "Build failed on main branch - immediate attention required!"
+3130 PRINT "Build failure notification sent"
+3140 PRINT ""
+
+REM ============================================================================
+REM Bot Information
+REM ============================================================================
+
+4000 PRINT "=== Bot Information ==="
+4010 REM Get bot info
+4020 LET bot_info = (telegram) get me
+4030 PRINT "Bot username: " + bot_info["result"]["username"]
+4040 PRINT "Bot name: " + bot_info["result"]["first_name"]
+
+4050 REM Get chat info
+4060 LET chat_info = (telegram) get chat
+4070 PRINT "Chat ID: " + STR(chat_info["result"]["id"])
+4080 PRINT "Chat type: " + chat_info["result"]["type"]
+4090 PRINT ""
+
+REM ============================================================================
+REM Chat Actions
+REM ============================================================================
+
+4100 PRINT "=== Chat Actions ==="
+4110 REM Show typing indicator
+4120 (telegram) send chat action "typing"
+4130 PRINT "Typing indicator sent"
+4140 SLEEP 2
+
+4150 REM Show upload photo action
+4160 (telegram) send chat action "upload_photo"
+4170 PRINT "Upload photo action sent"
+4180 SLEEP 1
+
+4190 (telegram) send message "Action completed!"
+4200 PRINT ""
+
+REM ============================================================================
+REM Cleanup
+REM ============================================================================
+
+9000 PRINT "=== All Telegram Examples Completed ==="
+9010 PRINT "Check your Telegram chat for all messages!"
+9020 END

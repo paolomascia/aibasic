@@ -89,8 +89,10 @@ except ImportError:
     Forbidden = Exception
     VaultError = Exception
 
+from .module_base import AIbasicModuleBase
 
-class VaultModule:
+
+class VaultModule(AIbasicModuleBase):
     """
     HashiCorp Vault secrets management module.
 
@@ -725,3 +727,181 @@ class VaultModule:
             self.close()
         except:
             pass
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="Vault",
+            task_type="vault",
+            description="HashiCorp Vault secrets management with KV storage, dynamic credentials, encryption, and multiple auth methods",
+            version="1.0.0",
+            keywords=[
+                "vault", "hashicorp", "secrets", "security", "encryption",
+                "kv", "dynamic-credentials", "transit", "approle", "kubernetes"
+            ],
+            dependencies=["hvac>=1.0.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one Vault client per application",
+            "Supports multiple auth methods: token, approle, kubernetes, aws, ldap, github, userpass, cert",
+            "KV v2 supports versioning, metadata, and soft delete (default)",
+            "KV v1 simpler but no versioning or metadata",
+            "Default mount point is 'secret' for KV engine",
+            "Transit engine provides encryption-as-a-service",
+            "Dynamic secrets auto-generate time-limited credentials",
+            "Leases have TTL and can be renewed or revoked",
+            "AppRole recommended for app authentication (role_id + secret_id)",
+            "Token auth simplest but less secure for production",
+            "Kubernetes auth for pods (requires service account JWT)",
+            "AWS auth for EC2/Lambda (uses IAM credentials)",
+            "verify_ssl=False only for development with self-signed certs",
+            "Namespace support for Vault Enterprise (multi-tenancy)",
+            "cas (check-and-set) prevents concurrent write conflicts (KV v2)",
+            "Soft deleted secrets can be undeleted (KV v2)",
+            "Destroy permanently removes secret versions (KV v2)",
+            "Transit encryption returns 'vault:v1:...' ciphertext format",
+            "Key rotation supported for Transit keys without re-encryption",
+            "Always check is_authenticated() after initialization"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="read_secret",
+                description="Read a secret from KV engine",
+                parameters={
+                    "path": "str (required) - Secret path (e.g., 'myapp/database')",
+                    "version": "int (optional) - Version number (KV v2 only, None = latest)"
+                },
+                returns="dict/None - Secret data or None if not found",
+                examples=['read secret "myapp/database"', 'read secret "app/creds" version 3']
+            ),
+            MethodInfo(
+                name="write_secret",
+                description="Write a secret to KV engine",
+                parameters={
+                    "path": "str (required) - Secret path",
+                    "secret": "dict (required) - Key-value pairs to store",
+                    "cas": "int (optional) - Check-and-set version (KV v2 only)"
+                },
+                returns="dict - Response metadata",
+                examples=['write secret {"username": "admin", "password": "secret123"} to "myapp/database"']
+            ),
+            MethodInfo(
+                name="delete_secret",
+                description="Delete a secret or specific versions",
+                parameters={
+                    "path": "str (required) - Secret path",
+                    "versions": "list (optional) - Version numbers to delete (KV v2 only)"
+                },
+                returns="dict - Response",
+                examples=['delete secret "myapp/old-creds"', 'delete secret "app/data" versions [1, 2, 3]']
+            ),
+            MethodInfo(
+                name="list_secrets",
+                description="List secrets at a path",
+                parameters={"path": "str (optional) - Directory path (e.g., 'myapp/')"},
+                returns="list - Secret names and subdirectories",
+                examples=['list secrets at "myapp/"', 'list secrets']
+            ),
+            MethodInfo(
+                name="encrypt",
+                description="Encrypt data using Transit engine",
+                parameters={
+                    "key_name": "str (required) - Encryption key name",
+                    "plaintext": "str/bytes (required) - Data to encrypt",
+                    "context": "str (optional) - Base64 context for key derivation",
+                    "mount_point": "str (optional) - Transit mount point (default 'transit')"
+                },
+                returns="str - Ciphertext (vault:v1:...)",
+                examples=['ciphertext = encrypt "my-key" with "sensitive data"']
+            ),
+            MethodInfo(
+                name="decrypt",
+                description="Decrypt data using Transit engine",
+                parameters={
+                    "key_name": "str (required) - Encryption key name",
+                    "ciphertext": "str (required) - Encrypted data",
+                    "context": "str (optional) - Base64 context (must match encryption)",
+                    "mount_point": "str (optional) - Transit mount point (default 'transit')"
+                },
+                returns="str - Decrypted plaintext",
+                examples=['plaintext = decrypt "my-key" with ciphertext']
+            ),
+            MethodInfo(
+                name="read_database_creds",
+                description="Generate dynamic database credentials",
+                parameters={
+                    "role_name": "str (required) - Database role name",
+                    "mount_point": "str (optional) - Database engine mount (default 'database')"
+                },
+                returns="dict - username, password, lease_id, lease_duration",
+                examples=['creds = read database credentials for role "readonly"']
+            ),
+            MethodInfo(
+                name="read_aws_creds",
+                description="Generate dynamic AWS credentials",
+                parameters={
+                    "role_name": "str (required) - AWS role name",
+                    "mount_point": "str (optional) - AWS engine mount (default 'aws')"
+                },
+                returns="dict - access_key, secret_key, security_token, lease info",
+                examples=['creds = read aws credentials for role "s3-access"']
+            ),
+            MethodInfo(
+                name="renew_lease",
+                description="Renew a secret lease",
+                parameters={
+                    "lease_id": "str (required) - Lease ID to renew",
+                    "increment": "int (optional) - Renewal increment in seconds"
+                },
+                returns="dict - Response with new lease info",
+                examples=['renew lease "database/creds/readonly/abc123"']
+            ),
+            MethodInfo(
+                name="revoke_lease",
+                description="Revoke a secret lease",
+                parameters={"lease_id": "str (required) - Lease ID to revoke"},
+                returns="dict - Response",
+                examples=['revoke lease "database/creds/readonly/abc123"']
+            ),
+            MethodInfo(
+                name="is_authenticated",
+                description="Check if client is authenticated with Vault",
+                parameters={},
+                returns="bool - True if authenticated",
+                examples=['if is_authenticated() then...']
+            ),
+            MethodInfo(
+                name="is_sealed",
+                description="Check if Vault is sealed",
+                parameters={},
+                returns="bool - True if sealed",
+                examples=['if is_sealed() then error "Vault is sealed"']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (vault) write secret {"username": "admin", "password": "secret123"} to "myapp/database"',
+            '20 (vault) creds = read secret "myapp/database"',
+            '30 (vault) secrets = list secrets at "myapp/"',
+            '40 (vault) delete secret "myapp/old-creds"',
+            '50 (vault) ciphertext = encrypt "my-encryption-key" with "sensitive data"',
+            '60 (vault) plaintext = decrypt "my-encryption-key" with ciphertext',
+            '70 (vault) db_creds = read database credentials for role "readonly"',
+            '80 (vault) aws_creds = read aws credentials for role "s3-readonly"',
+            '90 (vault) renew lease db_creds["lease_id"]',
+            '100 (vault) if is_authenticated() then print "Connected to Vault"'
+        ]

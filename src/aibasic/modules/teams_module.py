@@ -32,6 +32,7 @@ import logging
 import threading
 from typing import Optional, Dict, Any, List, Union
 from urllib.parse import urljoin
+from .module_base import AIbasicModuleBase
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -42,7 +43,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class TeamsModule:
+class TeamsModule(AIbasicModuleBase):
     """
     Microsoft Teams integration module.
 
@@ -617,6 +618,176 @@ class TeamsModule:
     def __del__(self):
         """Cleanup on deletion."""
         self.close()
+
+    # ============================================================================
+    # Metadata Methods (for AIbasic compiler prompt generation)
+    # ============================================================================
+
+    @classmethod
+    def get_metadata(cls):
+        """Get module metadata for compiler prompt generation."""
+        from aibasic.modules.module_base import ModuleMetadata
+        return ModuleMetadata(
+            name="MicrosoftTeams",
+            task_type="teams",
+            description="Microsoft Teams messaging and notifications with webhooks, adaptive cards, alerts, and Graph API integration",
+            version="1.0.0",
+            keywords=[
+                "teams", "microsoft-teams", "messaging", "notifications", "webhook",
+                "adaptive-cards", "alerts", "collaboration", "chat", "graph-api"
+            ],
+            dependencies=["requests>=2.28.0"]
+        )
+
+    @classmethod
+    def get_usage_notes(cls):
+        """Get detailed usage notes for this module."""
+        return [
+            "Module uses singleton pattern - one instance per application",
+            "Supports two authentication modes: webhook URL or Graph API (app-based)",
+            "Webhook mode is simpler but limited to posting messages to a single channel",
+            "Graph API mode requires Azure AD app registration with permissions",
+            "Webhook URLs obtained from Teams channel connectors settings",
+            "Graph API requires tenant_id, client_id, client_secret, team_id, channel_id",
+            "Access tokens automatically refreshed 5 minutes before expiry",
+            "Adaptive Cards version 1.4 supported for rich interactive messages",
+            "Theme colors specified in hex format without # prefix (e.g., '0078D4')",
+            "Automatic retry with exponential backoff for failed requests",
+            "Default timeout is 30 seconds, configurable via timeout parameter",
+            "Maximum 3 retries by default for transient failures (429, 500, 502, 503, 504)",
+            "Proxy support available via proxy parameter",
+            "Message titles, subtitles, and colors customizable per message",
+            "Facts displayed as key-value pairs in notification cards",
+            "Alert severity levels: info (blue), warning (yellow), error (red), success (green)",
+            "Status cards automatically include timestamp if not provided",
+            "Data tables limited to 10 rows by default to prevent card overflow",
+            "Session with connection pooling for efficient HTTP requests",
+            "Always call close() to cleanup session resources when done"
+        ]
+
+    @classmethod
+    def get_methods_info(cls):
+        """Get information about all methods in this module."""
+        from aibasic.modules.module_base import MethodInfo
+        return [
+            MethodInfo(
+                name="send_message",
+                description="Send a simple text message to Teams channel with optional title and styling",
+                parameters={
+                    "text": "str (required) - Message text content",
+                    "title": "str (optional) - Message title",
+                    "subtitle": "str (optional) - Message subtitle",
+                    "color": "str (optional) - Theme color in hex (default '0078D4' Teams blue)",
+                    "channel_id": "str (optional) - Target channel ID (Graph API mode)",
+                    "team_id": "str (optional) - Target team ID (Graph API mode)"
+                },
+                returns="dict - Response with status and message details",
+                examples=[
+                    'send message "Pipeline completed successfully" title "Build Status"',
+                    'send message "Deployment finished" title "Production Deploy" color "107C10"'
+                ]
+            ),
+            MethodInfo(
+                name="send_adaptive_card",
+                description="Send an Adaptive Card with rich interactive content",
+                parameters={
+                    "card": "dict (required) - Adaptive Card JSON payload",
+                    "channel_id": "str (optional) - Target channel ID",
+                    "team_id": "str (optional) - Target team ID"
+                },
+                returns="dict - Response from Teams API",
+                examples=[
+                    'send adaptive card {"type": "AdaptiveCard", "version": "1.4", "body": [...]}',
+                    'send card from template with data'
+                ]
+            ),
+            MethodInfo(
+                name="send_notification",
+                description="Send a formatted notification card with facts and action buttons",
+                parameters={
+                    "title": "str (required) - Notification title",
+                    "text": "str (required) - Notification text",
+                    "facts": "list[dict] (optional) - List of key-value pairs [{'name': 'Key', 'value': 'Value'}]",
+                    "actions": "list[dict] (optional) - List of action button definitions",
+                    "color": "str (optional) - Theme color in hex"
+                },
+                returns="dict - Response data",
+                examples=[
+                    'send notification "Sales Report" text "Daily summary" facts [{"name": "Total", "value": "$50000"}]',
+                    'notify "Build Failed" "Check logs" facts [{"name": "Branch", "value": "main"}]'
+                ]
+            ),
+            MethodInfo(
+                name="send_alert",
+                description="Send an alert message with automatic severity-based styling",
+                parameters={
+                    "message": "str (required) - Alert message text",
+                    "severity": "str (optional) - Alert level: info, warning, error, success (default warning)",
+                    "title": "str (optional) - Custom alert title (default '{SEVERITY} Alert')"
+                },
+                returns="dict - Response data",
+                examples=[
+                    'send alert "High CPU usage detected" severity "warning"',
+                    'send alert "Database backup completed" severity "success" title "Backup Status"',
+                    'alert "Service unreachable" severity "error"'
+                ]
+            ),
+            MethodInfo(
+                name="send_status_card",
+                description="Send a status update card with details and timestamp",
+                parameters={
+                    "title": "str (required) - Status card title",
+                    "status": "str (required) - Status value (Success, Failed, Running, Pending)",
+                    "details": "dict (required) - Dictionary of status details",
+                    "timestamp": "str (optional) - Custom timestamp (default current time)"
+                },
+                returns="dict - Response data",
+                examples=[
+                    'send status "Database Backup" status "Success" details {"Size": "150GB", "Duration": "45min"}',
+                    'status card "ETL Job" "Running" details {"Progress": "75%", "Records": "1.2M"}'
+                ]
+            ),
+            MethodInfo(
+                name="create_card_with_data_table",
+                description="Create an adaptive card with a formatted data table",
+                parameters={
+                    "title": "str (required) - Card title",
+                    "headers": "list[str] (required) - Table column headers",
+                    "rows": "list[list[str]] (required) - Table data rows",
+                    "max_rows": "int (optional) - Maximum rows to display (default 10)"
+                },
+                returns="dict - Adaptive card payload (use with send_adaptive_card)",
+                examples=[
+                    'create table card "Sales Data" headers ["Product", "Sales", "Revenue"] rows [["Widget", "100", "$5000"]]',
+                    'table card "Server Status" headers ["Server", "CPU", "Memory"] rows [["srv1", "45%", "8GB"]]'
+                ]
+            ),
+            MethodInfo(
+                name="close",
+                description="Close Teams module and cleanup HTTP session resources",
+                parameters={},
+                returns="None",
+                examples=['close teams connection', 'close']
+            )
+        ]
+
+    @classmethod
+    def get_examples(cls):
+        """Get example AIbasic code snippets."""
+        return [
+            '10 (teams) send message "Deployment completed successfully" title "Production Deploy" color "107C10"',
+            '20 (teams) send message "New user registration: john@example.com" title "User Activity"',
+            '30 (teams) send alert "High CPU usage: 95%" severity "warning"',
+            '40 (teams) send alert "Backup completed" severity "success" title "Daily Backup"',
+            '50 (teams) send alert "Service down" severity "error"',
+            '60 (teams) send notification "Sales Report" text "Daily sales summary" facts [{"name": "Revenue", "value": "$125000"}, {"name": "Orders", "value": "342"}]',
+            '70 (teams) send status "Database Backup" status "Success" details {"Database": "prod_db", "Size": "150GB", "Duration": "45min"}',
+            '80 (teams) send status "ETL Pipeline" status "Running" details {"Progress": "75%", "Records": "1.2M"}',
+            '90 (teams) send status "API Tests" status "Failed" details {"Passed": "45", "Failed": "3", "Skipped": "2"}',
+            '100 (teams) card = create table card "Server Status" headers ["Server", "CPU", "Memory", "Status"] rows [["web-01", "45%", "8GB", "OK"], ["web-02", "67%", "12GB", "OK"]]',
+            '110 (teams) send adaptive card card',
+            '120 (teams) close'
+        ]
 
 
 # Global instance
